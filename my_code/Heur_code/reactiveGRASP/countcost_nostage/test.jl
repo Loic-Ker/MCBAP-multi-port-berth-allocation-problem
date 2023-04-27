@@ -1,2 +1,4 @@
-v=[[0,[1,2]],[5,[1,1]],[2,[3,1]]]
-print(round(44.999999895))
+filename = ARGS[1]
+solution_file = ARGS[2]
+max_time = ARGS[3]
+print(filename)

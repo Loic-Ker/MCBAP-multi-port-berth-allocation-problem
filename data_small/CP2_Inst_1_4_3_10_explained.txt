@@ -1,0 +1,108 @@
+## N, Nout, qli, P, S :
+4	3	10	3	10
+
+## Beta :
+0.001
+
+### Each InBoat description :
+############## Boat number 1 :
+## type, l:
+2	300
+
+## Best berthing positions Bi for each visit :
+130	1440
+
+## Minimum starting times
+0	34
+
+## Estimated finished times
+19	56
+
+## Port to visit
+1	2
+
+############## Boat number 2 :
+1	200
+560	20	1510
+10	41	61
+21	54	72
+1	2	3
+
+############## Boat number 3 :
+2	300
+1180	360
+5	39
+24	61
+1	2
+
+############## Boat number 4 :
+2	270
+280	1010	190
+5	36	65
+24	55	87
+3	1	2
+
+
+### Each Outboat description for each port :
+############## Port number 1 :
+
+## Length and number of out ships
+1600	3
+
+## Minimum handling time per ship
+10.441489361702128	18.39577114427861	26.72
+
+## Ship 1 : berthing time, berthing position, handling time, length
+18	300	35	230
+
+## Ship 2 : berthing time, berthing position, handling time, length
+77	900	31	280
+
+## Ship 3 : berthing time, berthing position, handling time, length
+97	1200	25	250
+
+############## Port number 2 :
+1800	3
+12.130116959064328	21.811176470588236	33.65833333333333
+44	1200	38	230
+21	1500	30	250
+68	300	29	230
+
+############## Port number 3 :
+2100	3
+10.115424430641822	18.032258064516128	41.03260869565217
+14	300	21	180
+32	1800	28	200
+38	600	49	320
+
+### Port distances :
+0	255	305
+255	0	117
+305	117	0
+
+### Costs :
+200	200	300	500
+
+## For each boat and each port the estimated time arrival, huge number when the port is not visited
+## Same numbers that we had before
+0	34	9223372036854775807	9223372036854775807
+10	41	61	9223372036854775807
+5	39	9223372036854775807	9223372036854775807
+0	0	0	0
+
+## Not estimated finished time here ! The latest finish time for each boat and each of its port visit
+## The only part that will be modified in the instance
+49	96	0	0
+38	76	94	0
+54	101	0	0
+62	85	127	0
+
+## travel time per unit of distance based on speed
+0.058823529	0.057142857	0.055555556	0.054054054	0.052631579	0.051282051	0.05	0.048780488	0.047619048	0.046511628
+
+## fuel consumed per unit of distance based on speed and ship, type ship 1
+0.109187752	0.11641184	0.123890078	0.131623974	0.139615005	0.147864615	0.15637422	0.165145206	0.174178933	0.183476735
+## fuel consumed per unit of distance based on speed and ship, type ship 2
+0.158346653	0.169270098	0.180607342	0.192361911	0.204537266	0.217136802	0.23016385	0.243621687	0.257513528	0.271842536
+## fuel consumed per unit of distance based on speed and ship, type ship 3
+0.252537542	0.269646633	0.287383614	0.305753125	0.324759715	0.34440784	0.36470187	0.385646096	0.407244729	0.429501902
