@@ -284,7 +284,7 @@ function makeSoltest(minN,maxN,time)
                     print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
                     box, d, cost = CPLEXoptimize(N,Nout,seed,qli, time) 
                     print('\n')
-                    CSV.write("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/sols/CPLEX_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
+                    CSV.write("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/sols_5min/CPLEX_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
                     #CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/sols/CPLEX_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
                     this_benchmark=DataFrame(Seed= [seed],N= [N],Nout= [Nout],qli= [qli], Time= [time], CPLEX=[ceil(Int, cost)],  Box= [box]) #HeurCost= [costHeur],
                     newbenchmark=append!(newbenchmark,this_benchmark)
@@ -295,13 +295,13 @@ function makeSoltest(minN,maxN,time)
     return newbenchmark
 end
 
-#minN = ARGS[1]
-#maxN = ARGS[2]
-#time = ARGS[3]
-minN = 5
-maxN = 5
-time = 300
+minN = parse(Int64,ARGS[1])
+maxN = parse(Int64,ARGS[2])
+time = parse(Int64,ARGS[3])
+#minN = 5
+#maxN = 5
+#time = 300
 newbenchmark = makeSoltest(minN,maxN,time)
-CSV.write("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/CPLEX_results.csv", newbenchmark)
+CSV.write("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/CPLEX_results_5min.csv", newbenchmark)
 #CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/CPLEX_results.csv", newbenchmark)
     
