@@ -302,6 +302,6 @@ time = parse(Int64,ARGS[3])
 #maxN = 5
 #time = 300
 newbenchmark = makeSoltest(minN,maxN,time)
-CSV.write("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/CPLEX_results_5min.csv", newbenchmark)
+CSV.write("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/CPLEX_N4_N15_results_5min.csv", newbenchmark)
 #CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/CPLEX_results.csv", newbenchmark)
     

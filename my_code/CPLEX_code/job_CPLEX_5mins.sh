@@ -27,4 +27,4 @@
 #BSUB -o Output_%J.out
 #BSUB -e Error_%J.err
 # here follow the commands you want to execute
-julia-1.7.0 MIP.jl 5 5 300
+julia-1.7.0 MIP.jl 5 15 300
