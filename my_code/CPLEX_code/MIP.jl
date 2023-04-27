@@ -68,11 +68,15 @@ function doOverlapRectangleCorrect(x1l, x1r, y1d, y1u, x2l, x2r, y2d, y2u)
 end
 
 
-function CPLEXoptimize(N,Nout,seed,qli)
+function CPLEXoptimize(N,Nout,seed,qli, time)
     m = Model(CPLEX.Optimizer)
     set_optimizer_attribute(m, "CPX_PARAM_EPINT", 1e-8)
+    set_optimizer_attribute(m, "CPX_PARAM_TILIM", time)
+    set_optimizer_attribute(m, "CPXPARAM_Threads", 1)
 
-    inst = readInstFromFile("D:/DTU-Courses/DTU-Thesis/berth_allocation/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
+
+    #inst = readInstFromFile("D:/DTU-Courses/DTU-Thesis/berth_allocation/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
+    inst = readInstFromFile("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
     @unpack N, Ntot, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT, Nl, gamma, Hc, Dc, Fc, Ic, Pc, beta, ports = inst
     
 
@@ -271,35 +275,33 @@ end
 
 
 
-function makeSoltest()
-    xf = CSV.read("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/checkcost_HEUR_LOCAL_N5_N7_exp2.csv", DataFrame)
-    newbenchmark = DataFrame(Seed= [0],N= [0],Nout= [0],qli= [0],OldLB= [0],OldUB= [0],OldTime= [0], CPLEX= [0], CPLEXHeur= [0],  Box= [""]) #HeurCost= [0],
-    for N in 5:7
-        for qli in [10,20]#,40,80]
+function makeSoltest(minN,maxN,time)
+    newbenchmark = DataFrame(Seed= [0],N= [0],Nout= [0],qli= [0], Time= [0], CPLEX= [0],  Box= [""]) #HeurCost= [0],
+    for N in minN:maxN
+        for qli in [10,20,40,80]
             for Nout in 3:5
                 for seed in 1:5
-                    if N!=7 || qli!=20
-                        print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
-                        box, d, cost = CPLEXoptimize(N,Nout,seed,qli) 
-                        print('\n')
-                        CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_CPLEX/sols/CPLEX_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
-                        filtering=xf[(xf.Seed.==seed) .& (xf.N.==N) .& (xf.qli.==qli) .& (xf.Nout.==Nout),:]
-                        LB=filtering.OldLB[1]
-                        UB=filtering.OldUB[1]
-                        OldTime = filtering.OldTime[1]
-                        #costHeur = filtering.HeurCost[1]
-                        costCPLEXHeur = filtering.CPLEXHeur[1]
-                        this_benchmark=DataFrame(Seed= [seed],N= [N],Nout= [Nout],qli= [qli],OldLB= [LB],OldUB= [UB],OldTime= [OldTime],CPLEX=[ceil(Int, cost)], CPLEXHeur=[costCPLEXHeur],  Box= [box]) #HeurCost= [costHeur],
-                        newbenchmark=append!(newbenchmark,this_benchmark)
-                    end
+                    print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
+                    box, d, cost = CPLEXoptimize(N,Nout,seed,qli, time) 
+                    print('\n')
+                    CSV.write("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/sols/CPLEX_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
+                    #CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/sols/CPLEX_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
+                    this_benchmark=DataFrame(Seed= [seed],N= [N],Nout= [Nout],qli= [qli], Time= [time], CPLEX=[ceil(Int, cost)],  Box= [box]) #HeurCost= [costHeur],
+                    newbenchmark=append!(newbenchmark,this_benchmark)
                 end
             end
         end
     end
     return newbenchmark
 end
-newbenchmark = makeSoltest()
 
-
-CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/all_sol_HEUR_LOCAL_N5_N7_exp2.csv", newbenchmark)
+#minN = ARGS[1]
+#maxN = ARGS[2]
+#time = ARGS[3]
+minN = 5
+maxN = 5
+time = 300
+newbenchmark = makeSoltest(minN,maxN,time)
+CSV.write("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/CPLEX_results.csv", newbenchmark)
+#CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/CPLEX_results.csv", newbenchmark)
     
