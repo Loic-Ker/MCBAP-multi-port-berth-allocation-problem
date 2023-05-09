@@ -910,7 +910,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, adjustproba, alphaboat, a
     return sol, cost, allparam
 end
 
-inst = readInstFromFile("D:/DTU-Courses/DTU-Thesis/berth_allocation/data_small/CP2_Inst_1_10_5_80.txt")
+#inst = readInstFromFile("D:/DTU-Courses/DTU-Thesis/berth_allocation/data_small/CP2_Inst_1_10_5_80.txt")
 #GRASP_reactive(inst::Instance, type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname)
 #CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/sols/HEUR_LOCAL_exp1_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
 #expname="exp2"
