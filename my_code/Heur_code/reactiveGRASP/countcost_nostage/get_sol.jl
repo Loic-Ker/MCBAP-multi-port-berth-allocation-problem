@@ -153,8 +153,8 @@ end
 function makeSolHeur(type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname)
     xf = CSV.read("D:/DTU-Courses/DTU-Thesis/berth_allocation/bernardo_bench/Small_Inst_Res.csv", DataFrame)
     newbenchmark = DataFrame(Seed= [0],N= [0],Nout= [0],qli= [0],OldLB= [0],OldUB= [0],OldTime= [0],HeurCost= [0])
-    for N in 10:10
-        for qli in [10]#,20,40,80]
+    for N in 14:15
+        for qli in [10,20,40,80]
             for Nout in 5:5
                 for seed in 1:5
                     inst = readInstFromFile("D:/DTU-Courses/DTU-Thesis/berth_allocation/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
@@ -187,17 +187,17 @@ function makeSolHeur(type1, type2, adjustproba, alphaboat, alpharandom, time_loc
 end
 
 
-expname="exp1"
+expname="exp3"
 type1="both" 
 type2="both" 
-adjustproba=AdjustProba(3,3,3,3,3,3)
-alphaboat=5
-alpharandom=18
+adjustproba=AdjustProba(2,2,2,2,2,2)
+alphaboat=4
+alpharandom=15
 time_local=20
 max_time_heur=120
 max_time=20
 makeExpText(type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname)
 newbenchmark = makeSolHeur(type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname)
-CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/N5_qli10_Nout5.csv", newbenchmark)
+CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/N14_N15.csv", newbenchmark)
 
 
