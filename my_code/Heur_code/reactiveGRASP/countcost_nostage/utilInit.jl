@@ -23,21 +23,6 @@ mutable struct AlphaParameters
     
 end
 
-
-mutable struct Probabilities
-    ChooseTacticTypeShip::Vector{Float64}
-    DistanceTypeShip::Vector{Float64}
-    CostTypeShip::Vector{Float64}
-
-    ChooseTacticAllShip::Vector{Float64}
-    CountAllShip::Vector{Float64}
-    CostAllShip::Vector{Float64}
-
-    RateConstrained::Vector{Float64}
-
-    ChooseTacticLocalSearch::Vector{Float64}
-end
-
 mutable struct AverageSolCost
     ChooseTacticTypeShip::Vector{Float64}
     DistanceTypeShip::Vector{Float64}

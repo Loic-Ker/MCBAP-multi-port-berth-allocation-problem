@@ -10,10 +10,14 @@ function computeCostPosSol(inst::Instance, n::Int64, c::Int64, b::Int64, t::Int6
     @unpack type, eT = shipsIn[n]
     p = inst.Pi[n][c]
     cost = Hc*h[n][c][b]
+    handling_cost=Hc*h[n][c][b]
     delay = t + h[n][c][b] > eT[c] ? t + h[n][c][b] - eT[c] : 0.
+    delay_cost=Dc*delay
     cost += Dc*delay
     penalty = t + h[n][c][b] > T[n,c,2] ? Pc*(t + h[n][c][b] - T[n,c,2]) : 0.
     cost += penalty
+    fuel_cost=0
+    waiting_cost=0
     #########
     ## Remove this part for later : do not take into account the fuel
     if c < length(sol.visits[n]) && sol.visits[n][c+1].planned
@@ -26,10 +30,12 @@ function computeCostPosSol(inst::Instance, n::Int64, c::Int64, b::Int64, t::Int6
         if s == -1
             # this should only happen if we quit the port too late
             s = length(delta)
+            return 0,0,0,0,0,0, false
         end
         ## Change here, we do not want to take into account in the optimization the 
         ## differences in distances between the different ports
         cost += Fc*gamma[type,s]*dist[p,pN]
+        fuel_cost=Fc*gamma[type,s]*dist[p,pN]
     end
     if c > 1 && sol.visits[n][c-1].planned
         pP = sol.visits[n][c-1].p
@@ -41,14 +47,17 @@ function computeCostPosSol(inst::Instance, n::Int64, c::Int64, b::Int64, t::Int6
         if s == -1
             # this should only happen if we quit the port too late
             s = length(delta)
+            return 0,0,0,0,0,0, false
         end
         ## Change here, we do not want to take into account in the optimization the 
         ## differences in distances between the different ports
         cost += Fc*gamma[type,s]*dist[pP,p]
+        fuel_cost=Fc*gamma[type,s]*dist[pP,p]
         wait = t - (tP + hP + delta[s]*dist[pP,p])
+        waiting_cost=Ic*wait
         cost += Ic*wait
     end
-    return cost
+    return cost, delay_cost, waiting_cost, penalty, handling_cost, fuel_cost, true
 end
 
 
@@ -56,15 +65,23 @@ function checkSolutionCost(inst::Instance, sol::Sol)
     # returns the cost of a given solution
     @unpack Fc, Ic, Dc, Hc, Pc, h, dist, delta, gamma, shipsIn, T = inst
     cost = 0.
+    delay_cost=0.
+    penalty_cost=0.
+    handling_cost=0.
+    fuel_cost=0.
+    waiting_cost=0.
     for (n, sch) in enumerate(sol.visits)
         @unpack type, eT = shipsIn[n]
         for (c, vis) in enumerate(sch)
             @unpack p,b,t = vis
             # (p,b,t) = vis
+            handling_cost += Hc*h[n][c][b]
             cost += Hc*h[n][c][b]
             delay = t + h[n][c][b] > eT[c] ? t + h[n][c][b] - eT[c] : 0.
+            delay_cost += Dc*delay
             cost += Dc*delay
             penalty = t + h[n][c][b] > T[n,c,2] ? Pc*(t + h[n][c][b] - T[n,c,2]) : 0.
+            penalty_cost+=penalty
             cost += penalty
             if c < length(sch)
                 pN = sch[c+1].p
@@ -78,14 +95,16 @@ function checkSolutionCost(inst::Instance, sol::Sol)
                     println("Infeasible speed!!!!")
                     s = length(delta)
                 else
+                    fuel_cost+=Fc*gamma[type,s]*dist[p,pN]
                     cost += Fc*gamma[type,s]*dist[p,pN]
                     wait = tN - (t + h[n][c][b] + delta[s]*dist[p,pN]) > 0 ? tN - (t + h[n][c][b] + delta[s]*dist[p,pN]) : 0.
+                    waiting_cost+=Ic*wait
                     cost += Ic*wait
                 end
             end
         end
     end
-    return cost
+    return cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost
 end
 
 function checkSolutionFeasability(inst::Instance, sol::Sol)

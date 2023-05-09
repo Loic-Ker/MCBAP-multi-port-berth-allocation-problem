@@ -194,7 +194,7 @@ end
 function local_search(inst::Instance, sol::Sol, cost::Int64, allparam::AllParameters, paramchosen::ChosenParameters, alphaboat, alpharandom, max_time)
     @unpack N, Ntot, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT, Nl, gamma, Hc, Dc, Fc, Ic, Pc, beta, ports = inst
     new_sol=deepcopy(sol)
-    new_cost=checkSolutionCost(inst, new_sol)
+    new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost=checkSolutionCost(inst, new_sol)
     list_initialize_boats = []
     for n in 1:N
         append!(list_initialize_boats,[n])
@@ -248,9 +248,9 @@ function local_search(inst::Instance, sol::Sol, cost::Int64, allparam::AllParame
             print('\n')
             print(new_solCPLEX.visits)
             new_sol=deepcopy(new_solCPLEX)
-            new_cost=checkSolutionCost(inst, new_sol)
+            new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost=checkSolutionCost(inst, new_sol)
             if new_cost<cost
-                return new_sol, new_cost
+                return new_sol, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost
             end
             if tactic=="Boat"
                 list_initialize_boats=setdiff(list_initialize_boats, [new_boat])
@@ -261,7 +261,7 @@ function local_search(inst::Instance, sol::Sol, cost::Int64, allparam::AllParame
         elapsed = round((time_ns()-start)/1e9,digits=3)
     end
     
-    return new_sol, new_cost
+    return new_sol, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost
 end
 
 function get_closest(inst::Instance, sol::Sol, randomBoat, alpha)
