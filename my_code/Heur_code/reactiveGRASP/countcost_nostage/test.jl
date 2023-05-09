@@ -1,4 +1,1 @@
-filename = ARGS[1]
-solution_file = ARGS[2]
-max_time = ARGS[3]
-print(filename)
+mkdir("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/)

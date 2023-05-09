@@ -6,6 +6,7 @@ using DataFrames
 using Random
 using StatsBase
 include("../../../MBAP_INST.jl")
+include("../../../get_iterations.jl")
 include("../../MBAP_SOL.jl")
 include("../../toolsMatrixTimes.jl")
 include("../../check_solution.jl")
@@ -19,7 +20,8 @@ mutable struct NewVisit
     t::Int64    # port
     cost::Float64    
     distance::Float64   
-    constrained::Bool 
+    constrained::Bool
+    store::ToStoreVisit 
 end
 
 
@@ -138,7 +140,7 @@ function SelectNewVisitPerShip(inst::Instance, sol::Sol, paramchosen::ChosenPara
         for t in t1:t2
             if t + hand <= t2
                 if M[n][c][b,t+1]
-                    this_cost, feas = computeCostPosOptim(inst, n, c, b, t,sol)
+                    this_cost, delay_cost, waiting_cost, penalty, handling_cost, fuel_cost, feas = computeCostPosSol(inst, n, c, b, t,sol)
                     if feas
                         distance = abs(bestPos-b)/l
                         if distance>=max_dist
@@ -153,7 +155,7 @@ function SelectNewVisitPerShip(inst::Instance, sol::Sol, paramchosen::ChosenPara
                         if this_cost<=min_cost
                             min_cost=this_cost
                         end
-                        push!(new_visits, NewVisit(n,c,b,t,this_cost,distance, false))
+                        push!(new_visits, NewVisit(n,c,b,t,this_cost,distance, false, ToStoreVisit(SplitCosts(ceil(Int, this_cost), ceil(Int,delay_cost), ceil(Int,waiting_cost), ceil(Int,penalty), ceil(Int,handling_cost), ceil(Int,fuel_cost)),0,"","")))
                     end
                 end
             end
@@ -166,7 +168,7 @@ function SelectNewVisitPerShip(inst::Instance, sol::Sol, paramchosen::ChosenPara
         hand = ceil(Int, h[n][c][b])
         if t + hand <= t2 
             if sol.M[n][c][b,t+1]
-                this_cost, feas = computeCostPosOptim(inst, n, c, b, t ,sol)
+                this_cost, delay_cost, waiting_cost, penalty, handling_cost, fuel_cost, feas = computeCostPosSol(inst, n, c, b, t ,sol)
                 if feas
                     distance = abs(bestPos-b)/l
                     if distance>=max_dist_const
@@ -181,7 +183,7 @@ function SelectNewVisitPerShip(inst::Instance, sol::Sol, paramchosen::ChosenPara
                     if this_cost<=min_cost_const
                         min_cost_const=this_cost
                     end
-                    push!(new_visits_constrained, NewVisit(n,c,b,t,this_cost,distance, true))
+                    push!(new_visits_constrained, NewVisit(n,c,b,t,this_cost,distance, true, ToStoreVisit(SplitCosts(ceil(Int, this_cost), ceil(Int,delay_cost), ceil(Int,waiting_cost), ceil(Int,penalty), ceil(Int,handling_cost), ceil(Int,fuel_cost)),0,"","")))
                 end
             end
         end
@@ -194,8 +196,8 @@ function SelectNewVisitPerShip(inst::Instance, sol::Sol, paramchosen::ChosenPara
         print(new_visits_constrained)
         print('\n')
     end
-    pos_chosen=NewVisit(0,0,0,0,0.0,0.0, false)
-    pos_chosen_constrained=NewVisit(0,0,0,0,0.0,0.0, false)
+    pos_chosen=NewVisit(0,0,0,0,0.0,0.0, false, ToStoreVisit(SplitCosts(0,0,0,0,0,0),0,"",""))
+    pos_chosen_constrained=NewVisit(0,0,0,0,0.0,0.0, false, ToStoreVisit(SplitCosts(0,0,0,0,0,0),0,"",""))
     tactic=paramchosen.TacticTypeShip
     if length(new_visits)>0
         if tactic=="cost"
@@ -204,6 +206,7 @@ function SelectNewVisitPerShip(inst::Instance, sol::Sol, paramchosen::ChosenPara
             for visit in new_visits
                 if visit.constrained==false
                     if visit.cost<=min_cost+alpha_value*(max_cost-min_cost)
+                        visit.store.tacticBoat="cost"
                         push!(list_available_shippos, visit)
                     end
                 end
@@ -217,6 +220,7 @@ function SelectNewVisitPerShip(inst::Instance, sol::Sol, paramchosen::ChosenPara
             for visit in new_visits
                 if visit.constrained==false
                     if visit.distance<=min_dist+alpha_value*(max_dist-min_dist)
+                        visit.store.tacticBoat="dist"
                         push!(list_available_shippos, visit)
                     end                   
                 end
@@ -231,6 +235,7 @@ function SelectNewVisitPerShip(inst::Instance, sol::Sol, paramchosen::ChosenPara
             for visit in new_visits_constrained
                 if visit.constrained
                     if visit.cost<=min_cost_const+alpha_value*(max_cost_const-min_cost_const)
+                        visit.store.tacticBoat="cost"
                         push!(list_available_shippos, visit)
                     end                    
                 end
@@ -243,6 +248,7 @@ function SelectNewVisitPerShip(inst::Instance, sol::Sol, paramchosen::ChosenPara
             for visit in new_visits_constrained
                 if visit.constrained
                     if visit.distance<=min_dist_const+alpha_value*(max_dist_const-min_dist_const)
+                        visit.store.tacticBoat="dist"
                         push!(list_available_shippos, visit)
                     end                    
                 end
@@ -327,6 +333,7 @@ function SelectNewVisitAllShips(inst::Instance, sol::Sol, paramchosen::ChosenPar
             list_available_shippos = Vector{NewVisit}()
             for visit in new_visits
                 if visit.cost<=min_cost+alpha_value*(max_cost-min_cost)
+                    visit.store.tacticAll="cost"
                     push!(list_available_shippos, visit)                  
                 end
             end
@@ -338,6 +345,7 @@ function SelectNewVisitAllShips(inst::Instance, sol::Sol, paramchosen::ChosenPar
             list_available_shippos = Vector{NewVisit}()
             for visit in new_visits
                 if count_available[visit.n][visit.c]<=min_count+alpha_value*(max_count-min_count)
+                    visit.store.tacticAll="count"
                     push!(list_available_shippos, visit)                  
                 end
             end
@@ -352,6 +360,7 @@ function SelectNewVisitAllShips(inst::Instance, sol::Sol, paramchosen::ChosenPar
             list_available_shippos = Vector{NewVisit}()
             for visit in new_visits_constrained
                 if visit.cost<=min_cost_const+alpha_value*(max_cost_const-min_cost_const)
+                    visit.store.tacticAll="cost"
                     push!(list_available_shippos, visit)                  
                 end
             end
@@ -363,6 +372,7 @@ function SelectNewVisitAllShips(inst::Instance, sol::Sol, paramchosen::ChosenPar
             list_available_shippos = Vector{NewVisit}()
             for visit in new_visits_constrained
                 if count_available[visit.n][visit.c]<=min_count_const+alpha_value*(max_count_const-min_count_const)
+                    visit.store.tacticAll="count"
                     push!(list_available_shippos, visit)                  
                 end
             end
@@ -382,56 +392,8 @@ function SelectNewVisitAllShips(inst::Instance, sol::Sol, paramchosen::ChosenPar
         all_pos=vcat(pos_chosen,pos_chosen_constrained)
         return all_pos[rand(1:length(all_pos))], true
     else
-        return NewVisit(0,0,0,0,0.0,0.0, false), false
+        return NewVisit(0,0,0,0,0.0,0.0, false, ToStoreVisit(SplitCosts(0,0,0,0,0,0),0,"","")), false
     end
-end
-
-# compute the cost of ship n at port visit c berthing at pos b and time t given solution sol for the optimization process
-function computeCostPosOptim(inst::Instance, n::Int64, c::Int64, b::Int64, t::Int64 ,sol::Sol)
-    @unpack P, h, Pc, shipsIn, T, delta, gamma, dist, Hc, Dc, Fc, Ic = inst
-    @unpack type, eT = shipsIn[n]
-    p = inst.Pi[n][c]
-    cost = Hc*h[n][c][b]
-    delay = t + h[n][c][b] > eT[c] ? t + h[n][c][b] - eT[c] : 0.
-    cost += Dc*delay
-    penalty = t + h[n][c][b] > T[n,c,2] ? Pc*(t + h[n][c][b] - T[n,c,2]) : 0.
-    cost += penalty
-    #########
-    ## Remove this part for later : do not take into account the fuel
-    if c < length(sol.visits[n]) && sol.visits[n][c+1].planned
-        pN = sol.visits[n][c+1].p
-        bN = sol.visits[n][c+1].b
-        tN = sol.visits[n][c+1].t
-        # (pN,bN,tN) = sch[c+1]
-        deltaT = tN - (t + h[n][c][b])
-        s = findLowestSpeed(deltaT, delta, dist[p,pN])
-        if s == -1
-            # this should only happen if we quit the port too late
-            s = length(delta)
-            return 1000000, false
-        end
-        ## Change here, we do not want to take into account in the optimization the 
-        ## differences in distances between the different ports
-        cost += Fc*gamma[type,s]*dist[p,pN]
-    end
-    if c > 1 && sol.visits[n][c-1].planned
-        pP = sol.visits[n][c-1].p
-        bP = sol.visits[n][c-1].b
-        tP = sol.visits[n][c-1].t
-        hP = h[n][c-1][bP]
-        deltaT = t - (tP + hP)
-        s = findLowestSpeed(deltaT, delta, dist[pP,p])
-        if s == -1
-            # this should only happen if we quit the port too late
-            s = length(delta)
-            return 1000000, false
-        end
-        ## Here we can remove this part too if we do not want to take the fuel into account
-        cost += Fc*gamma[type,s]*dist[p,pP]
-        wait = t - (tP + hP + delta[s]*dist[pP,p])
-        cost += Ic*wait
-    end
-    return cost, true
 end
 
 
@@ -442,9 +404,12 @@ function greedyrandomizedconstruction(inst::Instance, paramchosen::ChosenParamet
     continue_=true
     start = time_ns()
     elapsed = round((time_ns()-start)/1e9,digits=3)
+    count_when=0
 
     while continue_ && elapsed<max_time
-        @unpack n,c,b,t,cost,distance,constrained= new_visit
+        @unpack n,c,b,t,cost,distance,constrained,store= new_visit
+        count_when+=1
+        store.when=count_when
         if b==0
             print('\n')
             print(new_visit)
@@ -460,6 +425,7 @@ function greedyrandomizedconstruction(inst::Instance, paramchosen::ChosenParamet
         sol.visits[n][c].b = b
         sol.visits[n][c].t = t
         sol.visits[n][c].planned = true
+        sol.visits[n][c].store = store
                 
         continue_=false
         for boat_vis in sol.visits
@@ -473,6 +439,7 @@ function greedyrandomizedconstruction(inst::Instance, paramchosen::ChosenParamet
         if continue_
             new_visit, feasible = SelectNewVisitAllShips(inst, sol, paramchosen, allparam)
             if feasible==false
+                sol.failed=1
                 print('\n')
                 print("###################")
                 print('\n')
@@ -483,6 +450,7 @@ function greedyrandomizedconstruction(inst::Instance, paramchosen::ChosenParamet
                 for n in 1:N
                     for (c,p) in enumerate(inst.Pi[n])
                         if sol.visits[n][c].planned == false
+                            sol.visits[n][c].failed=1
                             if c<length(inst.Pi[n])
                                 for i in c:length(inst.Pi[n])
                                     sol.visits[n][i].p = -1
@@ -505,11 +473,15 @@ function greedyrandomizedconstruction(inst::Instance, paramchosen::ChosenParamet
                                     end                                
                                     if feasible
                                         new_visit=all_visits[rand(1:length(all_visits))]
+                                        count_when+=1
                                         n_ = new_visit.n
                                         c_ = new_visit.c
                                         b_ = new_visit.b
                                         t_ = new_visit.t
                                         l_ = ceil(Int, shipsIn[n_].l/qli)
+                                        store = new_visit.store
+                                        store.when=count_when
+                                        store.tacticAll = "reconstruct"
                                         hand = ceil(Int, h[n_][c_][b_])
                                         @unpack M, visits = sol
                                         sol.visits =updateTimesAfterVisit(inst, visits, n_, c_, b_, t_)
@@ -520,6 +492,7 @@ function greedyrandomizedconstruction(inst::Instance, paramchosen::ChosenParamet
                                         sol.visits[n_][c_].b = b_
                                         sol.visits[n_][c_].t = t_
                                         sol.visits[n_][c_].planned = true
+                                        sol.visits[n_][c_].store = store
                                     else
                                         return initializeSol(inst)
                                     end
@@ -839,7 +812,8 @@ end
 
 
 
-function GRASP_reactive(inst::Instance, type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time)
+function GRASP_reactive(seed,N,Nout,qli, type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname)
+    inst = readInstFromFile("D:/DTU-Courses/DTU-Thesis/berth_allocation/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
     @unpack N, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp = inst
     cost=1000000000
     worst_cost=1000000000
@@ -847,9 +821,15 @@ function GRASP_reactive(inst::Instance, type1, type2, adjustproba, alphaboat, al
     allparam = initializeParam(inst, adjustproba)
     start = time_ns()
     elapsed = round((time_ns()-start)/1e9,digits=3)
+    start_iter=time_ns()
+    elapsed_iter = round((time_ns()-start_iter)/1e9,digits=3)
+    nb_iter=0
     while elapsed<max_time
         paramchosen = ChooseParamExp(allparam, N, type1, type2)
+        start_heur = time_ns()
         new_sol = greedyrandomizedconstruction(inst, paramchosen, allparam, max_time_heur)
+
+        elapsed_heur = round((time_ns()-start_heur)/1e9,digits=3)
         feasible = true
         ## No conflicts with within one boat schedule :
         for n in 1:N
@@ -861,12 +841,22 @@ function GRASP_reactive(inst::Instance, type1, type2, adjustproba, alphaboat, al
             end
         end
         if feasible && checkSolutionFeasability(inst, new_sol)
-            #new_cost=checkSolutionCost(inst, new_sol)
+            new_cost_heur, delay_cost_heur, waiting_cost_heur, penalty_cost_heur, handling_cost_heur, fuel_cost_heur = checkSolutionCost(inst, new_sol)
             print('\n')
             print("Before local search")
             print('\n')
             print(new_sol.visits)
-            new_sol, new_cost = local_search(inst, deepcopy(new_sol), ceil(Int,cost), allparam, paramchosen, alphaboat, alpharandom, time_local)
+
+            d=prepareSolIter(seed,N,Nout,qli,nb_iter,inst, new_sol, new_cost_heur, expname)
+            CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$nb_iter"*"_beforelocal"*".csv", d)
+            
+            start_local=time_ns()
+            new_sol, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = local_search(inst, deepcopy(new_sol), ceil(Int,cost), allparam, paramchosen, alphaboat, alpharandom, time_local)
+            elapsed_local = round((time_ns()-start_local)/1e9,digits=3)
+            print('\n')
+            print("After local search")
+            print('\n')
+            print(new_sol.visits)
             print('\n')
             print("Cost at the end of local search")
             print('\n')
@@ -874,7 +864,22 @@ function GRASP_reactive(inst::Instance, type1, type2, adjustproba, alphaboat, al
             print('\n')
             print("Old cost")
             print('\n')
-            print(cost)
+            print(new_cost_heur)
+            new_sol.store.costHeur=SplitCosts(ceil(Int,new_cost_heur), ceil(Int,delay_cost_heur), ceil(Int,waiting_cost_heur), ceil(Int,penalty_cost_heur), ceil(Int,handling_cost_heur), ceil(Int,fuel_cost_heur))
+            new_sol.store.costLocal=SplitCosts(ceil(Int,new_cost), ceil(Int,delay_cost), ceil(Int,waiting_cost), ceil(Int,penalty_cost), ceil(Int, handling_cost), ceil(Int,fuel_cost))
+            new_sol.store.timeHeur=elapsed_heur
+            new_sol.store.timeLocalSearch=elapsed_local
+            new_sol.store.parameters=allparam.Proba
+            elapsed_iter = round((time_ns()-start_iter)/1e9,digits=3)
+
+            d = prepareSolIter(seed,N,Nout,qli,nb_iter,inst, new_sol, cost, expname)
+            CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$nb_iter"*".csv", d)
+            nb_iter+=1
+            
+            if elapsed_iter>max_time/50
+                start_iter=time_ns()
+                elapsed_iter = round((time_ns()-start_iter)/1e9,digits=3)
+            end
             if cost==1000000000
                 worst_cost=deepcopy(new_cost)
             end
@@ -884,7 +889,7 @@ function GRASP_reactive(inst::Instance, type1, type2, adjustproba, alphaboat, al
                 cost=deepcopy(new_cost)
                 sol=deepcopy(new_sol)
             end
-            if new_cost>worst_cost
+            if new_cost>=worst_cost
                 worst_cost=deepcopy(new_cost)
             end
             allparam = UpdateParameters(paramchosen, allparam, N, cost, new_cost)    
@@ -895,21 +900,36 @@ function GRASP_reactive(inst::Instance, type1, type2, adjustproba, alphaboat, al
         end
         elapsed = round((time_ns()-start)/1e9,digits=3)
     end
-    print('\n')
-    print("Cost at the end of heur")
-    print('\n')
-    print(cost)
+    #print('\n')
+    #print("Cost at the end of heur")
+    #print('\n')
+    #print(cost)
+    d = prepareSolIter(seed,N,Nout,qli,nb_iter,inst, sol, cost, expname)
+    nb_iter+=1
+    CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$nb_iter"*".csv", d)
     return sol, cost, allparam
 end
 
-#inst = readInstFromFile("D:/DTU-Courses/DTU-Thesis/berth_allocation/data_small/CP2_Inst_1_10_5_80.txt")
+inst = readInstFromFile("D:/DTU-Courses/DTU-Thesis/berth_allocation/data_small/CP2_Inst_1_10_5_80.txt")
+#GRASP_reactive(inst::Instance, type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname)
 #CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/sols/HEUR_LOCAL_exp1_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
-#sol, cost, allparam = GRASP_reactive(inst, "both","both", AdjustProba(3,3,3,3,3, 3), 5, 18, 20, 20, 300)
+#expname="exp2"
+#seed=1
+#N=10
+#Nout=5
+#qli=80
+#if isdir("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
+#    mkdir("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
+#end
+#sol, cost, allparam = GRASP_reactive(seed,N,Nout,qli,"both","both", AdjustProba(3,3,3,3,3,3), 5, 18, 20, 25, 50, "exp2")
 #print('\n')
 #print("############")
 #print('\n')
 #print(cost)
 #print('\n')
+#print(sol.visits)
+#print('\n')
+#print(sol.store)
 #print(cost)
 #print('\n')
 #print("Proba tactic type :")

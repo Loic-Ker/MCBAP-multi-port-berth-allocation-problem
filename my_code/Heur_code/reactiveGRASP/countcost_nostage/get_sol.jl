@@ -4,25 +4,19 @@ include("reactive_free.jl")
 #instance = readInstFromFile("D:/DTU-Courses/DTU-Thesis/berth_allocation/data_small/CP2_Inst_2_4_3_10.txt")
 #sol = greedyrandomizedconstruction(instance, false, 5)
 
-function printSol(instance,  type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time)
-    sol, cost, allparam = GRASP_reactive(instance, type1,type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time)
-
-    print('\n')
-    print("The solution :")
-    print('\n')
-    print(sol.visits)
-    print('\n')
-    print("And the cost is ")
-    print('\n')
-    print(cost)
-    d=prepareSol(instance, sol, cost)
-    return cost,d
-end
 
 function prepareSol(inst, sol, cost)
     @unpack N, Ntot, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT, Nl = inst
     d = Dict{Any,Any}()
     
+    ### Here add: 
+        #the type of the boats with every visit
+        #The cost divided in total and for each visit added
+        #The position of each visit added
+        # Parameters at the end of the solution make
+        # Which tactic for each boat
+
+
     ## Get the instances 
     d["inst"]= inst.Pi
 
@@ -112,23 +106,73 @@ function prepareSol(inst, sol, cost)
     return d
 end
 
+
+
 newbenchmark = [Any["Seed","N","Nout","qli","OldLB","OldUB","OldTime","NewCost","MyTime"]]
 
 import XLSX
 
 
+function makeExpText(type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname)
+    filename = "D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/explanations.txt"
+    txttype1="The tactic for each ship : "*type1
+    txttype2="The tactic between the ships : "*type2
+    @unpack n_proba_typeship_distance, n_proba_typeship_cost, n_proba_all_count, n_proba_all_cost, n_proba_constrained, n_proba_local = adjustproba
+    txttype1n_proba = "For the tactic for each ship, the number of initial probabilities is $n_proba_typeship_distance for the distance and $n_proba_typeship_cost for the cost"
+    txttype2n_proba = "For the tactic for all ships, the number of initial probabilities is $n_proba_all_count for the count and $n_proba_all_count for the cost"
+    txtalphaboat = "For the local search with the boats we take $alphaboat boats"
+    txtalpharandom = "For the local search with random visits we take $alpharandom visits"
+    txttimelocal = "The maximum time for the local search : $time_local "
+    txttimeheur = "The maximum time for the heuristic : $max_time_heur "
+    txttimemax = "The time of the exp : $max_time"
 
-function makeSolHeur(type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time)
+
+    open(filename, "w") do file
+        write(file, txttype1)
+        write(file,'\n')
+        write(file, txttype2)
+        write(file,'\n')
+        write(file, txttype1n_proba)
+        write(file,'\n')
+        write(file, txttype2n_proba)
+        write(file,'\n')
+        write(file, txtalphaboat)
+        write(file,'\n')
+        write(file, txtalpharandom)
+        write(file,'\n')
+        write(file, txttimeheur)
+        write(file,'\n')
+        write(file, txttimelocal)
+        write(file,'\n')
+        write(file, txttimemax)
+        write(file,'\n')
+    end
+end
+
+
+function makeSolHeur(type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname)
     xf = CSV.read("D:/DTU-Courses/DTU-Thesis/berth_allocation/bernardo_bench/Small_Inst_Res.csv", DataFrame)
     newbenchmark = DataFrame(Seed= [0],N= [0],Nout= [0],qli= [0],OldLB= [0],OldUB= [0],OldTime= [0],HeurCost= [0])
-    for N in 5:10
-        for qli in [10,20,40,80]
-            for Nout in 3:5
+    for N in 10:10
+        for qli in [10]#,20,40,80]
+            for Nout in 5:5
                 for seed in 1:5
-                    print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
                     inst = readInstFromFile("D:/DTU-Courses/DTU-Thesis/berth_allocation/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
-                    cost, d = printSol(inst,  type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time)
-                    CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/sols/HEUR_LOCAL_exp2_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
+                    print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
+                    if isdir("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
+                        mkdir("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
+                    end
+                    sol, cost, allparam = GRASP_reactive(seed,N,Nout,qli,type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname)
+                    print('\n')
+                    print("The solution :")
+                    print('\n')
+                    print(sol.visits)
+                    print('\n')
+                    print("And the cost is ")
+                    print('\n')
+                    print(cost)
+                    d=prepareSol(inst, sol, cost)
+                    CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/final_sols/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
                     filtering=xf[(xf.Seed.==seed) .& (xf.N.==N) .& (xf.qli.==qli) .& (xf.Nout.==Nout),:]
                     LB=filtering.LB[1]
                     UB=filtering.UB[1]
@@ -142,7 +186,18 @@ function makeSolHeur(type1, type2, adjustproba, alphaboat, alpharandom, time_loc
     return newbenchmark
 end
 
-newbenchmark = makeSolHeur("both","both", AdjustProba(3,3,3,3,3,3), 5, 18, 20, 20, 120)
-CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/HEUR_LOCAL_N5_N7_exp2.csv", newbenchmark)
+
+expname="exp1"
+type1="both" 
+type2="both" 
+adjustproba=AdjustProba(3,3,3,3,3,3)
+alphaboat=5
+alpharandom=18
+time_local=20
+max_time_heur=120
+max_time=20
+makeExpText(type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname)
+newbenchmark = makeSolHeur(type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname)
+CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/N5_qli10_Nout5.csv", newbenchmark)
 
 
