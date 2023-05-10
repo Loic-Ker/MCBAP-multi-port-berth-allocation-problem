@@ -848,7 +848,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, adjustproba, alphaboat, a
             print(new_sol.visits)
 
             d=prepareSolIter(seed,N,Nout,qli,nb_iter,inst, new_sol, new_cost_heur, expname)
-            CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$nb_iter"*"_beforelocal"*".csv", d)
+            CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$nb_iter"*"_beforelocal"*".csv", d)
             
             start_local=time_ns()
             new_sol, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = local_search(inst, deepcopy(new_sol), ceil(Int,cost), allparam, paramchosen, alphaboat, alpharandom, time_local)
@@ -904,10 +904,27 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, adjustproba, alphaboat, a
     #print("Cost at the end of heur")
     #print('\n')
     #print(cost)
-    d = prepareSolIter(seed,N,Nout,qli,nb_iter,inst, sol, cost, expname)
-    nb_iter+=1
-    CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$nb_iter"*".csv", d)
-    return sol, cost, allparam
+    ## No conflicts with within one boat schedule :
+    feasible=true
+    for n in 1:N
+        # The times :
+        for (c,p) in enumerate(inst.Pi[n])
+            if sol.visits[n][c].planned == false
+                feasible = false              
+            end
+        end
+    end
+    if feasible && checkSolutionFeasability(inst, sol)
+        d = prepareSolIter(seed,N,Nout,qli,nb_iter,inst, sol, cost, expname)
+        nb_iter+=1
+        CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$nb_iter"*".csv", d)
+        return sol, cost, allparam
+    else
+        cost=1000000000
+        sol=initializeSol(inst)
+        allparam = initializeParam(inst, adjustproba)
+        return sol, cost, allparam
+    end
 end
 
 #inst = readInstFromFile("D:/DTU-Courses/DTU-Thesis/berth_allocation/data_small/CP2_Inst_1_10_5_80.txt")
