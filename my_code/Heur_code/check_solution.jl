@@ -165,7 +165,7 @@ function checkSolutionFeasability(inst::Instance, sol::Sol)
             x1 = sol.visits[n][c].b
             x2 = x1 + l
             
-            if x1<0 || x2>Bp[p]
+            if x1<0 || x2>Bp[p] || x2<0
                 print('\n')
                 print("error3")
                 print('\n')

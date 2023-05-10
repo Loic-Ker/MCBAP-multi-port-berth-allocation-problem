@@ -319,7 +319,7 @@ def getiterfromfileHEUR(Nin,Nout,seed,qli,algo_folder,exp):
 
 def make_datasetiter(algo_folder, exp, seed, Nin,Nout,qli):
     results = getiterfromfileHEUR(algo_folder=algo_folder, exp=exp, seed=seed,Nin=Nin,Nout=Nout,qli=qli)
-    dataset = pd.DataFrame(columns=('iter','n','c',
+    dataset = pd.DataFrame(columns=('iter','n','c','port',
             'cost_visit',
             'delay_cost_visit',
             'when',
@@ -351,8 +351,8 @@ def make_datasetiter(algo_folder, exp, seed, Nin,Nout,qli):
 
     for i in results.keys():
         for n in range(1,Nin+1):
-            for c in results[i]['inst'][n-1]:
-                dataset_row = {'iter':i,'n':n,'c':c,
+            for c in range(1,len(results[i]['inst'][n-1])+1):
+                dataset_row = {'iter':i,'n':n,'c':c,'port':results[i]['inst'][n-1][c-1],
 'cost_visit':results[i]['cost_visit'][n][c],
 'delay_cost_visit':results[i]['delay_cost_visit'][n][c],
 'when':results[i]['when'][n][c],
