@@ -7,7 +7,7 @@ from os.path import isfile, join
 import pandas as pd
 
 def getsolfromfileCPLEX(Nin,Nout,seed,qli):
-    file = "D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_CPLEX/sols/CPLEX_sol_{}_{}_{}_{}.csv".format(seed,Nin,Nout,qli)
+    file = "D:/DTU-Courses/DTU-Thesis/berth_allocation/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/sols_5min/CPLEX_sol_{}_{}_{}_{}.csv".format(seed,Nin,Nout,qli)
     results_sol = pd.read_csv(file)
     dictresults=dict()
 
