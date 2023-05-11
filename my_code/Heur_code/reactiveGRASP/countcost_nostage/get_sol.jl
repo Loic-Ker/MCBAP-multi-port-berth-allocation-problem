@@ -1,7 +1,7 @@
 include("reactive_free.jl")
 
 
-#instance = readInstFromFile("D:/DTU-Courses/DTU-Thesis/berth_allocation/data_small/CP2_Inst_2_4_3_10.txt")
+#instance = readInstFromFile("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/data_small/CP2_Inst_2_4_3_10.txt")
 #sol = greedyrandomizedconstruction(instance, false, 5)
 
 
@@ -114,7 +114,7 @@ import XLSX
 
 
 function makeExpText(type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname)
-    filename = "D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/explanations.txt"
+    filename = "/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/explanations.txt"
     txttype1="The tactic for each ship : "*type1
     txttype2="The tactic between the ships : "*type2
     @unpack n_proba_typeship_distance, n_proba_typeship_cost, n_proba_all_count, n_proba_all_cost, n_proba_constrained, n_proba_local = adjustproba
@@ -151,19 +151,18 @@ end
 
 
 function makeSolHeur(type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname)
-    xf = CSV.read("D:/DTU-Courses/DTU-Thesis/berth_allocation/bernardo_bench/Small_Inst_Res.csv", DataFrame)
+    xf = CSV.read("zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/Small_Inst_Res.csv", DataFrame)
     newbenchmark = DataFrame(Seed= [0],N= [0],Nout= [0],qli= [0],OldLB= [0],OldUB= [0],OldTime= [0],HeurCost= [0])
     for N in 15:15
         for qli in [80]#[],20,40,80]
             for Nout in 5:5
                 for seed in 1:5
-                    inst = readInstFromFile("D:/DTU-Courses/DTU-Thesis/berth_allocation/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
+                    inst = readInstFromFile("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
                     print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
-                    if isdir("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
-                        mkdir("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
+                    if isdir("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
+                        mkdir("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
                     end
-                    if isdir("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
-                        mkdir("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
+                    if isdir("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
                     end
                     sol, cost, allparam = GRASP_reactive(seed,N,Nout,qli,type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname)
                     print('\n')
@@ -185,7 +184,7 @@ function makeSolHeur(type1, type2, adjustproba, alphaboat, alpharandom, time_loc
                     end
                     if feasible && checkSolutionFeasability(inst, sol)
                         d=prepareSol(inst, sol, cost)
-                        CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/final_sols/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
+                        CSV.write("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/final_sols/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
                     end
                     filtering=xf[(xf.Seed.==seed) .& (xf.N.==N) .& (xf.qli.==qli) .& (xf.Nout.==Nout),:]
                     LB=filtering.LB[1]
@@ -201,7 +200,7 @@ function makeSolHeur(type1, type2, adjustproba, alphaboat, alpharandom, time_loc
 end
 
 
-expname="exp3"
+expname="exp4"
 type1="both" 
 type2="both" 
 adjustproba=AdjustProba(2,2,2,2,2,2)
@@ -212,6 +211,6 @@ max_time_heur=15
 max_time=300
 makeExpText(type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname)
 newbenchmark = makeSolHeur(type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname)
-CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/N15_qli80_Nout5.csv", newbenchmark)
+CSV.write("zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/N5_N15.csv", newbenchmark)
 
 

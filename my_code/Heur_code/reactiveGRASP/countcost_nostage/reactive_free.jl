@@ -813,7 +813,7 @@ end
 
 
 function GRASP_reactive(seed,N,Nout,qli, type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname)
-    inst = readInstFromFile("D:/DTU-Courses/DTU-Thesis/berth_allocation/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
+    inst = readInstFromFile("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
     @unpack N, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp = inst
     cost=1000000000
     worst_cost=1000000000
@@ -848,7 +848,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, adjustproba, alphaboat, a
             print(new_sol.visits)
 
             d=prepareSolIter(seed,N,Nout,qli,nb_iter,inst, new_sol, new_cost_heur, expname)
-            CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$nb_iter"*"_beforelocal"*".csv", d)
+            CSV.write("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$nb_iter"*"_beforelocal"*".csv", d)
             
             start_local=time_ns()
             new_sol, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = local_search(inst, deepcopy(new_sol), ceil(Int,cost), allparam, paramchosen, alphaboat, alpharandom, time_local)
@@ -873,7 +873,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, adjustproba, alphaboat, a
             elapsed_iter = round((time_ns()-start_iter)/1e9,digits=3)
 
             d = prepareSolIter(seed,N,Nout,qli,nb_iter,inst, new_sol, cost, expname)
-            CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$nb_iter"*".csv", d)
+            CSV.write("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$nb_iter"*".csv", d)
             nb_iter+=1
             
             if elapsed_iter>max_time/50
@@ -917,7 +917,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, adjustproba, alphaboat, a
     if feasible && checkSolutionFeasability(inst, sol)
         d = prepareSolIter(seed,N,Nout,qli,nb_iter,inst, sol, cost, expname)
         nb_iter+=1
-        CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$nb_iter"*".csv", d)
+        CSV.write("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$nb_iter"*".csv", d)
         return sol, cost, allparam
     else
         cost=1000000000
