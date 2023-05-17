@@ -150,12 +150,12 @@ function makeExpText(type1, type2, adjustproba, alphaboat, alpharandom, time_loc
 end
 
 
-function makeSolHeur(type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname)
-    xf = CSV.read("zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/Small_Inst_Res.csv", DataFrame)
+function makeSolHeur(type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname, minN, maxN)
+    xf = CSV.read("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/Small_Inst_Res.csv", DataFrame)
     newbenchmark = DataFrame(Seed= [0],N= [0],Nout= [0],qli= [0],OldLB= [0],OldUB= [0],OldTime= [0],HeurCost= [0])
-    for N in 15:15
-        for qli in [80]#[],20,40,80]
-            for Nout in 5:5
+    for N in minN:maxN
+        for qli in [10,20,40,80]
+            for Nout in 3:5
                 for seed in 1:5
                     inst = readInstFromFile("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
                     print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
@@ -163,6 +163,7 @@ function makeSolHeur(type1, type2, adjustproba, alphaboat, alpharandom, time_loc
                         mkdir("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
                     end
                     if isdir("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
+			mkdir("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
                     end
                     sol, cost, allparam = GRASP_reactive(seed,N,Nout,qli,type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname)
                     print('\n')
@@ -199,18 +200,19 @@ function makeSolHeur(type1, type2, adjustproba, alphaboat, alpharandom, time_loc
     return newbenchmark
 end
 
-
+minN = parse(Int64,ARGS[1])
+maxN = parse(Int64,ARGS[2])
 expname="exp4"
 type1="both" 
 type2="both" 
 adjustproba=AdjustProba(2,2,2,2,2,2)
 alphaboat=4
 alpharandom=15
-time_local=20
-max_time_heur=15
+time_local=23
+max_time_heur=18
 max_time=300
 makeExpText(type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname)
-newbenchmark = makeSolHeur(type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname)
-CSV.write("zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/N5_N15.csv", newbenchmark)
+newbenchmark = makeSolHeur(type1, type2, adjustproba, alphaboat, alpharandom, time_local, max_time_heur, max_time, expname, minN, maxN)
+CSV.write("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_HEUR/reactiveGRASP/countcost_nostage/$expname"*"/N$minN"*"_N$maxN"*".csv", newbenchmark)
 
 

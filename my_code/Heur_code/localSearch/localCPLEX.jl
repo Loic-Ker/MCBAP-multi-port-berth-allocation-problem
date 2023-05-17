@@ -17,6 +17,7 @@ include("../check_solution.jl")
 function CPLEXoptimizeLocalSearch(inst::Instance, sol::Sol, not_taken)
     m = Model(CPLEX.Optimizer)
     set_optimizer_attribute(m, "CPX_PARAM_EPINT", 1e-8)
+    set_optimizer_attribute(m, "CPXPARAM_Threads", 1)
 
     @unpack N, Ntot, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT, Nl, gamma, Hc, Dc, Fc, Ic, Pc, beta, ports = inst
     
