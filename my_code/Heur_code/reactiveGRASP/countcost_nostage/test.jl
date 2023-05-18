@@ -1,1 +1,0 @@
-mkdir("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/)

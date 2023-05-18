@@ -68,7 +68,7 @@ function doOverlapRectangleCorrect(x1l, x1r, y1d, y1u, x2l, x2r, y2d, y2u)
 end
 
 
-function CPLEXoptimize(N,Nout,seed,qli, time)
+function CPLEXoptimize(N,Nout,seed,qli, time, location)
     m = Model(CPLEX.Optimizer)
     set_optimizer_attribute(m, "CPX_PARAM_EPINT", 1e-8)
     set_optimizer_attribute(m, "CPX_PARAM_TILIM", time)
@@ -76,7 +76,7 @@ function CPLEXoptimize(N,Nout,seed,qli, time)
 
 
     #inst = readInstFromFile("D:/DTU-Courses/DTU-Thesis/berth_allocation/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
-    inst = readInstFromFile("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
+    inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
     @unpack N, Ntot, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT, Nl, gamma, Hc, Dc, Fc, Ic, Pc, beta, ports = inst
     
 
@@ -122,7 +122,7 @@ function CPLEXoptimize(N,Nout,seed,qli, time)
         dist= hcat(dist,[0 for p in 1:P])
         dist = [dist;transpose([0 for p in 1:(P+1)])]
 
-        @variable(m,x[n=1:Ntot, 1:length(inst.Pi[n])] >= 0)
+        @variable(m,x[n=1:Ntot, 1:length(inst.Pi[n])] >= 0, Int)
         @variable(m,y[n=1:Ntot, 1:length(inst.Pi[n])] >= 0)
 
         ## The ones to check the positions
@@ -231,8 +231,8 @@ function CPLEXoptimize(N,Nout,seed,qli, time)
         @constraint(m,c8[n=1:N, c=1:length(inst.Pi[n])],  y[n,c]+hand[n,c]-shipsIn[n].eT[c]<= d[n,c])
         @constraint(m,c9[n=1:N, c=1:length(inst.Pi[n])],  y[n,c]+hand[n,c]-T[n,c,2]<= u[n,c])
         @constraint(m,c10[n=1:N, c=1:length(inst.Pi[n])],   hand[n,c] == (1 + beta*r[n,c]*qli)*ports[inst.Pi[n][c]].minH[shipsIn[n].type])
-        @constraint(m,c11[n=1:N, c=1:length(inst.Pi[n])],   x[n,c]-(inst.shipsIn[n].Bi[c]/qli)-1 <= r[n,c])
-        @constraint(m,c12[n=1:N, c=1:length(inst.Pi[n])],   (inst.shipsIn[n].Bi[c]/qli)+1-x[n,c] <= r[n,c])
+        @constraint(m,c11[n=1:N, c=1:length(inst.Pi[n])],   x[n,c] - (inst.shipsIn[n].Bi[c]/qli) <= r[n,c])
+        @constraint(m,c12[n=1:N, c=1:length(inst.Pi[n])],   (shipsIn[n].Bi[c]/qli)-x[n,c] <= r[n,c])
 
         speeds = length(delta)
         @objective(m, Min, sum(sum(u[n,c]*Pc+d[n,c]*Dc+hand[n,c]*Hc+(y[n,c]-a[n,c])*Ic for c in 1:length(inst.Pi[n]))
@@ -275,20 +275,20 @@ end
 
 
 
-function makeSoltest(minN,maxN,time)
+function makeSoltest(minN,maxN,time, location)
     newbenchmark = DataFrame(Seed= [0],N= [0],Nout= [0],qli= [0], Time= [0], CPLEX= [0], Box= [""]) #HeurCost= [0],
     for N in minN:maxN
         for qli in [10,20,40,80]
             for Nout in 3:5
                 for seed in 1:5
                     print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
-		    start = time_ns()
-                    box, d, cost = CPLEXoptimize(N,Nout,seed,qli, time) 
-		    elapsed = ceil(Int, round((time_ns()-start)/1e9,digits=3))
+		            start = time_ns()
+                    box, d, cost = CPLEXoptimize(N,Nout,seed,qli, time, location) 
+		            elapsed = ceil(Int, round((time_ns()-start)/1e9,digits=3))
                     print('\n')
                     print(cost)
                     print('\n')
-                    CSV.write("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/sols_5min/CPLEX_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
+                    #CSV.write(location*"MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/sols_5min/CPLEX_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
                     #CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/sols/CPLEX_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
                     this_benchmark=DataFrame(Seed= [seed],N= [N],Nout= [Nout],qli= [qli], Time= [elapsed], CPLEX=[ceil(Int, cost)],  Box= [box]) #HeurCost= [costHeur],
                     newbenchmark=append!(newbenchmark,this_benchmark)
@@ -299,15 +299,16 @@ function makeSoltest(minN,maxN,time)
     return newbenchmark
 end
 
-minN = parse(Int64,ARGS[1])
-maxN = parse(Int64,ARGS[2])
-time = parse(Int64,ARGS[3])
-#minN = 15
-#maxN = 15
-#time = 10
-newbenchmark = makeSoltest(minN,maxN,time)
-CSV.write("/zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/CPLEX_N4_N15_results_5min_extended.csv", newbenchmark)
-#CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/CPLEX_results.csv", newbenchmark)
+location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
+#location="/zhome/c3/6/164957/code_git/"
+#minN = parse(Int64,ARGS[1])
+#maxN = parse(Int64,ARGS[2])
+#time = parse(Int64,ARGS[3])
+minN = 8
+maxN = 8
+time = 100
+newbenchmark = makeSoltest(minN,maxN,time, location)
+#CSV.write(location*"results_jobs/benchmarks_CPLEX/CPLEX_N4_N15_results_5min_extended_2.csv", newbenchmark)
     
 
 ## At each iteration :
