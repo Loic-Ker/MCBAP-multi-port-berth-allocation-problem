@@ -5,7 +5,7 @@ using CSV, Tables
 using DataFrames
 using Random
 include("../../../MBAP_INST.jl")
-include("MBAP_SOL.jl")
+include("../../MBAP_SOL.jl")
 include("../../toolsMatrixTimes.jl")
 include("../../check_solution.jl")
 

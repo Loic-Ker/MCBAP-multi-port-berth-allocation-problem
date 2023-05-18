@@ -1,4 +1,4 @@
-include("../MBAP_INST.jl")
+include("../../../MBAP_INST.jl")
 
 mutable struct Probabilities
     ChooseTacticTypeShip::Vector{Float64}

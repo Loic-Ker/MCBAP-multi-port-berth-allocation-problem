@@ -6,11 +6,11 @@ using DataFrames
 using Random
 using StatsBase
 include("../../../../MBAP_INST.jl")
-include("../../../../get_iterations.jl")
-include("../../../MBAP_SOL.jl")
+include("../get_iterations.jl")
+include("../MBAP_SOL.jl")
 include("../../../toolsMatrixTimes.jl")
 include("../../../check_solution.jl")
-include("/utilInit.jl")
+include("../utilInit.jl")
 include("../../../localSearch/localCPLEX.jl")
 
 mutable struct NewVisit
