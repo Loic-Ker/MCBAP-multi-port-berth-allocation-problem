@@ -236,33 +236,33 @@ maxN = parse(Int64,ARGS[2])
 #maxN=15
 
 # The experience name :
-expname="exp1"
+expname="exp3"
 
 # The tactic types :
-type1="all" 
-type2="all" 
-type3="all"
+type1="time" 
+type2="time" 
+type3="boat"
 
 # The alpha parameters for each tactic :
-prop_oneboatcost = 0.2
+prop_oneboatcost = 0.8
 prop_oneboatdist = 0.2
 prop_oneboattime = 0.2
 prop_allboatcost = 0.2
 prop_allboatcount = 0.2
-prop_allboattime = 0.2
+prop_allboattime = 0.5
 
 # The number of boat to remove for the local search :
-alphaboat=4
+alphaboat=3
 alpharandom=15
 
 # All the parameters :
 paramfixed=FixedParameters(prop_oneboatcost,prop_oneboatdist,prop_oneboattime,prop_allboatcost,prop_allboatcount,prop_allboattime,alpharandom,alphaboat)
 
 # Maximum time for the local search :
-time_local=24
+time_local=30
 
 # Maximum time for the heuristic :
-max_time_heur=18
+max_time_heur=10
 
 # maximum time for the experiment :
 max_time=300

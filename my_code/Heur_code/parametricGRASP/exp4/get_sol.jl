@@ -236,23 +236,23 @@ maxN = parse(Int64,ARGS[2])
 #maxN=15
 
 # The experience name :
-expname="exp1"
+expname="exp4"
 
 # The tactic types :
-type1="all" 
-type2="all" 
-type3="all"
+type1="cost" 
+type2="cost" 
+type3="boat"
 
 # The alpha parameters for each tactic :
-prop_oneboatcost = 0.2
+prop_oneboatcost = 0.6
 prop_oneboatdist = 0.2
 prop_oneboattime = 0.2
-prop_allboatcost = 0.2
+prop_allboatcost = 0.4
 prop_allboatcount = 0.2
 prop_allboattime = 0.2
 
 # The number of boat to remove for the local search :
-alphaboat=4
+alphaboat=3
 alpharandom=15
 
 # All the parameters :
