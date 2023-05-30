@@ -181,9 +181,9 @@ function makeSolHeur(type1, type2, type3, paramfixed, time_local, max_time_heur,
     xf = CSV.read(location*"MCBAP-multi-port-berth-allocation-problem/Small_Inst_Res.csv", DataFrame)
     newbenchmark = DataFrame(Seed= [0],N= [0],Nout= [0],qli= [0],HeurCost= [0])
     for N in minN:maxN
-        for qli in [80]#[10,20,40,80]
-            for Nout in 4:4
-                for seed in 5:5
+        for qli in [10,20,40,80]
+            for Nout in 3:5
+                for seed in 1:5
                     inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
                     #print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
                     if isdir(location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
