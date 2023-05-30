@@ -313,8 +313,8 @@ function SelectNewVisitPerShipReconstruct(inst::Instance, sol::Sol, paramchosen:
     bestPos=shipsIn[n].Bi[c]/qli
     ## Check all the possible solutions
 
-    print('\n')
-    print("The visit $n $c :")
+    #print('\n')
+    #print("The visit $n $c :")
     minT=20*maxT
     for b in 1:Bp[p]-l
         t=t1
@@ -574,20 +574,12 @@ end
 function greedyrandomizedconstruction(inst::Instance, paramchosen::ChosenParameters, paramfixed::FixedParameters, max_time)
     @unpack N, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT = inst
     sol = initializeSol(inst)
-    print('\n')
-    print(sol.visits)
     new_visit, feasible = SelectNewVisitAllShips(inst, sol, paramchosen, paramfixed)
     continue_=true
     start = time_ns()
     elapsed = round((time_ns()-start)/1e9,digits=3)
     count_when=0
-    print('\n')
-    print("lol")
     while continue_ && elapsed<max_time
-        print('\n')
-        print("Time at the start")
-        print('\n')
-        print(round((time_ns()-start)/1e9,digits=3))
         @unpack n,c,b,t,cost,distance,constrained,store= new_visit
         count_when+=1
         store.when=count_when
@@ -616,20 +608,20 @@ function greedyrandomizedconstruction(inst::Instance, paramchosen::ChosenParamet
         if continue_
             new_visit, feasible = SelectNewVisitAllShips(inst, sol, paramchosen, paramfixed)
             if feasible==false
-                print('\n')
-                print("Continue but not feasible")
-                print('\n')
-                print(round((time_ns()-start)/1e9,digits=3))
+                #print('\n')
+                #print("Continue but not feasible")
+                #print('\n')
+                #print(round((time_ns()-start)/1e9,digits=3))
                 sol.failed=1
                 nb_to_remove_visits=0
                 nb_to_remove_ships=0
-                print('\n')
-                print("###################")
-                print('\n')
-                print("We did not find a at first try solution")
-                print('\n')
-                print(sol.visits)
-                print('\n')
+                #print('\n')
+                #print("###################")
+                #print('\n')
+                #print("We did not find a at first try solution")
+                #print('\n')
+                #print(sol.visits)
+                #print('\n')
                 for n in 1:N
                     this_ship_remove = false
                     for (c,p) in enumerate(inst.Pi[n])
@@ -653,14 +645,14 @@ function greedyrandomizedconstruction(inst::Instance, paramchosen::ChosenParamet
                         nb_to_remove_ships+=1
                     end
                 end
-                print('\n')
-                print("Number of visits removed :")
-                print('\n')
-                print(nb_to_remove_visits)
-                print('\n')
-                print("Number of ships removed :")
-                print('\n')
-                print(nb_to_remove_ships)
+                #print('\n')
+                #print("Number of visits removed :")
+                #print('\n')
+                #print(nb_to_remove_visits)
+                #print('\n')
+                #print("Number of ships removed :")
+                #print('\n')
+                #print(nb_to_remove_ships)
                 sol.M = generateOccupiedMx(inst, sol.visits)
                 boat_order = 1:N
                 random_boat_order = shuffle(boat_order)
@@ -689,15 +681,15 @@ function greedyrandomizedconstruction(inst::Instance, paramchosen::ChosenParamet
                                     sol.visits[n_][c_].store = store
                                 else
                                     elapsed = round((time_ns()-start)/1e9,digits=3)
-                                    print('\n')
-                                    print("Huston we have a problem : $elapsed")
-                                    print('\n')
-                                    print("The problematic visit : $n, $i")
-                                    print('\n')
-                                    print("###################")
-                                    print('\n')
-                                    print(sol.visits[n])
-                                    print('\n')
+                                    #print('\n')
+                                    #print("Huston we have a problem : $elapsed")
+                                    #print('\n')
+                                    #print("The problematic visit : $n, $i")
+                                    #print('\n')
+                                    #print("###################")
+                                    #print('\n')
+                                    #print(sol.visits[n])
+                                    #print('\n')
                                     return initializeSol(inst)
                                 end
                             end
@@ -714,14 +706,14 @@ function greedyrandomizedconstruction(inst::Instance, paramchosen::ChosenParamet
                 end
                 if continue_==false
                     elapsed = round((time_ns()-start)/1e9,digits=3)
-                    print('\n')
-                    print("The time it took : $elapsed")
+                    #print('\n')
+                    #print("The time it took : $elapsed")
                 end
             end
         else
             elapsed = round((time_ns()-start)/1e9,digits=3)
-            print('\n')
-            print("The time it took : $elapsed")
+            #print('\n')
+            #print("The time it took : $elapsed")
         end
     end
 
@@ -879,10 +871,10 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, time_l
         if feasible && checkSolutionFeasability(inst, new_sol)
             new_cost_heur, delay_cost_heur, waiting_cost_heur, penalty_cost_heur, handling_cost_heur, fuel_cost_heur = checkSolutionCost(inst, new_sol)
 
-            print('\n')
-            print("Before local search")
-            print('\n')
-            print(new_sol.visits)
+            #print('\n')
+            #print("Before local search")
+            #print('\n')
+            #print(new_sol.visits)
 
             d_before=prepareSolIter(seed,N,Nout,qli,nb_iter,inst, new_sol, new_cost_heur, paramfixed, expname)
             d_alliter_before[nb_iter]=d_before
@@ -891,18 +883,18 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, time_l
             new_sol, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = local_search(inst, deepcopy(new_sol), ceil(Int,cost), paramchosen, paramfixed, time_local)
             #new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = new_cost_heur, delay_cost_heur, waiting_cost_heur, penalty_cost_heur, handling_cost_heur, fuel_cost_heur
             elapsed_local = round((time_ns()-start_local)/1e9,digits=3)
-            print('\n')
-            print("After local search")
-            print('\n')
-            print(new_sol.visits)
-            print('\n')
-            print("Cost at the end of local search")
-            print('\n')
-            print(new_cost)
-            print('\n')
-            print("Old cost")
-            print('\n')
-            print(new_cost_heur)
+            #print('\n')
+            #print("After local search")
+            #print('\n')
+            #print(new_sol.visits)
+            #print('\n')
+            #print("Cost at the end of local search")
+            #print('\n')
+            #print(new_cost)
+            #print('\n')
+            #print("Old cost")
+            #print('\n')
+            #print(new_cost_heur)
             new_sol.store.costHeur=SplitCosts(ceil(Int,new_cost_heur), ceil(Int,delay_cost_heur), ceil(Int,waiting_cost_heur), ceil(Int,penalty_cost_heur), ceil(Int,handling_cost_heur), ceil(Int,fuel_cost_heur))
             new_sol.store.costLocal=SplitCosts(ceil(Int,new_cost), ceil(Int,delay_cost), ceil(Int,waiting_cost), ceil(Int,penalty_cost), ceil(Int, handling_cost), ceil(Int,fuel_cost))
             new_sol.store.timeHeur=elapsed_heur
