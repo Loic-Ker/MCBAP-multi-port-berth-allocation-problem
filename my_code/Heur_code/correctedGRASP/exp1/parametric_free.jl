@@ -883,13 +883,13 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, time_l
             print("Before local search")
             print('\n')
             print(new_sol.visits)
-
             d_before=prepareSolIter(seed,N,Nout,qli,nb_iter,inst, new_sol, new_cost_heur, paramfixed, expname)
             d_alliter_before[nb_iter]=d_before
-            
             start_local=time_ns()
+
             new_sol, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = local_search(inst, deepcopy(new_sol), ceil(Int,cost), paramchosen, paramfixed, time_local)
             #new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = new_cost_heur, delay_cost_heur, waiting_cost_heur, penalty_cost_heur, handling_cost_heur, fuel_cost_heur
+
             elapsed_local = round((time_ns()-start_local)/1e9,digits=3)
             print('\n')
             print("After local search")
@@ -910,7 +910,16 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, time_l
             new_sol.store.parameters=allparam.Proba
             elapsed_iter = round((time_ns()-start_iter)/1e9,digits=3)
 
-            d_after = prepareSolIter(seed,N,Nout,qli,nb_iter,inst, new_sol, cost, paramfixed, expname)
+            for n in 1:N
+                for (c,p) in enumerate(Pi[n])
+                    t = new_sol.visits[n][c].t
+                    b = new_sol.visits[n][c].b
+                    this_cost, delay_cost, waiting_cost, penalty, handling_cost, fuel_cost, feas = computeCostPosSol(inst, n, c, b, t,new_sol)
+                    new_sol.visits[n][c].store.cost =  SplitCosts(ceil(Int, this_cost), ceil(Int,delay_cost), ceil(Int,waiting_cost), ceil(Int,penalty), ceil(Int,handling_cost), ceil(Int,fuel_cost))
+                end
+            end
+
+            d_after = prepareSolIter(seed,N,Nout,qli,nb_iter,inst, new_sol, new_cost, paramfixed, expname)
             
             if cost==1000000000
                 worst_cost=deepcopy(new_cost)
@@ -953,8 +962,8 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, time_l
     end
     if feasible && checkSolutionFeasability(inst, sol)
         for iter in keys(d_alliter_after)
-            CSV.write(location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$nb_iter"*"_beforelocal"*".csv", d_alliter_before[iter])
-            CSV.write(location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$nb_iter"*".csv", d_alliter_after[iter])
+            CSV.write(location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$iter"*"_beforelocal"*".csv", d_alliter_before[iter])
+            CSV.write(location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$iter"*".csv", d_alliter_after[iter])
         end
         print('\n')
         print("The number of iterations is :")
@@ -977,7 +986,7 @@ function testallfunction()
 
 
     # The experience name :
-    expname="exp3"
+    expname="test"
 
     # The tactic types :
     type1="time" 
@@ -1046,3 +1055,5 @@ function testallfunction()
         end
     end
 end
+
+testallfunction()

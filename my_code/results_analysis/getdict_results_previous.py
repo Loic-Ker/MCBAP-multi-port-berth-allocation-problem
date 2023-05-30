@@ -301,17 +301,16 @@ def getiterfromfileHEUR(Nin,Nout,seed,qli,algo_folder,exp):
 
         dictresults["timeheur"]= float(results_sol[results_sol['first']=="timeheur"]['second'])
         dictresults["timelocal"]= float(results_sol[results_sol['first']=="timelocal"]['second'])
-        dictresults["oneboatdistance"] = ast.literal_eval(list(results_sol[results_sol['first']=="oneboatdistance"]['second'])[0])
-        dictresults["oneboatcost"] = ast.literal_eval(list(results_sol[results_sol['first']=="oneboatcost"]['second'])[0])
-        dictresults["oneboattime"] = ast.literal_eval(list(results_sol[results_sol['first']=="oneboattime"]['second'])[0])
-        
-        print(results_sol[results_sol['first']=="proba_tacticboat"]['second'])
-        dictresults["proba_tacticboat"] = results_sol[results_sol['first']=="proba_tacticboat"]['second']
-        dictresults["proba_tacticall"] = results_sol[results_sol['first']=="proba_tacticall"]['second']
-        dictresults["proba_tacticlocalsearch"] = results_sol[results_sol['first']=="proba_tacticlocalsearch"]['second']
-        
+        dictresults["proba_tacticboat"] = ast.literal_eval(list(results_sol[results_sol['first']=="proba_tacticboat"]['second'])[0])
+        dictresults["proba_tacticall"] = ast.literal_eval(list(results_sol[results_sol['first']=="proba_tacticall"]['second'])[0])
+        dictresults["proba_tacticlocalsearch"] = ast.literal_eval(list(results_sol[results_sol['first']=="proba_tacticlocalsearch"]['second'])[0])
+        dictresults["proba_distanceboat"] = ast.literal_eval(list(results_sol[results_sol['first']=="proba_distanceboat"]['second'])[0])
+        dictresults["proba_costboat"] = ast.literal_eval(list(results_sol[results_sol['first']=="proba_costboat"]['second'])[0])
+        dictresults["proba_countall"] = ast.literal_eval(list(results_sol[results_sol['first']=="proba_countall"]['second'])[0])
+        dictresults["proba_costall"] = ast.literal_eval(list(results_sol[results_sol['first']=="proba_costall"]['second'])[0])
+        dictresults["proba_constrained"] = ast.literal_eval(list(results_sol[results_sol['first']=="proba_constrained"]['second'])[0])
+
         dictresults["failed"] = float(results_sol[results_sol['first']=="failed"]['second'])
-        dictresults["better"] = float(results_sol[results_sol['first']=="better"]['second'])
 
         dict_all_iters[nb_iter]=dictresults
 

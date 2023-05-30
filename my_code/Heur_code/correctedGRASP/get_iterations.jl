@@ -26,7 +26,22 @@ function prepareSolIter(seed,N,Nout,qli, nb_iter, inst, sol, cost, paramfixed, e
     d["timeheur"]=sol.store.timeHeur
     d["timelocal"]=sol.store.timeLocalSearch
 
-    d["proba_tacticboat"] = sol.store.parameters.TacticOneBoat
+    list_tacticboat=sol.store.parameters.TacticOneBoat
+    list_tacticall = sol.store.parameters.TacticAllBoats
+    list_tacticlocalsearch = sol.store.parameters.TacticLocalSearch
+
+    print(list_tacticboat)
+    for el in 1:length(list_tacticboat)
+        list_tacticboat[el] = round(list_tacticboat[el], digits=4)
+    end
+    for el in 1:length(list_tacticall)
+        list_tacticall[el] = round(list_tacticall[el], digits=4)
+    end
+    for el in 1:length(list_tacticlocalsearch)
+        list_tacticlocalsearch[el] = round(list_tacticlocalsearch[el], digits=4)
+    end
+
+    d["proba_tacticboat"] = 
     d["proba_tacticall"] = sol.store.parameters.TacticAllBoats
     d["proba_tacticlocalsearch"] = sol.store.parameters.TacticLocalSearch
 
