@@ -236,7 +236,7 @@ maxN = parse(Int64,ARGS[2])
 #maxN=15
 
 # The experience name :
-expname="exp1"
+expname="test"
 
 # The tactic types :
 type1="time" 

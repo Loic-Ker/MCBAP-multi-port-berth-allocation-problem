@@ -871,10 +871,10 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, time_l
         if feasible && checkSolutionFeasability(inst, new_sol)
             new_cost_heur, delay_cost_heur, waiting_cost_heur, penalty_cost_heur, handling_cost_heur, fuel_cost_heur = checkSolutionCost(inst, new_sol)
 
-            print('\n')
-            print("Before local search")
-            print('\n')
-            print(new_sol.visits)
+            #print('\n')
+            #print("Before local search")
+            #print('\n')
+            #print(new_sol.visits)
             d_before=prepareSolIter(seed,N,Nout,qli,nb_iter,inst, new_sol, new_cost_heur, paramfixed, expname)
             d_alliter_before[nb_iter]=d_before
             start_local=time_ns()
