@@ -953,16 +953,14 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, time_l
     end
     if feasible && checkSolutionFeasability(inst, sol)
         for iter in keys(d_alliter_after)
-            #CSV.write(location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$nb_iter"*"_beforelocal"*".csv", d_alliter_before[iter])
-            #CSV.write(location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$nb_iter"*".csv", d_alliter_after[iter])
+            CSV.write(location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$nb_iter"*"_beforelocal"*".csv", d_alliter_before[iter])
+            CSV.write(location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$nb_iter"*".csv", d_alliter_after[iter])
         end
         print('\n')
         print("The number of iterations is :")
         print('\n')
         print(nb_iter)
         nb_iter+=1
-        d = prepareSolIter(seed,N,Nout,qli,nb_iter,inst, sol, cost, paramfixed, expname)
-        #CSV.write(location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$nb_iter"*".csv", d)
         return sol, cost, allparam
     else
         cost=1000000000
