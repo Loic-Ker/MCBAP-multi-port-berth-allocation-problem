@@ -114,7 +114,7 @@ import XLSX
 
 
 function makeExpText(type1, type2, type3, paramfixed, time_local, max_time_heur, max_time, expname, location)
-    filename = location*"results_jobs/benchmarks_HEUR/parametricGRASP/$expname"*"/explanations.txt"
+    filename = location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/explanations.txt"
     txttype1="The tactic for each ship : "*type1
     txttype2="The tactic between the ships : "*type2
     txttype3="The tactic for the local search : "*type3
@@ -186,11 +186,11 @@ function makeSolHeur(type1, type2, type3, paramfixed, time_local, max_time_heur,
                 for seed in 1:5
                     inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
                     #print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
-                    if isdir(location*"results_jobs/benchmarks_HEUR/parametricGRASP/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
-                        mkdir(location*"results_jobs/benchmarks_HEUR/parametricGRASP/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
+                    if isdir(location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
+                        mkdir(location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
                     end
-                    if isdir(location*"results_jobs/benchmarks_HEUR/parametricGRASP/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
-			            mkdir(location*"results_jobs/benchmarks_HEUR/parametricGRASP/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
+                    if isdir(location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
+			            mkdir(location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
                     end
                     sol, cost, allparam = GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, time_local, max_time_heur, max_time, expname, location)
                     #print('\n')
@@ -212,7 +212,7 @@ function makeSolHeur(type1, type2, type3, paramfixed, time_local, max_time_heur,
                     end
                     if feasible && checkSolutionFeasability(inst, sol)
                         d=prepareSol(inst, sol, cost)
-                        CSV.write(location*"results_jobs/benchmarks_HEUR/parametricGRASP/$expname"*"/final_sols/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
+                        CSV.write(location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/final_sols/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
                     end
                
                     this_benchmark=DataFrame(Seed= [seed],N= [N],Nout= [Nout],qli= [qli],HeurCost= [ ceil(Int, cost)])
@@ -236,40 +236,40 @@ maxN = parse(Int64,ARGS[2])
 #maxN=15
 
 # The experience name :
-expname="exp3"
+expname="exp1"
 
 # The tactic types :
 type1="time" 
-type2="time" 
-type3="boat"
+type2="cost" 
+type3="random"
 
 # The alpha parameters for each tactic :
-prop_oneboatcost = 0.8
+prop_oneboatcost = 0.1
 prop_oneboatdist = 0.2
-prop_oneboattime = 0.2
+prop_oneboattime = 0.1
 prop_allboatcost = 0.2
 prop_allboatcount = 0.2
 prop_allboattime = 0.5
 
 # The number of boat to remove for the local search :
 alphaboat=3
-alpharandom=15
+alpharandom=10
 
 # All the parameters :
 paramfixed=FixedParameters(prop_oneboatcost,prop_oneboatdist,prop_oneboattime,prop_allboatcost,prop_allboatcount,prop_allboattime,alpharandom,alphaboat)
 
 # Maximum time for the local search :
-time_local=30
+time_local=15
 
 # Maximum time for the heuristic :
-max_time_heur=10
+max_time_heur=30
 
 # maximum time for the experiment :
 max_time=300
 
 makeExpText(type1, type2, type3, paramfixed, time_local, max_time_heur, max_time, expname, location)
 newbenchmark = makeSolHeur(type1, type2, type3, paramfixed, time_local, max_time_heur, max_time, expname, location, minN, maxN)
-CSV.write(location*"results_jobs/benchmarks_HEUR/parametricGRASP/$expname"*"/N$minN"*"_N$maxN"*".csv", newbenchmark)
+CSV.write(location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/N$minN"*"_N$maxN"*".csv", newbenchmark)
 newbenchmark
 
 
