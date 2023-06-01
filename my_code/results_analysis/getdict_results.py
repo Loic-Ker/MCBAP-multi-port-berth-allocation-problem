@@ -143,6 +143,68 @@ def getsolfromfileHEUR(Nin,Nout,seed,qli,algo_folder,exp):
     dictresults['objectif']=float(list(results_sol[results_sol['first']=='objectif']['second'])[0])
     return dictresults
 
+def getspecificiterfromfileHEUR(Nin,Nout,seed,qli,algo_folder,exp,iternb):
+    file = "D:/DTU-Courses/DTU-Thesis/berth_allocation/results_jobs/benchmarks_HEUR/{}/{}/iterations/sol_{}_{}_{}_{}/iter_{}.csv".format(algo_folder,exp,seed,Nin,Nout,qli,iternb)
+    results_sol = pd.read_csv(file)
+    dictresults=dict()
+
+    listinst = list(results_sol[results_sol['first']=='inst']['second'])
+    for i in range(0,len(listinst)):
+        listinst[i]=ast.literal_eval(listinst[i])
+    listinst=listinst[0]
+    dictinst=dict()
+    for n in range(0,len(listinst)):
+        dictinst[n+1]= listinst[n]
+
+    
+    listlength=list(results_sol[results_sol['first']=='length_boats']['second'])
+    for i in range(0,len(listlength)):
+        listlength[i]=ast.literal_eval(listlength[i])
+    listlength=listlength[0]
+    dictlength=dict()
+    for n in dictinst.keys():
+        dictlength[n]=listlength[n-1]
+
+    listcalls = ast.literal_eval(list(results_sol[results_sol['first']=='calls']['second'])[0])
+    dictcalls=dict()
+    for n in range(0,Nin):
+        dictcalls[n+1]=dict()
+        for c in range(0,len(listinst[n])):
+            dictcalls[n+1][c+1]=listcalls[n][c]
+
+
+
+    listx=ast.literal_eval(list(results_sol[results_sol['first']=='x']['second'])[0].replace("Vector{Any}",''))
+    listy=ast.literal_eval(list(results_sol[results_sol['first']=='y']['second'])[0].replace("Vector{Any}",''))
+    listh=ast.literal_eval(list(results_sol[results_sol['first']=='hand']['second'])[0].replace("Vector{Any}",''))
+    dictx=dict()
+    dicty=dict()
+    dicth=dict()
+    for n in range(1,len(listh)+1):
+        if n not in dicth.keys():
+            dicth[n]=dict()
+        for c in range(1,len(listh[n-1])+1):
+            dicth[n][c]=listh[n-1][c-1]
+    for n in range(1,len(listx)+1):
+        if n not in dictx.keys():
+            dictx[n]=dict()
+        for c in range(1,len(listx[n-1])+1):
+            dictx[n][c]=listx[n-1][c-1]
+    for n in range(1,len(listy)+1):
+        if n not in dicty.keys():
+            dicty[n]=dict()
+        for c in range(1,len(listy[n-1])+1):
+            dicty[n][c]=listy[n-1][c-1]
+
+    dictresults['x']=dictx
+    dictresults['y']=dicty
+    dictresults['hand']=dicth
+    dictresults['length']=dictlength
+    dictresults['calls']=dictcalls
+    dictresults['inst']=listinst
+    dictresults['objectif']=float(list(results_sol[results_sol['first']=='objectif']['second'])[0])
+    return dictresults
+
 def getiterfromfileHEUR(Nin,Nout,seed,qli,algo_folder,exp):
     location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/results_jobs/benchmarks_HEUR/{}/{}/iterations/sol_{}_{}_{}_{}".format(algo_folder,exp,seed,Nin,Nout,qli)
     list_iter = [f for f in listdir(location) if isfile(join(location, f))]

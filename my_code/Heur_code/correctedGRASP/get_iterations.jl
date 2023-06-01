@@ -37,7 +37,7 @@ function prepareSolIter(seed,N,Nout,qli, nb_iter, inst, sol, cost, paramfixed, e
     for el in 1:length(list_tacticall)
         list_tacticall[el] = round(list_tacticall[el], digits=4)
     end
-    for el in 1:length(list_tacticlocalsearch)
+    for el in 1:length(list_tacticlocalsearch)  
         list_tacticlocalsearch[el] = round(list_tacticlocalsearch[el], digits=4)
     end
 
