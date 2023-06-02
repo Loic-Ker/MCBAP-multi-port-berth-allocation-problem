@@ -688,14 +688,14 @@ function greedyrandomizedconstruction(inst::Instance, paramchosen::ChosenParamet
                         nb_to_remove_ships+=1
                     end
                 end
-                print('\n')
-                print("Number of visits removed :")
-                print('\n')
-                print(nb_to_remove_visits)
-                print('\n')
-                print("Number of ships removed :")
-                print('\n')
-                print(nb_to_remove_ships)
+                #print('\n')
+                #print("Number of visits removed :")
+                #print('\n')
+                #print(nb_to_remove_visits)
+                #print('\n')
+                #print("Number of ships removed :")
+                #print('\n')
+                #print(nb_to_remove_ships)
                 sol.M = generateOccupiedMx(inst, sol.visits)
                 boat_order = 1:N
                 random_boat_order = shuffle(boat_order)
@@ -940,13 +940,13 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, time_l
             #print('\n')
             #print(new_sol.visits)
             #print('\n')
-            print("Cost at the end of local search")
-            print('\n')
-            print(new_cost)
-            print('\n')
-            print("Old cost")
-            print('\n')
-            print(new_cost_heur)
+            #print("Cost at the end of local search")
+            #print('\n')
+            #print(new_cost)
+            #print('\n')
+            #print("Old cost")
+            #print('\n')
+            #print(new_cost_heur)
             new_sol.store.costHeur=SplitCosts(ceil(Int,new_cost_heur), ceil(Int,delay_cost_heur), ceil(Int,waiting_cost_heur), ceil(Int,penalty_cost_heur), ceil(Int,handling_cost_heur), ceil(Int,fuel_cost_heur))
             new_sol.store.costLocal=SplitCosts(ceil(Int,new_cost), ceil(Int,delay_cost), ceil(Int,waiting_cost), ceil(Int,penalty_cost), ceil(Int, handling_cost), ceil(Int,fuel_cost))
             new_sol.store.timeHeur=elapsed_heur
@@ -1067,13 +1067,13 @@ function testallfunction()
     max_time=300
 
 
-    print("Start")
-    print('\n')
+    #print("Start")
+    #print('\n')
     for N in 11:11
         for qli in [10]
             for Nout in 3:3
                 for seed in 1:1
-                    print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
+                    #print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
                     inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
                     sol, cost, allparam = GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, time_local, max_time_heur, max_time, expname, location)
                     feasible=true
@@ -1105,5 +1105,3 @@ function testallfunction()
     end
 end
 
-
-testallfunction()

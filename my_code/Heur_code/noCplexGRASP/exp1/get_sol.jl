@@ -236,7 +236,7 @@ maxN = parse(Int64,ARGS[2])
 #maxN=15
 
 # The experience name :
-expname="test"
+expname="exp1"
 
 # The tactic types :
 type1="time" 
@@ -269,7 +269,7 @@ max_time=300
 
 makeExpText(type1, type2, type3, paramfixed, time_local, max_time_heur, max_time, expname, location)
 newbenchmark = makeSolHeur(type1, type2, type3, paramfixed, time_local, max_time_heur, max_time, expname, location, minN, maxN)
-CSV.write(location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/N$minN"*"_N$maxN"*".csv", newbenchmark)
+CSV.write(location*"results_jobs/benchmarks_HEUR/noCplexGRASP/$expname"*"/N$minN"*"_N$maxN"*".csv", newbenchmark)
 newbenchmark
 
 
