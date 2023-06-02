@@ -114,7 +114,7 @@ import XLSX
 
 
 function makeExpText(type1, type2, type3, paramfixed, time_local, max_time_heur, max_time, expname, location)
-    filename = location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/explanations.txt"
+    filename = location*"results_jobs/benchmarks_HEUR/noCplexGRASP/$expname"*"/explanations.txt"
     txttype1="The tactic for each ship : "*type1
     txttype2="The tactic between the ships : "*type2
     txttype3="The tactic for the local search : "*type3
@@ -186,11 +186,11 @@ function makeSolHeur(type1, type2, type3, paramfixed, time_local, max_time_heur,
                 for seed in 1:5
                     inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
                     #print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
-                    if isdir(location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
-                        mkdir(location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
+                    if isdir(location*"results_jobs/benchmarks_HEUR/noCplexGRASP/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
+                        mkdir(location*"results_jobs/benchmarks_HEUR/noCplexGRASP/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
                     end
-                    if isdir(location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
-			            mkdir(location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
+                    if isdir(location*"results_jobs/benchmarks_HEUR/noCplexGRASP/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
+			            mkdir(location*"results_jobs/benchmarks_HEUR/noCplexGRASP/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
                     end
                     sol, cost, allparam = GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, time_local, max_time_heur, max_time, expname, location)
                     #print('\n')
@@ -212,7 +212,7 @@ function makeSolHeur(type1, type2, type3, paramfixed, time_local, max_time_heur,
                     end
                     if feasible && checkSolutionFeasability(inst, sol)
                         d=prepareSol(inst, sol, cost)
-                        CSV.write(location*"results_jobs/benchmarks_HEUR/correctedGRASP/$expname"*"/final_sols/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
+                        CSV.write(location*"results_jobs/benchmarks_HEUR/noCplexGRASP/$expname"*"/final_sols/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
                     end
                
                     this_benchmark=DataFrame(Seed= [seed],N= [N],Nout= [Nout],qli= [qli],HeurCost= [ ceil(Int, cost)])
@@ -236,7 +236,7 @@ maxN = parse(Int64,ARGS[2])
 #maxN=15
 
 # The experience name :
-expname="exp4"
+expname="test"
 
 # The tactic types :
 type1="time" 

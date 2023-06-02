@@ -128,14 +128,14 @@ function checkSolutionFeasability(inst::Instance, sol::Sol)
                 hP = h[n][c-1][bP]
                 tA = ceil(Int, tP + hP + delta[end]*dist[pP,p])
                 if tA>t1
-                    #print('\n')
-                    #print(tP)
-                    #print('\n')
-                    #print(tA)
-                    #print('\n')
-                    #print(t1)
-                    #print('\n')
-                    #print("error1")
+                    print('\n')
+                    print(tP)
+                    print('\n')
+                    print(tA)
+                    print('\n')
+                    print(t1)
+                    print('\n')
+                    print("error1")
                     feasible=false
                 end
             end
@@ -148,7 +148,7 @@ function checkSolutionFeasability(inst::Instance, sol::Sol)
                 # (pN,bN,tN) = sol.solution[n][c+1]
                 tD = floor(Int, tN - delta[end]*dist[p,pN])
                 if t2>tD
-                    #print("error2")
+                    print("error2")
                     feasible=false
                 end
             end
@@ -165,12 +165,12 @@ function checkSolutionFeasability(inst::Instance, sol::Sol)
             x2 = x1 + l
             
             if x1<0 || x2>Bp[p] || x2<0
-                #print('\n')
-                #print("error3")
-                #print('\n')
-                #print(Bp[p])
-                #print('\n')
-                #print(x2)
+                print('\n')
+                print("error3")
+                print('\n')
+                print(Bp[p])
+                print('\n')
+                print(x2)
                 feasible = false
             end
 
@@ -181,7 +181,7 @@ function checkSolutionFeasability(inst::Instance, sol::Sol)
                     x1_ = sol.visits[n][c_].b
                     x2_ = x1_ + l
                     if doOverlapRectangle(t1, t2, x1, x2, t1_, t2_, x1_, x2_)
-                        #print("error4")
+                        print("error4")
                         feasible=false
                     end
                 end
@@ -207,17 +207,17 @@ function checkSolutionFeasability(inst::Instance, sol::Sol)
                         x1_ = sol.visits[n_][c_].b
                         x2_ = x1_ + l_
                         if doOverlapRectangle(t1, t2, x1, x2, t1_, t2_, x1_, x2_)
-                            #print('\n')
-                            #print("error5")
-                            #print('\n')
-                            #print("The port $p")
-                            #print('\n')
-                            #print('\n')
-                            #print("The boat $n , $c and $n_ , $c_")
-                            #print('\n')
-                            #print("The first box : [$t1,$t2] and [$x1,$x2]")
-                            #print('\n')
-                            #print("The second box : [$t1_,$t2_] and [$x1_,$x2_]")
+                            print('\n')
+                            print("error5")
+                            print('\n')
+                            print("The port $p")
+                            print('\n')
+                            print('\n')
+                            print("The boat $n , $c and $n_ , $c_")
+                            print('\n')
+                            print("The first box : [$t1,$t2] and [$x1,$x2]")
+                            print('\n')
+                            print("The second box : [$t1_,$t2_] and [$x1_,$x2_]")
 
                             feasible=false
                         end
@@ -243,7 +243,7 @@ function checkSolutionFeasability(inst::Instance, sol::Sol)
                 x1_ = round(Int, berth/qli) + 1
                 x2_ = x1_ + l_
                 if doOverlapRectangle(t1, t2, x1, x2, t1_, t2_, x1_, x2_)
-                    #print("error6")
+                    print("error6")
                     feasible=false
                 end
             end

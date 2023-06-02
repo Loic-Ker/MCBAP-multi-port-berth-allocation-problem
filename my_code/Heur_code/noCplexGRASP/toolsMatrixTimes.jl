@@ -52,7 +52,7 @@ function generateOccupiedMx(inst::Instance, sol) #, unassigned::Vector{Tuple{Int
     @unpack N, P, Pi, T, Bp, h, dist, qli, shipsIn, shipsOut, delta, maxT, maxC = inst
     ## The matrix we create contains all the time/distance discretization
     ## We extend the time here so we accept more research for the reconstruct method
-    M = [[zeros(Bool, Bp[Pi[n][c]]-ceil(Int, shipsIn[n].l/qli)+1, 20*maxT+1) for c in 1:length(Pi[n])] for n in 1:N]
+    M = [[zeros(Bool, Bp[Pi[n][c]]+1, 20*maxT+1) for c in 1:length(Pi[n])] for n in 1:N]
     lengthM = 20*maxT+1
     ## The between our bounded time intervalls we set the positions as possible (true)
     for i in 1:N
