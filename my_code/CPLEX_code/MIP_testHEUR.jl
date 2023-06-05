@@ -68,11 +68,11 @@ function doOverlapRectangleCorrect(x1l, x1r, y1d, y1u, x2l, x2r, y2d, y2u)
 end
 
 
-function CPLEXoptimize(N,Nout,seed,qli, location)
+function CPLEXoptimize(N,Nout,seed,qli, location, expname)
     m = Model(CPLEX.Optimizer)
     set_optimizer_attribute(m, "CPX_PARAM_EPINT", 1e-8)
 
-    inst = readInstFromFile("D:/DTU-Courses/DTU-Thesis/berth_allocation/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
+    inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
     @unpack N, Ntot, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT, Nl, gamma, Hc, Dc, Fc, Ic, Pc, beta, ports = inst
     
 
@@ -147,7 +147,7 @@ function CPLEXoptimize(N,Nout,seed,qli, location)
         
 
         #### Fixing variables to compare to heur
-        heur_results = CSV.File(location*"_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv") |> Dict
+        heur_results = CSV.File(location*"results_jobs/benchmarks_HEUR/orderedGRASP/$expname"*"/final_sols/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv") |> Dict
         x_heur = eval(Meta.parse(heur_results["x"]))
         y_heur = eval(Meta.parse(heur_results["y"]))
         hand_heur = eval(Meta.parse(heur_results["hand"]))
@@ -272,30 +272,22 @@ end
 
 
 function makeSoltest()
-    xf = CSV.read("D:/DTU-Courses/DTU-Thesis/berth_allocation/bernardo_bench/Small_Inst_Res.csv", DataFrame)#CSV.read("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/HEUR_N4_N10_exp1.csv", DataFrame)
-    newbenchmark = DataFrame(Seed= [0],N= [0],Nout= [0],qli= [0],OldLB= [0],OldUB= [0],OldTime= [0], CPLEXHeur= [0],  Box= [""]) #HeurCost= [0],
-    for N in 5:7
-        for qli in [10,20]#,40,80]
+    expname="exp1"
+    location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
+    #location="/zhome/c3/6/164957/code_git/"
+    newbenchmark = DataFrame(Seed= [0],N= [0],Nout= [0],qli= [0], CPLEXHeur= [0], Heur=[0], Box= [""]) #HeurCost= [0],
+    for N in 11:15
+        xf = CSV.read(location*"results_jobs/benchmarks_HEUR/orderedGRASP/$expname"*"/N$minN"*"_N$maxN"*".csv", DataFrame)
+        for qli in [10,20,40,80]
             for Nout in 3:5
                 for seed in 1:5
-                    if N!=7 || qli!=20
-                        print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
-                        location="D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/sols/HEUR_LOCAL_exp2_sol"
-                        box, d, cost = CPLEXoptimize(N,Nout,seed,qli, location)
-                        print('\n')
-                        CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/sols/check_sol_HEUR_LOCAL_exp2_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
-                        filtering=xf[(xf.Seed.==seed) .& (xf.N.==N) .& (xf.qli.==qli) .& (xf.Nout.==Nout),:]
-                        #LB=filtering.OldLB[1]
-                        #UB=filtering.OldUB[1]
-                        #OldTime = filtering.OldTime[1]
-                        #costHeur = filtering.HeurCost[1]
-                        #this_benchmark=DataFrame(Seed= [seed],N= [N],Nout= [Nout],qli= [qli],OldLB= [LB],OldUB= [UB],OldTime= [OldTime],CPLEXHeur=[ceil(Int, cost)],HeurCost= [costHeur], Box= [box])
-                        LB=filtering.LB[1]
-                        UB=filtering.UB[1]
-                        OldTime = filtering.Time[1]
-                        this_benchmark=DataFrame(Seed= [seed],N= [N],Nout= [Nout],qli= [qli],OldLB= [LB],OldUB= [UB],OldTime= [OldTime],CPLEXHeur=[ceil(Int, cost)],Box= [box])
-                        newbenchmark=append!(newbenchmark,this_benchmark)
-                    end
+                    print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
+                    box, d, cost = CPLEXoptimize(N,Nout,seed,qli, location, expname)
+                    print('\n')
+                    filtering=xf[(xf.Seed.==seed) .& (xf.N.==N) .& (xf.qli.==qli) .& (xf.Nout.==Nout),:]
+                    costHeur = filtering.HeurCost[1]
+                    this_benchmark=DataFrame(Seed= [seed],N= [N],Nout= [Nout],qli= [qli],CPLEXHeur=[ceil(Int, cost)],Heur=[ceil(Int, costHeur)],Box= [box])
+                    newbenchmark=append!(newbenchmark,this_benchmark)
                 end
             end
         end
@@ -305,4 +297,4 @@ end
 newbenchmark = makeSoltest()
 
 
-CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/reactiveGRASP/countcost_nostage/checkcost_HEUR_LOCAL_N5_N7_exp2.csv", newbenchmark)
+CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASP/$expname"*"/checkcost_HEUR.csv", newbenchmark)

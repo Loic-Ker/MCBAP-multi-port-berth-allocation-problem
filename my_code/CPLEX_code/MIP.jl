@@ -288,7 +288,7 @@ function makeSoltest(minN,maxN,time, location)
                     print('\n')
                     print(cost)
                     print('\n')
-                    #CSV.write(location*"MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/sols_5min/CPLEX_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
+                    CSV.write(location*"results_jobs/benchmarks_CPLEX/sols_5min/CPLEX_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
                     #CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/sols/CPLEX_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
                     this_benchmark=DataFrame(Seed= [seed],N= [N],Nout= [Nout],qli= [qli], Time= [elapsed], CPLEX=[ceil(Int, cost)],  Box= [box]) #HeurCost= [costHeur],
                     newbenchmark=append!(newbenchmark,this_benchmark)
@@ -299,16 +299,16 @@ function makeSoltest(minN,maxN,time, location)
     return newbenchmark
 end
 
-location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
-#location="/zhome/c3/6/164957/code_git/"
-#minN = parse(Int64,ARGS[1])
-#maxN = parse(Int64,ARGS[2])
-#time = parse(Int64,ARGS[3])
-minN = 8
-maxN = 8
-time = 100
+#location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
+location="/zhome/c3/6/164957/code_git/"
+minN = parse(Int64,ARGS[1])
+maxN = parse(Int64,ARGS[2])
+time = parse(Int64,ARGS[3])
+#minN = 8
+#maxN = 8
+#time = 100
 newbenchmark = makeSoltest(minN,maxN,time, location)
-#CSV.write(location*"results_jobs/benchmarks_CPLEX/CPLEX_N4_N15_results_5min_extended_2.csv", newbenchmark)
+CSV.write(location*"results_jobs/benchmarks_CPLEX/CPLEX_N11_N15_results_5min.csv", newbenchmark)
     
 
 ## At each iteration :
