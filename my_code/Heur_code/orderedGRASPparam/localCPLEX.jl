@@ -14,147 +14,14 @@ include("MBAP_SOL.jl")
 include("toolsMatrixTimes.jl")
 include("check_solution.jl")
 
-
-function getSpecificAvailableTimes(inst::Instance, sol::Sol, listnc::Vector{Tuple})
-    @unpack N, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT, qli = inst
-    pos_time = Vector{Tuple}()
-    for (n,c) in listnc
-        this_sol_time = sol.visits[n][c].t+ceil(Int, h[n][c][sol.visits[n][c].b])
-        t1=sol.visits[n][c].minT
-        l = ceil(Int, shipsIn[n].l/qli)
-        ## Check all the possible solutions
-        notfound=false
-        for b in 1:Bp[Pi[n][c]]-l
-            hand = ceil(Int, h[n][c][b])
-            for t in t1:this_sol_time
-                if t + hand <= this_sol_time
-                    if sol.M[n][c][b,t+1]
-                        notfoud = true
-                        push!(pos_time,(n,c,b,t,t+hand))
-                    end
-                end
-            end
-        end
-        if notfound==false
-            push!(pos_time,(n,c,sol.visits[n][c].b,sol.visits[n][c].t,this_sol_time))
-        end
-    end
-    pos_time = sort(pos_time, by = x -> x[5])
-    return pos_time
-end
-
-function getSpecificConstrainedAvailableTimes(inst::Instance, sol::Sol, listnc::Vector{Tuple})
-    @unpack N, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT, qli = inst
-    pos_time = Vector{Tuple}()
-    for (n,c) in listnc
-        this_sol_time = sol.visits[n][c].t+ceil(Int, h[n][c][sol.visits[n][c].b])
-        t1=sol.visits[n][c].minT
-        l = ceil(Int, shipsIn[n].l/qli)
-        ## Check all the possible solutions
-        notfound=false
-        for b in 1:Bp[Pi[n][c]]-l
-            hand = ceil(Int, h[n][c][b])
-            for t in t1:this_sol_time
-                if t + hand <= this_sol_time
-                    if sol.M[n][c][b,t+1]
-                        #if b==1 || b>=Bp[Pi[n][c]]-l-1 
-                        #    notfoud = true
-                        #    push!(pos_time,(n,c,b,t,t+hand))
-                        #else
-                        #    if false in sol.M[n][c][b+l:b+l+1,t+1:t+hand]  || false in sol.M[n][c][max(b-1,1):b,t+1:t+hand]
-                        #        notfoud = true
-                        #        push!(pos_time,(n,c,b,t,t+hand))
-                        #    end
-                        #end
-                        notfoud = true
-                        push!(pos_time,(n,c,b,t,t+hand))
-                    end
-                end
-            end
-        end
-        if notfound==false
-            push!(pos_time,(n,c,sol.visits[n][c].b,sol.visits[n][c].t,this_sol_time))
-        end
-    end
-    pos_time = sort(pos_time, by = x -> x[5])
-    return pos_time
-end
-
-
-function pushTime(inst::Instance, sol::Sol, timelocal)
-    @unpack N, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT = inst
-    listnc = Vector{Tuple}()
-    cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost=checkSolutionCost(inst, sol)
-    new_sol=deepcopy(sol)
-    for n in 1:N
-        for c in 1:length(Pi[n])
-            push!(listnc,(n,c))
-        end
-    end
-    print('\n')
-    print("We start the local search")
-    start = time_ns()
-    elapsed = round((time_ns()-start)/1e9,digits=3)
-    first=true
-    while elapsed<timelocal && listnc!=[]
-        if first
-            pos_time = getSpecificAvailableTimes(inst, new_sol, listnc)
-            first=false
-        else
-            pos_time = getSpecificConstrainedAvailableTimes(inst, new_sol, listnc)
-        end
-        chosennc = pos_time[1]
-        n = chosennc[1]
-        c = chosennc[2]
-        b = chosennc[3]
-        t = chosennc[4]
-        l = ceil(Int, shipsIn[n].l/qli)
-        hand = ceil(Int, h[n][c][chosennc[3]])
-        @unpack M, visits = new_sol
-        new_sol.visits = updateTimesAfterVisit(inst, visits, n, c, b, t)
-        new_sol.M = updateMpositions(inst, n, c, b, t, l, hand, M)
-        new_sol.visits[n][c].p = Pi[n][c]
-        new_sol.visits[n][c].b = b
-        new_sol.visits[n][c].t = t
-        deleteat!(listnc,findall(x->x[1]==n && x[2]==c, listnc))
-        #if listnc==[]
-        #    if checkSolutionFeasability(inst, new_sol)
-        #        new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost=checkSolutionCost(inst, new_sol)
-        #        if new_cost<cost
-        #            cost=new_cost
-        #            sol=new_sol
-        #            new_sol = deepcopy(sol)
-        #        end
-        #    end
-        #    for n in 1:N
-        #        for c in 1:length(Pi[n])
-        #            push!(listnc,(n,c))
-        #        end
-        #    end
-        #end
-        elapsed = round((time_ns()-start)/1e9,digits=3)
-    end
-    if checkSolutionFeasability(inst, new_sol)
-        new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost=checkSolutionCost(inst, new_sol)
-        if new_cost<cost
-            return new_sol, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost
-        else
-            return sol, cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost
-        end
-    else
-        return sol, cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost
-    end
-end
-
-
 function CPLEXoptimizeLocalSearch(inst::Instance, sol::Sol, not_taken)
     m = Model(CPLEX.Optimizer)
     set_optimizer_attribute(m, "CPX_PARAM_EPINT", 1e-8)
     set_optimizer_attribute(m, "CPXPARAM_Threads", 1)
-    set_optimizer_attribute(m, "CPX_PARAM_TILIM", 10)
     #set_silent(m)
 
     @unpack N, Ntot, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT, Nl, gamma, Hc, Dc, Fc, Ic, Pc, beta, ports = inst
+    
 
     shipsOutFlatt=collect(Iterators.flatten(shipsOut))
     txt_error=""
@@ -336,25 +203,16 @@ function local_search(inst::Instance, sol::Sol, cost::Int64, paramchosen::Chosen
     start = time_ns()
     elapsed = round((time_ns()-start)/1e9,digits=3)
     tactic = paramchosen.TacticLocalSearch
-    first=true
-    while elapsed<max_time
+    while elapsed<max_time && length(list_initialize_boats)>0 && length(list_initialize_all)>0
         if tactic=="boat"
             new_boat_removed = list_initialize_boats
             new_boat=list_initialize_boats[1][2]
-            other_visits=get_random_same_port(inst,new_sol,new_boat, paramfixed.LocalSearchBoat)
+            other_visits=get_closest(inst,new_sol,new_boat, paramfixed.LocalSearchBoat)
         else
-            if first==true
-                other_visits_removed=list_initialize_all[1:min(paramfixed.LocalSearchRandom, length(list_initialize_all))]
-                other_visits=list_initialize_all[1:min(paramfixed.LocalSearchRandom, length(list_initialize_all))]
-                for i in 1:length(other_visits)
-                    other_visits[i]=other_visits[i][2]
-                end
-            else
-                other_visits_removed=sample(list_initialize_all, min(paramfixed.LocalSearchRandom, length(list_initialize_all)))
-                other_visits=sample(list_initialize_all, min(paramfixed.LocalSearchRandom, length(list_initialize_all)))
-                for i in 1:length(other_visits)
-                    other_visits[i]=other_visits[i][2]
-                end
+            other_visits_removed=list_initialize_all[1:min(paramfixed.LocalSearchRandom, length(list_initialize_all))]
+            other_visits=list_initialize_all[1:min(paramfixed.LocalSearchRandom, length(list_initialize_all))]
+            for i in 1:length(other_visits)
+                other_visits[i]=other_visits[i][2]
             end
         end
         new_solCPLEX=deepcopy(new_sol)
@@ -381,9 +239,14 @@ function local_search(inst::Instance, sol::Sol, cost::Int64, paramchosen::Chosen
         if checkSolutionFeasability(inst, new_solCPLEX)
             new_sol=deepcopy(new_solCPLEX)
             new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost=checkSolutionCost(inst, new_sol)
-            #if new_cost<cost
-            #    return new_sol, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost
-            #end
+            if new_cost<cost
+                return new_sol, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost
+            end
+            if tactic=="boat"
+                list_initialize_boats=setdiff(list_initialize_boats, [new_boat_removed])
+            else
+                list_initialize_all=setdiff(list_initialize_all, other_visits_removed)
+            end
         end
         elapsed = round((time_ns()-start)/1e9,digits=3)
     end
@@ -391,23 +254,6 @@ function local_search(inst::Instance, sol::Sol, cost::Int64, paramchosen::Chosen
     return new_sol, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost
 end
 
-function get_random_same_port(inst::Instance, sol::Sol, randomBoat, alpha)
-    @unpack N, Ntot, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT, Nl, gamma, Hc, Dc, Fc, Ic, Pc, beta, ports = inst
-    visits_to_remove=[]
-    for c_boat in 1:length(inst.Pi[randomBoat])
-        all_visits_distance=[]
-        for n in 1:N
-            for c in 1:length(inst.Pi[n])
-                if inst.Pi[n][c] == inst.Pi[randomBoat][c_boat] && n!=randomBoat
-                    append!(all_visits_distance,[(n,c)])
-                end
-            end
-        end
-        all_visits_distance=sample(all_visits_distance, min(alpha,length(all_visits_distance)); replace=false)
-        append!(visits_to_remove, all_visits_distance)
-    end
-    return visits_to_remove
-end
 function get_closest(inst::Instance, sol::Sol, randomBoat, alpha)
     @unpack N, Ntot, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT, Nl, gamma, Hc, Dc, Fc, Ic, Pc, beta, ports = inst
     all_visits_distance=[]

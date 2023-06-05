@@ -91,8 +91,8 @@ function pushTime(inst::Instance, sol::Sol, timelocal)
             push!(listnc,(n,c))
         end
     end
-    print('\n')
-    print("We start the local search")
+    #print('\n')
+    #print("We start the local search")
     start = time_ns()
     elapsed = round((time_ns()-start)/1e9,digits=3)
     first=true
@@ -152,7 +152,7 @@ function CPLEXoptimizeLocalSearch(inst::Instance, sol::Sol, not_taken)
     set_optimizer_attribute(m, "CPX_PARAM_EPINT", 1e-8)
     set_optimizer_attribute(m, "CPXPARAM_Threads", 1)
     set_optimizer_attribute(m, "CPX_PARAM_TILIM", 10)
-    #set_silent(m)
+    set_silent(m)
 
     @unpack N, Ntot, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT, Nl, gamma, Hc, Dc, Fc, Ic, Pc, beta, ports = inst
 
