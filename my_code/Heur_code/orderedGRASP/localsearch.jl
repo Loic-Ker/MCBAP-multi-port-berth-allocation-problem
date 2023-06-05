@@ -149,10 +149,10 @@ function CPLEXoptimizeLocalSearch(inst::Instance, sol::Sol, not_taken)
     m = Model(CPLEX.Optimizer)
     set_optimizer_attribute(m, "CPX_PARAM_EPINT", 1e-8)
     set_optimizer_attribute(m, "CPXPARAM_Threads", 1)
+    set_optimizer_attribute(m, "CPX_PARAM_TILIM", 10)
     #set_silent(m)
 
     @unpack N, Ntot, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT, Nl, gamma, Hc, Dc, Fc, Ic, Pc, beta, ports = inst
-    
 
     shipsOutFlatt=collect(Iterators.flatten(shipsOut))
     txt_error=""
@@ -334,16 +334,25 @@ function local_search(inst::Instance, sol::Sol, cost::Int64, paramchosen::Chosen
     start = time_ns()
     elapsed = round((time_ns()-start)/1e9,digits=3)
     tactic = paramchosen.TacticLocalSearch
-    while elapsed<max_time && length(list_initialize_boats)>0 && length(list_initialize_all)>0
+    first=true
+    while elapsed<max_time
         if tactic=="boat"
             new_boat_removed = list_initialize_boats
             new_boat=list_initialize_boats[1][2]
             other_visits=get_random_same_port(inst,new_sol,new_boat, paramfixed.LocalSearchBoat)
         else
-            other_visits_removed=list_initialize_all[1:min(paramfixed.LocalSearchRandom, length(list_initialize_all))]
-            other_visits=list_initialize_all[1:min(paramfixed.LocalSearchRandom, length(list_initialize_all))]
-            for i in 1:length(other_visits)
-                other_visits[i]=other_visits[i][2]
+            if first==true
+                other_visits_removed=list_initialize_all[1:min(paramfixed.LocalSearchRandom, length(list_initialize_all))]
+                other_visits=list_initialize_all[1:min(paramfixed.LocalSearchRandom, length(list_initialize_all))]
+                for i in 1:length(other_visits)
+                    other_visits[i]=other_visits[i][2]
+                end
+            else
+                other_visits_removed=sample(list_initialize_all, min(paramfixed.LocalSearchRandom, length(list_initialize_all)))
+                other_visits=sample(list_initialize_all, min(paramfixed.LocalSearchRandom, length(list_initialize_all)))
+                for i in 1:length(other_visits)
+                    other_visits[i]=other_visits[i][2]
+                end
             end
         end
         new_solCPLEX=deepcopy(new_sol)
@@ -370,14 +379,9 @@ function local_search(inst::Instance, sol::Sol, cost::Int64, paramchosen::Chosen
         if checkSolutionFeasability(inst, new_solCPLEX)
             new_sol=deepcopy(new_solCPLEX)
             new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost=checkSolutionCost(inst, new_sol)
-            if new_cost<cost
-                return new_sol, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost
-            end
-            if tactic=="boat"
-                list_initialize_boats=setdiff(list_initialize_boats, [new_boat_removed])
-            else
-                list_initialize_all=setdiff(list_initialize_all, other_visits_removed)
-            end
+            #if new_cost<cost
+            #    return new_sol, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost
+            #end
         end
         elapsed = round((time_ns()-start)/1e9,digits=3)
     end

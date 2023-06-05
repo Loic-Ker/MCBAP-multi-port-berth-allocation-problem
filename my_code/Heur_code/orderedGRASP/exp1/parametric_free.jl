@@ -614,16 +614,207 @@ function SelectNewVisitAllShips(inst::Instance, sol::Sol, paramchosen::ChosenPar
 end
 
 
+# compute feasible positions (b,t) in different ways :  
+## Order by best costs
+## Get random ones
+## Get the ones with less feasible solutions
+## Get the ones closer to other ports visit
+## Ordered by port visit number et the end
+function SelectNewVisitOrderedShips(inst::Instance, sol::Sol, paramchosen::ChosenParameters, paramfixed::FixedParameters, list_visits::Vector{Tuple}) #, placed::Vector{Tuple{Int64,Int64}})
+    #TODO: t1 cannot be greater than t2!
+    # adapt to given planned previous visits for each ship
+    @unpack N, h, qli, shipsIn, Pi, Bp, delta, dist, T, maxC, maxT = inst
+    @unpack M = sol
+    @unpack OneBoatCost, OneBoatDistance, OneBoatTime, AllBoatsCost, AllBoatsCount, AllBoatsTime, LocalSearchRandom, LocalSearchBoat = paramfixed
+    # C = maximum(length.(Pi))
+    new_visits = Vector{NewVisit}()
+    new_visits_constrained = Vector{NewVisit}()
+    max_count=0
+    max_cost=0
+    max_time = 0
+    min_count=1000000000
+    min_cost=1000000000
+    min_time=1000000000
+    max_count_const=0
+    max_cost_const=0
+    max_time_const = 0
+    min_count_const=1000000000
+    min_cost_const=1000000000
+    min_time_const=1000000000
+    count_available=Dict()
+    for n in 1:N
+        count_available[n]=Dict()
+    end
+    for (n,c) in list_visits
+        sch = sol.visits[n]
+        if sch[c].planned == false
+            visit, visit_constrained, feasible, count_visit=SelectNewVisitPerShip(inst, sol, paramchosen, paramfixed, n, c, Pi[n][c], false)
+            if feasible
+                count_available[n][c]=count_visit
+                if count_visit>max_count
+                    max_count=count_visit
+                end
+                if count_visit<min_count
+                    min_count=count_visit
+                end
+                if visit.n!=0
+                    this_cost = visit.cost
+                    this_time = visit.time
+                    if this_cost>max_cost
+                        max_cost=this_cost
+                    end
+                    if this_cost<min_cost
+                        min_cost=this_cost
+                    end
+                    if this_time>max_time
+                        max_time=this_time
+                    end
+                    if this_time<min_time
+                        min_time=this_time
+                    end
+                    push!(new_visits,visit)
+                end
+                #if visit_constrained.n!=0
+                #    this_cost = visit_constrained.cost
+                #    if this_cost>=max_cost_const
+                #        max_cost_const=this_cost
+                #    end
+                #    if this_cost<=min_cost_const
+                #        min_cost_const=this_cost
+                #    end
+                #    if this_time>max_time_const
+                #        max_time_const=this_time
+                #    end
+                #    if this_time<min_time_const
+                #        min_time_const=this_time
+                #    end
+                #    push!(new_visits_constrained,visit_constrained)
+                #end
+            end
+        end
+    end
+    pos_chosen=[]
+    if length(new_visits)>0
+        tactic=paramchosen.TacticAllBoats
+        if tactic=="cost"
+            alpha_value = AllBoatsCost
+            list_available_shippos = Vector{NewVisit}()
+            for visit in new_visits
+                if visit.cost<=min_cost+alpha_value*(max_cost-min_cost)
+                    visit.store.tacticAll="cost"
+                    push!(list_available_shippos, visit)                  
+                end
+            end
+            pos_chosen = list_available_shippos
+        end
+
+        if tactic=="count"
+            alpha_value = AllBoatsCount
+            list_available_shippos = Vector{NewVisit}()
+            for visit in new_visits
+                if count_available[visit.n][visit.c]<=min_count+alpha_value*(max_count-min_count)
+                    visit.store.tacticAll="count"
+                    push!(list_available_shippos, visit)                  
+                end
+            end
+            pos_chosen = list_available_shippos
+        end
+
+        if tactic=="time"
+            alpha_value = AllBoatsTime
+            list_available_shippos = Vector{NewVisit}()
+            for visit in new_visits
+                if visit.time<=min_time+alpha_value*(max_time-min_time)
+                    visit.store.tacticAll="time"
+                    push!(list_available_shippos, visit)                  
+                end
+            end
+            pos_chosen = list_available_shippos
+        end
+    end
+
+    pos_chosen_constrained=[]
+    #if length(new_visits_constrained)>0
+    #    tactic=paramchosen.TacticAllBoats
+    #    if tactic=="cost"
+    #        alpha_value = AllBoatsCost
+    #        list_available_shippos = Vector{NewVisit}()
+    #        for visit in new_visits_constrained
+    #            if visit.cost<=min_cost_const+alpha_value*(max_cost_const-min_cost_const)
+    #                visit.store.tacticAll="cost"
+    #                push!(list_available_shippos, visit)                  
+    #            end
+    #        end
+    #        pos_chosen_constrained = list_available_shippos
+    #    end
+
+    #    if tactic=="count"
+    #        alpha_value = AllBoatsCount
+    #        list_available_shippos = Vector{NewVisit}()
+    #        for visit in new_visits_constrained
+    #            if count_available[visit.n][visit.c]<=min_count_const+alpha_value*(max_count_const-min_count_const)
+    #                visit.store.tacticAll="count"
+    #                push!(list_available_shippos, visit)                  
+    #            end
+    #        end
+    #        pos_chosen_constrained = list_available_shippos
+    #    end
+
+    #    if tactic=="time"
+    #        alpha_value = AllBoatsTime
+    #        list_available_shippos = Vector{NewVisit}()
+    #        for visit in new_visits_constrained
+    #            if visit.time<=min_time_const+alpha_value*(max_time_const-min_time_const)
+    #                visit.store.tacticAll="time"
+    #                push!(list_available_shippos, visit)                  
+    #            end
+    #        end
+    #        pos_chosen_constrained = list_available_shippos
+    #    end
+    #end
+
+    if length(pos_chosen)+length(pos_chosen_constrained)>0
+        #alpha_value = Alpha.RateConstrained[paramchosen.IndexRateConstrained]
+        #epsilon=0.0000001
+        #if length(pos_chosen)>1
+        #    pos_chosen = sample(pos_chosen, ceil(Int,alpha_value*length(pos_chosen)+epsilon))
+        #end
+        if length(pos_chosen_constrained)>1
+            return pos_chosen_constrained[rand(1:length(pos_chosen_constrained))], true
+        else
+            return pos_chosen[rand(1:length(pos_chosen))], true
+        end
+    else
+        return NewVisit(0,0,0,0,0.0,0.0,0.0, false, ToStoreVisit(SplitCosts(0,0,0,0,0,0),0,"","")), false
+    end
+end
+
+
 function greedyrandomizedconstruction(inst::Instance, paramchosen::ChosenParameters, paramfixed::FixedParameters, max_time)
     @unpack N, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT = inst
     sol = initializeSol(inst)
-    new_visit, feasible = SelectNewVisitAllShips(inst, sol, paramchosen, paramfixed)
     continue_=true
     start = time_ns()
     elapsed = round((time_ns()-start)/1e9,digits=3)
     count_when=0
+    list_to_be_visited = Vector{Tuple}()
+    for n in 1:N
+        for (c,p) in enumerate(Pi[n])
+            push!(list_to_be_visited, (n,c))
+        end
+    end
+    list_to_be_visited_first = Vector{Tuple}()
+    for n in 1:N
+        push!(list_to_be_visited_first, (n,1))
+    end
+    new_visit, feasible = SelectNewVisitOrderedShips(inst, sol, paramchosen, paramfixed, list_to_be_visited_first)
     while continue_ && elapsed<max_time
         @unpack n,c,b,t,cost,distance,constrained,store= new_visit
+        deleteat!(list_to_be_visited, findall(x->x==(n,c),list_to_be_visited))
+        deleteat!(list_to_be_visited_first, findall(x->x==(n,c),list_to_be_visited_first))
+        if c<length(Pi[n])
+            push!(list_to_be_visited_first, (n,c+1))
+        end
         count_when+=1
         store.when=count_when
         l = ceil(Int, shipsIn[n].l/qli)
@@ -649,20 +840,24 @@ function greedyrandomizedconstruction(inst::Instance, paramchosen::ChosenParamet
 
 
         if continue_
-            new_visit, feasible = SelectNewVisitAllShips(inst, sol, paramchosen, paramfixed)
+            new_visit, feasible = SelectNewVisitOrderedShips(inst, sol, paramchosen, paramfixed, list_to_be_visited_first)
             if feasible==false
-                #print('\n')
-                #print("Continue but not feasible")
-                #print('\n')
-                #print(round((time_ns()-start)/1e9,digits=3))
+                feasible=true
+                new_visit, feasible = SelectNewVisitAllShips(inst, sol, paramchosen, paramfixed)
+            end
+            if feasible==false
+                print('\n')
+                print("Continue but not feasible")
+                print('\n')
+                print(round((time_ns()-start)/1e9,digits=3))
                 sol.failed=1
                 nb_to_remove_visits=0
                 nb_to_remove_ships=0
-                #print('\n')
-                #print("###################")
-                #print('\n')
-                #print("We did not find a at first try solution")
-                #print('\n')
+                print('\n')
+                print("###################")
+                print('\n')
+                print("We did not find a at first try solution")
+                print('\n')
                 #print(sol.visits)
                 #print('\n')
                 for n in 1:N
@@ -711,6 +906,400 @@ function greedyrandomizedconstruction(inst::Instance, paramchosen::ChosenParamet
                                     t_ = new_visit.t
                                     l_ = ceil(Int, shipsIn[n_].l/qli)
                                     store = new_visit.store
+                                    count_when+=1
+                                    store.when=count_when
+                                    store.tacticAll = "reconstruct"
+                                    hand = ceil(Int, h[n_][c_][b_])
+                                    @unpack M, visits = sol
+                                    sol.visits =updateTimesAfterVisit(inst, visits, n_, c_, b_, t_)
+                                    sol.M = updateMpositions(inst, n_, c_, b_, t_, l_, hand, M)
+                                    sol.visits[n_][c_].p = Pi[n][c_]
+                                    sol.visits[n_][c_].b = b_
+                                    sol.visits[n_][c_].t = t_
+                                    sol.visits[n_][c_].planned = true
+                                    sol.visits[n_][c_].store = store
+                                else
+                                    elapsed = round((time_ns()-start)/1e9,digits=3)
+                                    #print('\n')
+                                    #print("Huston we have a problem : $elapsed")
+                                    #print('\n')
+                                    #print("The problematic visit : $n, $i")
+                                    #print('\n')
+                                    #print("###################")
+                                    #print('\n')
+                                    #print(sol.visits[n])
+                                    #print('\n')
+                                    return initializeSol(inst)
+                                end
+                            end
+                        end
+                    end
+                end
+                continue_=false
+                for boat_vis in sol.visits
+                    for vis in boat_vis
+                        if vis.planned == false
+                            continue_ = true
+                        end
+                    end
+                end
+                if continue_==false
+                    elapsed = round((time_ns()-start)/1e9,digits=3)
+                    #print('\n')
+                    #print("The time it took : $elapsed")
+                end
+            end
+        else
+            elapsed = round((time_ns()-start)/1e9,digits=3)
+            #print('\n')
+            #print("The time it took : $elapsed")
+        end
+    end
+
+    #print("###################")
+    #print('\n')
+    #print("Number of time we had to stop the heuristic")
+    #print('\n')
+    #print(not_find_total)
+    #print('\n')
+    return sol #, solution
+end
+
+
+function greedyorderedconstruction(inst::Instance, paramchosen::ChosenParameters, paramfixed::FixedParameters, when_list, max_time)
+    @unpack N, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT = inst
+    sol = initializeSol(inst)
+    when_list = sort(when_list, by = x -> x[3])
+    continue_=true
+    start = time_ns()
+    elapsed = round((time_ns()-start)/1e9,digits=3)
+    n=when_list[1][1]
+    c=when_list[1][2]   
+    p=Pi[n][c]
+    new_visit, new_visit_constrained, feasible, count_visit=SelectNewVisitPerShip(inst, sol, paramchosen, paramfixed, n, c, p, false)
+    when_list=when_list[min(2,length(when_list)):length(when_list)]
+    while continue_ && elapsed<max_time
+        @unpack n,c,b,t,cost,distance,constrained,store= new_visit
+        count_when=3
+        store.when=count_when
+        l = ceil(Int, shipsIn[n].l/qli)
+        hand = ceil(Int, h[n][c][b])
+        @unpack M, visits = sol
+        sol.visits = updateTimesAfterVisit(inst, visits, n, c, b, t)
+        sol.M = updateMpositions(inst, n, c, b, t, l, hand, M)
+        @unpack M, visits = sol
+        sol.visits[n][c].p = Pi[n][c]
+        sol.visits[n][c].b = b
+        sol.visits[n][c].t = t
+        sol.visits[n][c].planned = true
+        sol.visits[n][c].store = store
+        continue_=false
+        for boat_vis in sol.visits
+            for vis in boat_vis
+                if vis.planned == false
+                    continue_ = true
+                end
+            end
+        end
+
+
+        if continue_
+            n=when_list[1][1]
+            c=when_list[1][2]   
+            p=Pi[n][c]
+            new_visit, new_visit_constrained, feasible, count_visit=SelectNewVisitPerShip(inst, sol, paramchosen, paramfixed, n, c, p, false)
+            if feasible
+                if length(when_list)>1
+                    when_list=when_list[2:length(when_list)]
+                else
+                    when_list=[]
+                end
+            end
+            if feasible==false
+                feasible=true
+                print("loooooooool")
+                new_visit, feasible = SelectNewVisitAllShips(inst, sol, paramchosen, paramfixed)
+            end
+            if feasible==false
+                print('\n')
+                print("Continue but not feasible")
+                print('\n')
+                print(round((time_ns()-start)/1e9,digits=3))
+                sol.failed=1
+                nb_to_remove_visits=0
+                nb_to_remove_ships=0
+                print('\n')
+                print("###################")
+                print('\n')
+                print("We did not find a at first try solution")
+                print('\n')
+                #print(sol.visits)
+                #print('\n')
+                for n in 1:N
+                    this_ship_remove = false
+                    for (c,p) in enumerate(inst.Pi[n])
+                        if sol.visits[n][c].planned == false
+                            sol.visits[n][c].failed=1
+                            this_ship_remove = true
+                            if c<length(inst.Pi[n])
+                                for i in c:length(inst.Pi[n])
+                                    nb_to_remove_visits+=1
+                                    sol.visits[n][i].p = -1
+                                    sol.visits[n][i].b = -1
+                                    sol.visits[n][i].t = -1
+                                    sol.visits[n][i].planned = false
+                                    sol.visits[n][i].minT = max(shipsIn[n].sT[i], T[n,i,1])
+                                    sol.visits[n][i].maxT = maxT
+                                end
+                            end
+                        end
+                    end
+                    if this_ship_remove
+                        nb_to_remove_ships+=1
+                    end
+                end
+                print('\n')
+                print("Number of visits removed :")
+                print('\n')
+                print(nb_to_remove_visits)
+                print('\n')
+                print("Number of ships removed :")
+                print('\n')
+                print(nb_to_remove_ships)
+                sol.M = generateOccupiedMx(inst, sol.visits)
+                boat_order = 1:N
+                random_boat_order = shuffle(boat_order)
+                for n in random_boat_order
+                    for (c,p) in enumerate(inst.Pi[n])
+                        if sol.visits[n][c].planned == false
+                            for i in c:length(inst.Pi[n])
+                                new_visit, new_visit_constrained, feasible=SelectNewVisitPerShipReconstruct(inst, sol, paramchosen, paramfixed, n, i, Pi[n][i], false)
+                                if feasible
+                                    n_ = new_visit.n
+                                    c_ = new_visit.c
+                                    b_ = new_visit.b
+                                    t_ = new_visit.t
+                                    l_ = ceil(Int, shipsIn[n_].l/qli)
+                                    store = new_visit.store
+                                    count_when+=1
+                                    store.when=count_when
+                                    store.tacticAll = "reconstruct"
+                                    hand = ceil(Int, h[n_][c_][b_])
+                                    @unpack M, visits = sol
+                                    sol.visits =updateTimesAfterVisit(inst, visits, n_, c_, b_, t_)
+                                    sol.M = updateMpositions(inst, n_, c_, b_, t_, l_, hand, M)
+                                    sol.visits[n_][c_].p = Pi[n][c_]
+                                    sol.visits[n_][c_].b = b_
+                                    sol.visits[n_][c_].t = t_
+                                    sol.visits[n_][c_].planned = true
+                                    sol.visits[n_][c_].store = store
+                                else
+                                    elapsed = round((time_ns()-start)/1e9,digits=3)
+                                    #print('\n')
+                                    #print("Huston we have a problem : $elapsed")
+                                    #print('\n')
+                                    #print("The problematic visit : $n, $i")
+                                    #print('\n')
+                                    #print("###################")
+                                    #print('\n')
+                                    #print(sol.visits[n])
+                                    #print('\n')
+                                    return initializeSol(inst)
+                                end
+                            end
+                        end
+                    end
+                end
+                continue_=false
+                for boat_vis in sol.visits
+                    for vis in boat_vis
+                        if vis.planned == false
+                            continue_ = true
+                        end
+                    end
+                end
+                if continue_==false
+                    elapsed = round((time_ns()-start)/1e9,digits=3)
+                    #print('\n')
+                    #print("The time it took : $elapsed")
+                end
+            end
+        else
+            elapsed = round((time_ns()-start)/1e9,digits=3)
+            #print('\n')
+            #print("The time it took : $elapsed")
+        end
+    end
+
+    #print("###################")
+    #print('\n')
+    #print("Number of time we had to stop the heuristic")
+    #print('\n')
+    #print(not_find_total)
+    #print('\n')
+    return sol #, solution
+end
+
+
+
+function greedyremoverandomconstruction(inst::Instance, this_sol::Sol,  paramchosen::ChosenParameters, paramfixed::FixedParameters, max_time)
+    @unpack N, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT = inst
+    sol=deepcopy(this_sol)
+    continue_=true
+    start = time_ns()
+    elapsed = round((time_ns()-start)/1e9,digits=3)
+
+    boats_to_remove = Vector{}()
+    for n in 1:N
+        push!(boats_to_remove, n)
+    end
+    boats_to_remove = sample(boats_to_remove, ceil(Int,0.2*N); replace=false)
+    for n in boats_to_remove
+        for (c,p) in enumerate(Pi[n])
+            sol.visits[n][c].p = -1
+            sol.visits[n][c].b = -1
+            sol.visits[n][c].t = -1
+            sol.visits[n][c].planned = false
+            sol.visits[n][c].minT = max(shipsIn[n].sT[c], T[n,c,1])
+            sol.visits[n][c].maxT = maxT
+        end
+    end
+
+    #visits_to_remove = Vector{Tuple}()
+    #for n in 1:N
+    #    for (c,p) in enumerate(Pi[n])
+    #        push!(visits_to_remove, (n,c))
+    #    end
+    #end
+    #visits_to_remove = sample(visits_to_remove, ceil(Int,0.8*N); replace=false)
+    #for (n,c) in visits_to_remove
+    #    sol.visits[n][c].p = -1
+    #    sol.visits[n][c].b = -1
+    #    sol.visits[n][c].t = -1
+    #    sol.visits[n][c].planned = false
+    #    sol.visits[n][c].minT = max(shipsIn[n].sT[c], T[n,c,1])
+    #    sol.visits[n][c].maxT = maxT
+    #end
+
+    count_when=0
+    list_to_be_visited = Vector{Tuple}()
+    for n in 1:N
+        for (c,p) in enumerate(Pi[n])
+            if sol.visits[n][c].planned == false
+                push!(list_to_be_visited, (n,c))
+            end
+        end
+    end
+    list_to_be_visited_first = Vector{Tuple}()
+    for n in 1:N
+        this_boat_first = true
+        for (c,p) in enumerate(Pi[n])
+            if sol.visits[n][c].planned == false && this_boat_first
+                push!(list_to_be_visited_first, (n,c))
+                this_boat_first = false
+            end
+        end
+    end
+    new_visit, feasible = SelectNewVisitOrderedShips(inst, sol, paramchosen, paramfixed, list_to_be_visited_first)
+    while continue_ && elapsed<max_time
+        @unpack n,c,b,t,cost,distance,constrained,store= new_visit
+        deleteat!(list_to_be_visited, findall(x->x==(n,c),list_to_be_visited))
+        deleteat!(list_to_be_visited_first, findall(x->x==(n,c),list_to_be_visited_first))
+        if c<length(Pi[n])
+            push!(list_to_be_visited_first, (n,c+1))
+        end
+        count_when+=1
+        store.when=count_when
+        l = ceil(Int, shipsIn[n].l/qli)
+        hand = ceil(Int, h[n][c][b])
+        @unpack M, visits = sol
+        sol.visits = updateTimesAfterVisit(inst, visits, n, c, b, t)
+        sol.M = updateMpositions(inst, n, c, b, t, l, hand, M)
+        @unpack M, visits = sol
+        sol.visits[n][c].p = Pi[n][c]
+        sol.visits[n][c].b = b
+        sol.visits[n][c].t = t
+        sol.visits[n][c].planned = true
+        sol.visits[n][c].store = store
+                
+        continue_=false
+        for boat_vis in sol.visits
+            for vis in boat_vis
+                if vis.planned == false
+                    continue_ = true
+                end
+            end
+        end
+
+
+        if continue_
+            new_visit, feasible = SelectNewVisitOrderedShips(inst, sol, paramchosen, paramfixed, list_to_be_visited_first)
+            if feasible==false
+                feasible=true
+                new_visit, feasible = SelectNewVisitAllShips(inst, sol, paramchosen, paramfixed)
+            end
+            if feasible==false
+                print('\n')
+                print("Continue but not feasible")
+                print('\n')
+                print(round((time_ns()-start)/1e9,digits=3))
+                sol.failed=1
+                nb_to_remove_visits=0
+                nb_to_remove_ships=0
+                print('\n')
+                print("###################")
+                print('\n')
+                print("We did not find a at first try solution")
+                print('\n')
+                #print(sol.visits)
+                #print('\n')
+                for n in 1:N
+                    this_ship_remove = false
+                    for (c,p) in enumerate(inst.Pi[n])
+                        if sol.visits[n][c].planned == false
+                            sol.visits[n][c].failed=1
+                            this_ship_remove = true
+                            if c<length(inst.Pi[n])
+                                for i in c:length(inst.Pi[n])
+                                    nb_to_remove_visits+=1
+                                    sol.visits[n][i].p = -1
+                                    sol.visits[n][i].b = -1
+                                    sol.visits[n][i].t = -1
+                                    sol.visits[n][i].planned = false
+                                    sol.visits[n][i].minT = max(shipsIn[n].sT[i], T[n,i,1])
+                                    sol.visits[n][i].maxT = maxT
+                                end
+                            end
+                        end
+                    end
+                    if this_ship_remove
+                        nb_to_remove_ships+=1
+                    end
+                end
+                print('\n')
+                print("Number of visits removed :")
+                print('\n')
+                print(nb_to_remove_visits)
+                print('\n')
+                print("Number of ships removed :")
+                print('\n')
+                print(nb_to_remove_ships)
+                sol.M = generateOccupiedMx(inst, sol.visits)
+                boat_order = 1:N
+                random_boat_order = shuffle(boat_order)
+                for n in random_boat_order
+                    for (c,p) in enumerate(inst.Pi[n])
+                        if sol.visits[n][c].planned == false
+                            for i in c:length(inst.Pi[n])
+                                new_visit, new_visit_constrained, feasible=SelectNewVisitPerShipReconstruct(inst, sol, paramchosen, paramfixed, n, i, Pi[n][i], false)
+                                if feasible
+                                    n_ = new_visit.n
+                                    c_ = new_visit.c
+                                    b_ = new_visit.b
+                                    t_ = new_visit.t
+                                    l_ = ceil(Int, shipsIn[n_].l/qli)
+                                    store = new_visit.store
+                                    count_when+=1
                                     store.when=count_when
                                     store.tacticAll = "reconstruct"
                                     hand = ceil(Int, h[n_][c_][b_])
@@ -880,9 +1469,8 @@ function UpdateParameters(paramchosen::ChosenParameters, allparam::AllParameters
 end
 
 
-function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, time_local, max_time_heur, max_time, expname, location)
+function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temperature, time_local, max_time_heur, max_time, expname, location)
     inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
-    dictionnary_csv =
     @unpack N, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp = inst
     cost=1000000000
     worst_cost=1000000000
@@ -895,13 +1483,43 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, time_l
     nb_iter=0
     d_alliter_before=Dict()
     d_alliter_after=Dict()
-    penalty_cost_list = Vector{Tuple}()
+    when_list = Vector{Tuple}()
+    when_dict=Dict()
+    count_better_heur_solution = 0
     min_cost_heur=1000000000
+    for n in 1:N
+        when_dict[n]=Dict()
+        for c in 1:length(inst.Pi[n])
+            when_dict[n][c]=0
+            
+        end
+    end
+    for n in 1:N
+        for c in 1:length(inst.Pi[n])
+            push!(when_list,(n,c,1))            
+        end
+    end
+    proba_temperature=1
+    first_good_solution= false
     while elapsed<max_time
         paramchosen = ChooseParam(allparam, type1, type2, type3)
         start_heur = time_ns()
-        new_sol = greedyrandomizedconstruction(inst, paramchosen, paramfixed, max_time_heur)
-
+        random_value = rand()
+        if random_value <= proba_temperature || nb_iter < 20 || first_good_solution == false
+            proba_temperature = proba_temperature*temperature
+            new_sol = greedyrandomizedconstruction(inst, paramchosen, paramfixed, max_time_heur)
+        else
+            print('\n')
+            print("GREEDY ORDERED CONSTRUCTION")
+            print('\n')
+            print("The temperature is : $temperature")
+            print('\n')
+            print("#############################")
+            proba_temperature = 1
+            #new_sol = greedyorderedconstruction(inst, paramchosen, paramfixed, when_list, max_time_heur)
+            new_sol = greedyremoverandomconstruction(inst, sol, paramchosen, paramfixed, max_time_heur)
+        end
+        proba_temperature = proba_temperature*temperature
         elapsed_heur = round((time_ns()-start_heur)/1e9,digits=3)
         feasible = true
         ## No conflicts with within one boat schedule :
@@ -914,6 +1532,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, time_l
             end
         end
         if feasible && checkSolutionFeasability(inst, new_sol)
+
             new_cost_heur, delay_cost_heur, waiting_cost_heur, penalty_cost_heur, handling_cost_heur, fuel_cost_heur = checkSolutionCost(inst, new_sol)
             
             #print('\n')
@@ -925,13 +1544,30 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, time_l
             start_local=time_ns()
 
             new_sol, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = pushTime(inst, new_sol, time_local)
-            if new_cost<min_cost_heur+0.1*min_cost_heur
+            if new_cost<min_cost_heur
+                min_cost_heur=new_cost
+            end
+            if new_cost<min_cost_heur+0.1*min_cost_heur && nb_iter>20
+                first_good_solution = true
+                when_list = Vector{Tuple}()
+                count_better_heur_solution+=1
+                for n in 1:N
+                    for c in 1:length(inst.Pi[n])
+                        when_dict[n][c]=(when_dict[n][c]+sol.visits[n][c].store.when)/count_better_heur_solution
+                    end
+                end
+                for n in 1:N
+                    for c in 1:length(inst.Pi[n])
+                        push!(when_list, (n,c,when_dict[n][c]))
+                    end
+                end
                 new_sol, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = local_search(inst, deepcopy(new_sol), ceil(Int,cost), paramchosen, paramfixed, time_local)
+            end
+            if nb_iter<20
                 if new_cost<min_cost_heur
                     min_cost_heur=new_cost
                 end
             end
-
             #new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = new_cost_heur, delay_cost_heur, waiting_cost_heur, penalty_cost_heur, handling_cost_heur, fuel_cost_heur
 
             elapsed_local = round((time_ns()-start_local)/1e9,digits=3)
@@ -939,7 +1575,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, time_l
             #print("After local search")
             #print('\n')
             #print(new_sol.visits)
-            #print('\n')
+            print('\n')
             print("Cost at the end of local search")
             print('\n')
             print(new_cost)
@@ -953,13 +1589,11 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, time_l
             new_sol.store.timeLocalSearch=elapsed_local
             new_sol.store.parameters=allparam.Proba
             elapsed_iter = round((time_ns()-start_iter)/1e9,digits=3)
-            penalty_cost_list = Vector{Tuple}()
             for n in 1:N
                 for (c,p) in enumerate(Pi[n])
                     t = new_sol.visits[n][c].t
                     b = new_sol.visits[n][c].b
                     this_cost, delay_cost, waiting_cost, penalty, handling_cost, fuel_cost, feas = computeCostPosSol(inst, n, c, b, t,new_sol)
-                    push!(penalty_cost_list, (n,c,penalty))
                     new_sol.visits[n][c].store.cost =  SplitCosts(ceil(Int, this_cost), ceil(Int,delay_cost), ceil(Int,waiting_cost), ceil(Int,penalty), ceil(Int,handling_cost), ceil(Int,fuel_cost))
                 end
             end
@@ -1061,21 +1695,24 @@ function testallfunction()
     time_local=5
 
     # Maximum time for the heuristic :
-    max_time_heur=30
+    max_time_heur=5
 
     # maximum time for the experiment :
     max_time=300
 
+    # the temperature parameter :
+    temperature=0.93
+
 
     print("Start")
     print('\n')
-    for N in 11:11
-        for qli in [10]
-            for Nout in 3:3
-                for seed in 1:1
+    for N in 15:15
+        for qli in [80]
+            for Nout in 5:5
+                for seed in 5:5
                     print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
                     inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
-                    sol, cost, allparam = GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, time_local, max_time_heur, max_time, expname, location)
+                    sol, cost, allparam = GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temperature, time_local, max_time_heur, max_time, expname, location)
                     feasible=true
                     for n in 1:N
                         # The times :
