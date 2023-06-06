@@ -12,7 +12,7 @@ include("../toolsMatrixTimes.jl")
 include("../check_solution.jl")
 include("../utilInit.jl")
 #include("../localCPLEX.jl")
-include("../localSearch.jl")
+include("../localsearch.jl")
 
 mutable struct NewVisit
     n::Int64    # ship number

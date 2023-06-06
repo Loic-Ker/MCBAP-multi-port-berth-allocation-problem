@@ -113,7 +113,7 @@ newbenchmark = [Any["Seed","N","Nout","qli","OldLB","OldUB","OldTime","NewCost",
 import XLSX
 
 
-function makeExpText(type1, type2, type3, list_paramvisit, list_paramconstrained, time_local, max_time_heur, max_time, expname, location)
+function makeExpText(type1, type2, type3, list_paramvisit, list_paramconstrained, paramfixed, time_local, max_time_heur, max_time, expname, location)
     filename = location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/explanations.txt"
     txttype1="The tactic for each ship : "*type1
     txttype2="The tactic between the ships : "*type2
@@ -170,9 +170,9 @@ function makeSolHeur(type1, type2, type3, paramfixed, temperature, time_local, m
     xf = CSV.read(location*"MCBAP-multi-port-berth-allocation-problem/Small_Inst_Res.csv", DataFrame)
     newbenchmark = DataFrame(Seed= [0],N= [0],Nout= [0],qli= [0],HeurCost= [0])
     for N in minN:maxN
-        for qli in [10,20,40,80]
-            for Nout in 3:5
-                for seed in 1:5
+        for qli in [10]
+            for Nout in 5:5
+                for seed in 5:5
                     inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
                     #print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
                     if isdir(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
@@ -245,7 +245,7 @@ alphaboat=4
 alpharandom=15
 
 # All the parameters :
-#paramfixed=FixedParameters(prop_oneboatcost,prop_oneboatdist,prop_oneboattime,prop_allboatcost,prop_allboatcount,prop_allboattime,alpharandom,alphaboat)
+paramfixed=FixedParameters(alpharandom,alphaboat)
 
 # Maximum time for the local search :
 time_local=5
@@ -262,7 +262,7 @@ inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/data
 allparam = initializeParam(inst)
 list_paramvisit = allparam.Alpha.CostOneShip
 list_paramconstrained = allparam.Alpha.RateConstrained
-makeExpText(type1, type2, type3, list_paramvisit, list_paramconstrained, time_local, max_time_heur, max_time, expname, location)
+makeExpText(type1, type2, type3, list_paramvisit, list_paramconstrained, paramfixed, time_local, max_time_heur, max_time, expname, location)
 newbenchmark = makeSolHeur(type1, type2, type3, paramfixed, temperature, time_local, max_time_heur, max_time, expname, location, minN, maxN)
 CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/N$minN"*"_N$maxN"*".csv", newbenchmark)
 newbenchmark
