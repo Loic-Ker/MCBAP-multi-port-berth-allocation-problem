@@ -93,18 +93,23 @@ end
 mutable struct FixedParameters
     LocalSearchRandom::Int64
     LocalSearchBoat::Int64
+    PropToRemove::Float64
+    WindowSize::Float64
+    PushOnlyConstrained::Bool
 end
 
-function initializeSol(inst::Instance)
+
+function initializeSol(inst::Instance, allparam)
     @unpack N, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT = inst
     sol = Sol(inst)
-    # solution = [Vector{Tuple{Int64,Int64,Int64}}() for n in 1:N] # (p,b,t)
+    # solution = [Vector{Tuple{Int64,Int64,Int64}}() for n in 1:N] # (p,b,t) 
     for n in 1:N, (c,p) in enumerate(Pi[n])
         sol.visits[n][c].minT = max(shipsIn[n].sT[c], T[n,c,1])
         sol.visits[n][c].maxT = maxT
     end
     sol.M = generateOccupiedMx(inst, sol.visits)
     #sol = updateTimesInitialization(inst,sol)
+    sol.store.parameters = deepcopy(allparam.Proba)
     return sol
 end
 
@@ -228,15 +233,15 @@ function UpdateParameters(paramchosen::ChosenParameters, allparam::AllParameters
         index=3
     end
     nbexp = allparam.Nbexp.TacticOneBoat[index]
-    newparam.AverageCost.TacticOneBoat[index] = (allparam.AverageCost.TacticOneBoat[index]*nbexp+new_cost)/(nbexp+1)
-    newparam.Nbexp.TacticOneBoat[index]=nbexp+1
+    newparam.AverageCost.TacticOneBoat[index] = deepcopy((allparam.AverageCost.TacticOneBoat[index]*nbexp+new_cost)/(nbexp+1))
+    newparam.Nbexp.TacticOneBoat[index]=deepcopy(nbexp+1)
     for i in 1:3
         newav = deepcopy(newparam.AverageCost.TacticOneBoat[i])
-        newparam.Q.TacticOneBoat[i]=cost/newav
+        newparam.Q.TacticOneBoat[i]=deepcopy(cost/newav)
     end
     for i in 1:3
         newq=deepcopy(newparam.Q.TacticOneBoat[i])
-        newparam.Proba.TacticOneBoat[i] = newq/sum(newparam.Q.TacticOneBoat)
+        newparam.Proba.TacticOneBoat[i] = deepcopy(newq/sum(newparam.Q.TacticOneBoat))
     end
 
     index=0
@@ -249,57 +254,57 @@ function UpdateParameters(paramchosen::ChosenParameters, allparam::AllParameters
     if paramchosen.TacticAllBoats=="time"
         index=3
     end
-    nbexp = allparam.Nbexp.TacticAllBoats[index]
-    newparam.AverageCost.TacticAllBoats[index] = (allparam.AverageCost.TacticAllBoats[index]*nbexp+new_cost)/(nbexp+1)
-    newparam.Nbexp.TacticAllBoats[index]=nbexp+1
+    nbexp = deepcopy(allparam.Nbexp.TacticAllBoats[index])
+    newparam.AverageCost.TacticAllBoats[index] = deepcopy((allparam.AverageCost.TacticAllBoats[index]*nbexp+new_cost)/(nbexp+1))
+    newparam.Nbexp.TacticAllBoats[index]=deepcopy(nbexp+1)
     for i in 1:3
         newav = deepcopy(newparam.AverageCost.TacticAllBoats[i])
-        newparam.Q.TacticAllBoats[i]=cost/newav
+        newparam.Q.TacticAllBoats[i]=deepcopy(cost/newav)
     end
     for i in 1:3
         newq=deepcopy(newparam.Q.TacticAllBoats[i])
-        newparam.Proba.TacticAllBoats[i] = newq/sum(newparam.Q.TacticAllBoats)
+        newparam.Proba.TacticAllBoats[i] = deepcopy(newq/sum(newparam.Q.TacticAllBoats))
     end
 
     if paramchosen.TacticOneBoat=="cost"
-        nbexp=allparam.Nbexp.CostOneShip[paramchosen.IndexOneShip]
-        newparam.AverageCost.CostOneShip[paramchosen.IndexOneShip] = (allparam.AverageCost.CostOneShip[paramchosen.IndexOneShip]*nbexp+new_cost)/(nbexp+1)
-        newparam.Nbexp.CostOneShip[paramchosen.IndexOneShip]=nbexp+1
+        nbexp=deepcopy(allparam.Nbexp.CostOneShip[paramchosen.IndexOneShip])
+        newparam.AverageCost.CostOneShip[paramchosen.IndexOneShip] = deepcopy((allparam.AverageCost.CostOneShip[paramchosen.IndexOneShip]*nbexp+new_cost)/(nbexp+1))
+        newparam.Nbexp.CostOneShip[paramchosen.IndexOneShip]=deepcopy(nbexp+1)
         for i in 1:length(allparam.Nbexp.CostOneShip)
             newav = deepcopy(newparam.AverageCost.CostOneShip[i])
-            newparam.Q.CostOneShip[i]=cost/newav
+            newparam.Q.CostOneShip[i]=deepcopy(cost/newav)
         end
         for i in 1:length(allparam.Nbexp.CostOneShip)
             newq=deepcopy(newparam.Q.CostOneShip[i])
-            newparam.Proba.CostOneShip[i] = newq/sum(newparam.Q.CostOneShip)
+            newparam.Proba.CostOneShip[i] = deepcopy(newq/sum(newparam.Q.CostOneShip))
         end
     end
 
     if paramchosen.TacticOneBoat=="dist"
-        nbexp=allparam.Nbexp.DistOneShip[paramchosen.IndexOneShip]
-        newparam.AverageCost.DistOneShip[paramchosen.IndexOneShip] = (allparam.AverageCost.DistOneShip[paramchosen.IndexOneShip]*nbexp+new_cost)/(nbexp+1)
-        newparam.Nbexp.DistOneShip[paramchosen.IndexOneShip]=nbexp+1
+        nbexp=deepcopy(allparam.Nbexp.DistOneShip[paramchosen.IndexOneShip])
+        newparam.AverageCost.DistOneShip[paramchosen.IndexOneShip] = deepcopy((allparam.AverageCost.DistOneShip[paramchosen.IndexOneShip]*nbexp+new_cost)/(nbexp+1))
+        newparam.Nbexp.DistOneShip[paramchosen.IndexOneShip]=deepcopy(nbexp+1)
         for i in 1:length(allparam.Nbexp.CostOneShip)
             newav = deepcopy(newparam.AverageCost.DistOneShip[i])
-            newparam.Q.DistOneShip[i]=cost/newav
+            newparam.Q.DistOneShip[i]=deepcopy(cost/newav)
         end
         for i in 1:length(allparam.Nbexp.CostOneShip)
             newq=deepcopy(newparam.Q.DistOneShip[i])
-            newparam.Proba.DistOneShip[i] = newq/sum(newparam.Q.DistOneShip)
+            newparam.Proba.DistOneShip[i] = deepcopy(newq/sum(newparam.Q.DistOneShip))
         end
     end
 
     if paramchosen.TacticOneBoat=="time"
-        nbexp=allparam.Nbexp.TimeOneShip[paramchosen.IndexOneShip]
-        newparam.AverageCost.TimeOneShip[paramchosen.IndexOneShip] = (allparam.AverageCost.TimeOneShip[paramchosen.IndexOneShip]*nbexp+new_cost)/(nbexp+1)
-        newparam.Nbexp.TimeOneShip[paramchosen.IndexOneShip]=nbexp+1
+        nbexp=deepcopy(allparam.Nbexp.TimeOneShip[paramchosen.IndexOneShip])
+        newparam.AverageCost.TimeOneShip[paramchosen.IndexOneShip] = deepcopy((allparam.AverageCost.TimeOneShip[paramchosen.IndexOneShip]*nbexp+new_cost)/(nbexp+1))
+        newparam.Nbexp.TimeOneShip[paramchosen.IndexOneShip]=deepcopy(nbexp+1)
         for i in 1:length(allparam.Nbexp.CostOneShip)
             newav = deepcopy(newparam.AverageCost.TimeOneShip[i])
-            newparam.Q.TimeOneShip[i]=cost/newav
+            newparam.Q.TimeOneShip[i]=deepcopy(cost/newav)
         end
         for i in 1:length(allparam.Nbexp.CostOneShip)
             newq=deepcopy(newparam.Q.TimeOneShip[i])
-            newparam.Proba.TimeOneShip[i] = newq/sum(newparam.Q.TimeOneShip)
+            newparam.Proba.TimeOneShip[i] = deepcopy(newq/sum(newparam.Q.TimeOneShip))
         end
     end
 
@@ -319,26 +324,26 @@ function UpdateParameters(paramchosen::ChosenParameters, allparam::AllParameters
     end
 
     if paramchosen.TacticAllBoats=="count"
-        nbexp=allparam.Nbexp.CountAllShip[paramchosen.IndexAllShip]
-        newparam.AverageCost.CountAllShip[paramchosen.IndexAllShip] = (allparam.AverageCost.CountAllShip[paramchosen.IndexAllShip]*nbexp+new_cost)/(nbexp+1)
-        newparam.Nbexp.CountAllShip[paramchosen.IndexAllShip]=nbexp+1
+        nbexp=deepcopy(allparam.Nbexp.CountAllShip[paramchosen.IndexAllShip])
+        newparam.AverageCost.CountAllShip[paramchosen.IndexAllShip] = deepcopy((allparam.AverageCost.CountAllShip[paramchosen.IndexAllShip]*nbexp+new_cost)/(nbexp+1))
+        newparam.Nbexp.CountAllShip[paramchosen.IndexAllShip]=deepcopy(nbexp+1)
         for i in 1:length(allparam.Nbexp.CostOneShip)
             newav = deepcopy(newparam.AverageCost.CountAllShip[i])
-            newparam.Q.CountAllShip[i]=cost/newav
+            newparam.Q.CountAllShip[i]=deepcopy(cost/newav)
         end
         for i in 1:length(allparam.Nbexp.CostOneShip)
             newq=deepcopy(newparam.Q.CountAllShip[i])
-            newparam.Proba.CountAllShip[i] = newq/sum(newparam.Q.CountAllShip)
+            newparam.Proba.CountAllShip[i] = deepcopy(newq/sum(newparam.Q.CountAllShip))
         end
     end
 
     if paramchosen.TacticAllBoats=="time"
-        nbexp=allparam.Nbexp.TimeAllShip[paramchosen.IndexAllShip]
-        newparam.AverageCost.TimeAllShip[paramchosen.IndexAllShip] = (allparam.AverageCost.TimeAllShip[paramchosen.IndexAllShip]*nbexp+new_cost)/(nbexp+1)
-        newparam.Nbexp.TimeAllShip[paramchosen.IndexAllShip]=nbexp+1
+        nbexp=deepcopy(allparam.Nbexp.TimeAllShip[paramchosen.IndexAllShip])
+        newparam.AverageCost.TimeAllShip[paramchosen.IndexAllShip] = deepcopy((allparam.AverageCost.TimeAllShip[paramchosen.IndexAllShip]*nbexp+new_cost)/(nbexp+1))
+        newparam.Nbexp.TimeAllShip[paramchosen.IndexAllShip]=deepcopy(nbexp+1)
         for i in 1:length(allparam.Nbexp.CostOneShip)
             newav = deepcopy(newparam.AverageCost.TimeAllShip[i])
-            newparam.Q.TimeAllShip[i]=cost/newav
+            newparam.Q.TimeAllShip[i]=deepcopy(cost/newav)
         end
         for i in 1:length(allparam.Nbexp.CostOneShip)
             newq=deepcopy(newparam.Q.TimeAllShip[i])
@@ -346,16 +351,16 @@ function UpdateParameters(paramchosen::ChosenParameters, allparam::AllParameters
         end
     end
 
-    nbexp=allparam.Nbexp.RateConstrained[paramchosen.IndexRateConstrained]
-    newparam.AverageCost.RateConstrained[paramchosen.IndexRateConstrained] = (allparam.AverageCost.RateConstrained[paramchosen.IndexRateConstrained]*nbexp+new_cost)/(nbexp+1)
-    newparam.Nbexp.RateConstrained[paramchosen.IndexRateConstrained]=nbexp+1
+    nbexp=deepcopy(allparam.Nbexp.RateConstrained[paramchosen.IndexRateConstrained])
+    newparam.AverageCost.RateConstrained[paramchosen.IndexRateConstrained] = deepcopy((allparam.AverageCost.RateConstrained[paramchosen.IndexRateConstrained]*nbexp+new_cost)/(nbexp+1))
+    newparam.Nbexp.RateConstrained[paramchosen.IndexRateConstrained]=deepcopy(nbexp+1)
     for i in 1:length(allparam.Nbexp.CostOneShip)
         newav = deepcopy(newparam.AverageCost.RateConstrained[i])
-        newparam.Q.RateConstrained[i]=cost/newav
+        newparam.Q.RateConstrained[i]=deepcopy(cost/newav)
     end
     for i in 1:length(allparam.Nbexp.CostOneShip)
         newq=deepcopy(newparam.Q.RateConstrained[i])
-        newparam.Proba.RateConstrained[i] = newq/sum(newparam.Q.RateConstrained)
+        newparam.Proba.RateConstrained[i] = deepcopy(newq/sum(newparam.Q.RateConstrained))
     end
 
     index=0
@@ -365,16 +370,16 @@ function UpdateParameters(paramchosen::ChosenParameters, allparam::AllParameters
     if paramchosen.TacticLocalSearch=="boat"
         index=2
     end
-    nbexp = allparam.Nbexp.TacticLocalSearch[index]
-    newparam.AverageCost.TacticLocalSearch[index] = (allparam.AverageCost.TacticLocalSearch[index]*nbexp+new_cost)/(nbexp+1)
-    newparam.Nbexp.TacticLocalSearch[index]=nbexp+1
+    nbexp = deepcopy(allparam.Nbexp.TacticLocalSearch[index])
+    newparam.AverageCost.TacticLocalSearch[index] = deepcopy((allparam.AverageCost.TacticLocalSearch[index]*nbexp+new_cost)/(nbexp+1))
+    newparam.Nbexp.TacticLocalSearch[index]=deepcopy(nbexp+1)
     for i in 1:2
         newav = deepcopy(newparam.AverageCost.TacticLocalSearch[i])
-        newparam.Q.TacticLocalSearch[i]=cost/newav
+        newparam.Q.TacticLocalSearch[i]=deepcopy(cost/newav)
     end
     for i in 1:2
         newq=deepcopy(newparam.Q.TacticLocalSearch[i])
-        newparam.Proba.TacticLocalSearch[i] = newq/sum(newparam.Q.TacticLocalSearch)
+        newparam.Proba.TacticLocalSearch[i] = deepcopy(newq/sum(newparam.Q.TacticLocalSearch))
     end
     return newparam
 end

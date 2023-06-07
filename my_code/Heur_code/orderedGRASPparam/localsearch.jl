@@ -43,7 +43,7 @@ function getSpecificAvailableTimes(inst::Instance, sol::Sol, listnc::Vector{Tupl
     return pos_time
 end
 
-function getSpecificConstrainedAvailableTimes(inst::Instance, sol::Sol, listnc::Vector{Tuple})
+function getSpecificConstrainedAvailableTimes(inst::Instance, sol::Sol, listnc::Vector{Tuple}, paramfixed)
     @unpack N, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT, qli = inst
     pos_time = Vector{Tuple}()
     for (n,c) in listnc
@@ -57,17 +57,20 @@ function getSpecificConstrainedAvailableTimes(inst::Instance, sol::Sol, listnc::
             for t in t1:this_sol_time
                 if t + hand <= this_sol_time
                     if sol.M[n][c][b,t+1]
-                        #if b==1 || b>=Bp[Pi[n][c]]-l-1 
-                        #    notfoud = true
-                        #    push!(pos_time,(n,c,b,t,t+hand))
-                        #else
-                        #    if false in sol.M[n][c][b+l:b+l+1,t+1:t+hand]  || false in sol.M[n][c][max(b-1,1):b,t+1:t+hand]
-                        #        notfoud = true
-                        #        push!(pos_time,(n,c,b,t,t+hand))
-                        #    end
-                        #end
-                        notfoud = true
-                        push!(pos_time,(n,c,b,t,t+hand))
+                        if paramfixed.PushOnlyConstrained
+                            if b==1 || b>=Bp[Pi[n][c]]-l-1 
+                                notfoud = true
+                                push!(pos_time,(n,c,b,t,t+hand))
+                            else
+                                if false in sol.M[n][c][b+l:b+l+1,t+1:t+hand]  || false in sol.M[n][c][max(b-1,1):b,t+1:t+hand]
+                                    notfoud = true
+                                    push!(pos_time,(n,c,b,t,t+hand))
+                                end
+                            end
+                        else
+                            notfoud = true
+                            push!(pos_time,(n,c,b,t,t+hand))
+                        end
                     end
                 end
             end
@@ -81,7 +84,7 @@ function getSpecificConstrainedAvailableTimes(inst::Instance, sol::Sol, listnc::
 end
 
 
-function pushTime(inst::Instance, sol::Sol, timelocal)
+function pushTime(inst::Instance, sol::Sol, paramfixed, timelocal)
     @unpack N, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT = inst
     listnc = Vector{Tuple}()
     cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost=checkSolutionCost(inst, sol)
@@ -101,7 +104,7 @@ function pushTime(inst::Instance, sol::Sol, timelocal)
             pos_time = getSpecificAvailableTimes(inst, new_sol, listnc)
             first=false
         else
-            pos_time = getSpecificConstrainedAvailableTimes(inst, new_sol, listnc)
+            pos_time = getSpecificConstrainedAvailableTimes(inst, new_sol, listnc, paramfixed)
         end
         chosennc = pos_time[1]
         n = chosennc[1]
@@ -152,7 +155,7 @@ function CPLEXoptimizeLocalSearch(inst::Instance, sol::Sol, not_taken)
     set_optimizer_attribute(m, "CPX_PARAM_EPINT", 1e-8)
     set_optimizer_attribute(m, "CPXPARAM_Threads", 1)
     set_optimizer_attribute(m, "CPX_PARAM_TILIM", 10)
-    set_silent(m)
+    #set_silent(m)
 
     @unpack N, Ntot, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT, Nl, gamma, Hc, Dc, Fc, Ic, Pc, beta, ports = inst
 

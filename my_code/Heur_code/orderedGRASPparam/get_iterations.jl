@@ -29,8 +29,7 @@ function prepareSolIter(seed,N,Nout,qli, nb_iter, inst, sol, cost, allparam, par
     list_tacticboat=sol.store.parameters.TacticOneBoat
     list_tacticall = sol.store.parameters.TacticAllBoats
     list_tacticlocalsearch = sol.store.parameters.TacticLocalSearch
-
-    print(list_tacticboat)
+    
     for el in 1:length(list_tacticboat)
         list_tacticboat[el] = round(list_tacticboat[el], digits=4)
     end
@@ -62,6 +61,15 @@ function prepareSolIter(seed,N,Nout,qli, nb_iter, inst, sol, cost, allparam, par
     ## Get the instances 
     d["inst"]= inst.Pi
 
+    print("Some proba :")
+    print('\n')
+    print("Tactic boat (should not evolve) :")
+    print(list_tacticboat)
+    print('\n')
+    print("Time proba one ship (should evolve) :")
+    print(allparam.Proba.TimeOneShip)
+    print('\n')
+    
     ## Get the port calls
     T_vec=Vector{Vector{Vector{Int64}}}()
     for n in 1:N
