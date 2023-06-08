@@ -201,7 +201,7 @@ function makeSolHeur(type1, type2, type3, paramfixed, temperature, time_local, m
                     end
                     if feasible && checkSolutionFeasability(inst, sol)
                         d=prepareSol(inst, sol, cost)
-                        CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASP/$expname"*"/final_sols/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
+                        CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/final_sols/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
                     end
                
                     this_benchmark=DataFrame(Seed= [seed],N= [N],Nout= [Nout],qli= [qli],HeurCost= [ ceil(Int, cost)])

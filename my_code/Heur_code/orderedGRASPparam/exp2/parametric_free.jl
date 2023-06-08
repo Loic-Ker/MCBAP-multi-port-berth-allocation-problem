@@ -12,7 +12,7 @@ include("../toolsMatrixTimes.jl")
 include("../check_solution.jl")
 include("../utilInit.jl")
 #include("../localCPLEX.jl")
-include("../localSearch.jl")
+include("../localsearch.jl")
 
 mutable struct NewVisit
     n::Int64    # ship number
@@ -1238,18 +1238,18 @@ function greedyremoverandomconstruction(inst::Instance, this_sol::Sol,  paramcho
                 new_visit, feasible = SelectNewVisitAllShips(inst, sol, paramchosen, allparam, paramfixed)
             end
             if feasible==false
-                print('\n')
-                print("Continue but not feasible")
-                print('\n')
-                print(round((time_ns()-start)/1e9,digits=3))
+                #print('\n')
+                #print("Continue but not feasible")
+                #print('\n')
+                #print(round((time_ns()-start)/1e9,digits=3))
                 sol.failed=1
                 nb_to_remove_visits=0
                 nb_to_remove_ships=0
-                print('\n')
-                print("###################")
-                print('\n')
-                print("We did not find a at first try solution")
-                print('\n')
+                #print('\n')
+                #print("###################")
+                #print('\n')
+                #print("We did not find a at first try solution")
+                #print('\n')
                 #print(sol.visits)
                 #print('\n')
                 for n in 1:N
@@ -1473,13 +1473,13 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
             #print('\n')
             #print(new_sol.visits)
             #print('\n')
-            print("Cost at the end of local search")
-            print('\n')
-            print(new_cost)
-            print('\n')
-            print("Old cost")
-            print('\n')
-            print(new_cost_heur)
+            #print("Cost at the end of local search")
+            #print('\n')
+            #print(new_cost)
+            #print('\n')
+            #print("Old cost")
+            #print('\n')
+            #print(new_cost_heur)
             new_sol.store.costHeur=SplitCosts(ceil(Int,new_cost_heur), ceil(Int,delay_cost_heur), ceil(Int,waiting_cost_heur), ceil(Int,penalty_cost_heur), ceil(Int,handling_cost_heur), ceil(Int,fuel_cost_heur))
             new_sol.store.costLocal=SplitCosts(ceil(Int,new_cost), ceil(Int,delay_cost), ceil(Int,waiting_cost), ceil(Int,penalty_cost), ceil(Int, handling_cost), ceil(Int,fuel_cost))
             new_sol.store.timeHeur=elapsed_heur
@@ -1543,8 +1543,8 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
         #print('\n')
         #print("The solution is feasible")
         for iter in keys(d_alliter_after)
-            #CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASP/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$iter"*"_beforelocal"*".csv", d_alliter_before[iter])
-            #CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASP/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$iter"*".csv", d_alliter_after[iter])
+            CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$iter"*"_beforelocal"*".csv", d_alliter_before[iter])
+            CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$iter"*".csv", d_alliter_after[iter])
         end
         #print('\n')
         #print("The number of iterations is :")
@@ -1552,7 +1552,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
         #print(nb_iter)
         nb_iter+=1
         d = prepareSolIter(seed,N,Nout,qli,nb_iter,inst, sol, cost, allparam, paramfixed, expname)
-        #CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASP/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$nb_iter"*".csv", d)
+        CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$nb_iter"*".csv", d)
         return sol, cost, allparam
     else
         cost=1000000000
@@ -1651,5 +1651,3 @@ function testallfunction()
     end
 end
 
-
-testallfunction()

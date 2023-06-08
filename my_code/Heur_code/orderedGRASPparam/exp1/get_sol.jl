@@ -170,8 +170,8 @@ function makeSolHeur(type1, type2, type3, paramfixed, temperature, time_local, m
     xf = CSV.read(location*"MCBAP-multi-port-berth-allocation-problem/Small_Inst_Res.csv", DataFrame)
     newbenchmark = DataFrame(Seed= [0],N= [0],Nout= [0],qli= [0],HeurCost= [0])
     for N in minN:maxN
-        for qli in [10]
-            for Nout in 5:5
+        for qli in [10]#,20,40,80]
+            for Nout in 3:3
                 for seed in 5:5
                     inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
                     #print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
@@ -241,8 +241,8 @@ prop_allboatcount = 0.2
 prop_allboattime = 0.5
 
 # The number of boat to remove for the local search :
-alphaboat=4
-alpharandom=15
+alphaboat=5
+alpharandom=20
 
 # All the parameters :
 paramfixed=FixedParameters(alpharandom,alphaboat)
