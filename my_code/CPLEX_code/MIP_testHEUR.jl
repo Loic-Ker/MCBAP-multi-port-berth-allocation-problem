@@ -147,7 +147,7 @@ function CPLEXoptimize(N,Nout,seed,qli, location, expname)
         
 
         #### Fixing variables to compare to heur
-        heur_results = CSV.File(location*"results_jobs/benchmarks_HEUR/orderedGRASP/$expname"*"/final_sols/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv") |> Dict
+        heur_results = CSV.File(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/final_sols/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv") |> Dict
         x_heur = eval(Meta.parse(heur_results["x"]))
         y_heur = eval(Meta.parse(heur_results["y"]))
         hand_heur = eval(Meta.parse(heur_results["hand"]))
@@ -272,12 +272,12 @@ end
 
 
 function makeSoltest()
-    expname="exp1"
+    expname="exp2"
     location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
     #location="/zhome/c3/6/164957/code_git/"
     newbenchmark = DataFrame(Seed= [0],N= [0],Nout= [0],qli= [0], CPLEXHeur= [0], Heur=[0], Box= [""]) #HeurCost= [0],
     for N in 11:15
-        xf = CSV.read(location*"results_jobs/benchmarks_HEUR/orderedGRASP/$expname"*"/N$minN"*"_N$maxN"*".csv", DataFrame)
+        xf = CSV.read(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/N$minN"*"_N$maxN"*".csv", DataFrame)
         for qli in [10,20,40,80]
             for Nout in 3:5
                 for seed in 1:5
@@ -297,4 +297,4 @@ end
 newbenchmark = makeSoltest()
 
 
-CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASP/$expname"*"/checkcost_HEUR.csv", newbenchmark)
+CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/checkcost_HEUR.csv", newbenchmark)

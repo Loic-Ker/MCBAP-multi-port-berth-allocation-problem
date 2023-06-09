@@ -225,7 +225,7 @@ maxN = parse(Int64,ARGS[2])
 #maxN=15
 
 # The experience name :
-expname="exp2"
+expname="exp3biginstance"
 
 # The tactic types :
 type1="time" 
@@ -245,7 +245,7 @@ window=0.2
 
 # The number of boat to remove for the local search :
 alphaboat=5
-alpharandom=20
+alpharandom=15
 
 # The prop of ships to remove for the reconstruction :
 proptoremove=0.25
@@ -268,8 +268,7 @@ max_time=300
 # the temperature parameter :
 temperature=0.93
 
-inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/data_small/CP2_Inst_1_15_5_10.txt")
-allparam = initializeParam(inst)
+allparam = initializeParam()
 list_paramvisit = allparam.Alpha.CostOneShip
 list_paramconstrained = allparam.Alpha.RateConstrained
 makeExpText(type1, type2, type3, list_paramvisit, list_paramconstrained, time_local, max_time_heur, max_time, expname, location)

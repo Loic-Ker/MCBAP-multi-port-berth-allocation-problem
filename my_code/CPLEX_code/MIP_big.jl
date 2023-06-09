@@ -1,5 +1,5 @@
 
-include("../MBAP_INST_CPLEX.jl")
+include("../MBAP_INST.jl")
 import XLSX
 ## Package to save the dict
 using CSV, Tables
@@ -76,7 +76,7 @@ function CPLEXoptimize(N,Nout,seed,qli, time, location)
 
 
     #inst = readInstFromFile("D:/DTU-Courses/DTU-Thesis/berth_allocation/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
-    inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
+    inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/Large/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
     @unpack N, Ntot, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT, Nl, gamma, Hc, Dc, Fc, Ic, Pc, beta, ports = inst
     
 
@@ -275,40 +275,38 @@ end
 
 
 
-function makeSoltest(minN,maxN,time, location)
-    newbenchmark = DataFrame(Seed= [0],N= [0],Nout= [0],qli= [0], Time= [0], CPLEX= [0], Box= [""]) #HeurCost= [0],
-    for N in minN:maxN
-        for qli in [10,20,40,80]
-            for Nout in 3:5
-                for seed in 1:5
-                    print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
-		            start = time_ns()
-                    box, d, cost = CPLEXoptimize(N,Nout,seed,qli, time, location) 
-		            elapsed = ceil(Int, round((time_ns()-start)/1e9,digits=3))
-                    print('\n')
-                    print(cost)
-                    print('\n')
-                    CSV.write(location*"results_jobs/benchmarks_CPLEX/sols_5min/CPLEX_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
-                    #CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/sols/CPLEX_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
-                    this_benchmark=DataFrame(Seed= [seed],N= [N],Nout= [Nout],qli= [qli], Time= [elapsed], CPLEX=[ceil(Int, cost)],  Box= [box]) #HeurCost= [costHeur],
-                    newbenchmark=append!(newbenchmark,this_benchmark)
-                end
-            end
-        end
+function makeSoltest(time, location)
+    newbenchmark = DataFrame(Seed= [""],N= [""],Nout= [""],qli= [""], Time= [0], CPLEX= [0], Box= [""]) #HeurCost= [0],
+    all_instances = readdir(location*"MCBAP-multi-port-berth-allocation-problem/Large")
+    for instance_name in all_instances[1:2]
+        split_instance = split(instance_name,"_")
+        seed=split_instance[3]
+        N=split_instance[4]
+        Nout=split_instance[5]
+        qli=split(split_instance[6],".")[1]
+        print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
+        start = time_ns()
+        box, d, cost = CPLEXoptimize(N,Nout,seed,qli, time, location) 
+        elapsed = ceil(Int, round((time_ns()-start)/1e9,digits=3))
+        print('\n')
+        print(cost)
+        print('\n')
+        CSV.write(location*"results_jobs/benchmarks_CPLEX/sols_5min/CPLEX_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
+        #CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/sols/CPLEX_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
+        this_benchmark=DataFrame(Seed= [seed],N= [N],Nout= [Nout],qli= [qli], Time= [elapsed], CPLEX=[ceil(Int, cost)],  Box= [box]) #HeurCost= [costHeur],
+        newbenchmark=append!(newbenchmark,this_benchmark)
     end
     return newbenchmark
 end
 
-#location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
-location="/zhome/c3/6/164957/code_git/"
-minN = parse(Int64,ARGS[1])
-maxN = parse(Int64,ARGS[2])
-time = parse(Int64,ARGS[3])
+location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
+#location="/zhome/c3/6/164957/code_git/"
+#time = parse(Int64,ARGS[1])
 #minN = 8
 #maxN = 8
-#time = 100
-newbenchmark = makeSoltest(minN,maxN,time, location)
-CSV.write(location*"results_jobs/benchmarks_CPLEX/CPLEX_N11_N15_results_5min.csv", newbenchmark)
+time = 300
+newbenchmark = makeSoltest(time, location)
+CSV.write(location*"results_jobs/benchmarks_CPLEX/CPLEX_NLarge_results_5min.csv", newbenchmark)
     
 
 ## At each iteration :

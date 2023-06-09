@@ -114,8 +114,7 @@ function initializeSol(inst::Instance, allparam)
 end
 
 
-function initializeParam(inst::Instance)
-    @unpack N, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT = inst
+function initializeParam()
 
     alphanormal = [0.15,0.2,0.25]
     #alphanormal = [0.2,0.2,0.2,0.2]

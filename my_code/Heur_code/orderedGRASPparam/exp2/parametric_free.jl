@@ -1365,7 +1365,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
     @unpack N, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp = inst
     cost=1000000000
     worst_cost=1000000000
-    allparam = initializeParam(inst)
+    allparam = initializeParam()
     sol=initializeSol(inst, allparam)
     start = time_ns()
     elapsed = round((time_ns()-start)/1e9,digits=3)
@@ -1556,7 +1556,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
         return sol, cost, allparam
     else
         cost=1000000000
-        allparam = initializeParam(inst)
+        allparam = initializeParam()
         sol=initializeSol(inst, allparam)
         return sol, cost, allparam
     end
