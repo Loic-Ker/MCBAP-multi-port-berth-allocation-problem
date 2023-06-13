@@ -170,57 +170,58 @@ function makeSolHeur(type1, type2, type3, paramfixed, temperature, time_local, m
     xf = CSV.read(location*"MCBAP-multi-port-berth-allocation-problem/Small_Inst_Res.csv", DataFrame)
     newbenchmark = DataFrame(Seed= [0],N= [0],Nout= [0],qli= [0],HeurCost= [0])
     all_instances = readdir(location*"MCBAP-multi-port-berth-allocation-problem/Large")
-    for instance_name in all_instances[1:2]
-        split_instance = split(instance_name,"_")
-        seed=parse(Int64,split_instance[3])
-        N=parse(Int64,split_instance[4])
-        Nout=parse(Int64,split_instance[5])
-        qli=parse(Int64,split(split_instance[6],".")[1])
-        inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/Large/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
-        print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
-        if isdir(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
-            mkdir(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
-        end
-        if isdir(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
-            mkdir(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
-        end
-        sol, cost, allparam = GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temperature, time_local, max_time_heur, max_time, expname, location)
-        #print('\n')
-        #print("The solution :")
-        #print('\n')
-        #print(sol.visits)
-        print('\n')
-        print("And the cost is ")
-        print('\n')
-        print(cost)
-        feasible=true
-        for n in 1:N
-            # The times :
-            for (c,p) in enumerate(inst.Pi[n])
-                if sol.visits[n][c].planned == false
-                    feasible = false              
-                end
-            end
-        end
-        if feasible && checkSolutionFeasability(inst, sol)
-            d=prepareSol(inst, sol, cost)
-            CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/final_sols/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
-        end
+    for instance_name in all_instances
+	split_instance = split(instance_name,"_")
+	seed=parse(Int64,split_instance[3])
+	N=parse(Int64,split_instance[4])
+	Nout=parse(Int64,split_instance[5])
+	qli=parse(Int64,split(split_instance[6],".")[1])
+	if seed ==seed_chosen
+	inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/Large/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
+	print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
+	if isdir(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
+	    mkdir(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
+	end
+	if isdir(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
+	    mkdir(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
+	end
+	sol, cost, allparam = GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temperature, time_local, max_time_heur, max_time, expname, location)
+	#print('\n')
+	#print("The solution :")
+	#print('\n')
+	#print(sol.visits)
+	print('\n')
+	print("And the cost is ")
+	print('\n')
+	print(cost)
+	feasible=true
+	for n in 1:N
+	    # The times :
+	    for (c,p) in enumerate(inst.Pi[n])
+	        if sol.visits[n][c].planned == false
+	            feasible = false              
+	        end
+	    end
+	end
+	if feasible && checkSolutionFeasability(inst, sol)
+	    d=prepareSol(inst, sol, cost)
+	    CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/final_sols/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
+	end
     
-        this_benchmark=DataFrame(Seed= [seed],N= [N],Nout= [Nout],qli= [qli],HeurCost= [ ceil(Int, cost)])
-        newbenchmark=append!(newbenchmark,this_benchmark)
+	this_benchmark=DataFrame(Seed= [seed],N= [N],Nout= [Nout],qli= [qli],HeurCost= [ ceil(Int, cost)])
+	newbenchmark=append!(newbenchmark,this_benchmark)
     end
     return newbenchmark
 end
 
-location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
-#location="/zhome/c3/6/164957/code_git/"
+#location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
+location="/zhome/c3/6/164957/code_git/"
 
 
 # The parameters of the experiment :
 
 # The experience name :
-expname="exp3biginst"
+expname="exp4biginst10mins"
 
 # The tactic types :
 type1="time" 
@@ -252,13 +253,15 @@ pushatconstraint=true
 paramfixed=FixedParameters(alpharandom,alphaboat,proptoremove,window,pushatconstraint)
 
 # Maximum time for the local search :
-time_local=5
+#time_local=5
+time_local= parse(Int64,ARGS[1])
 
 # Maximum time for the heuristic :
 max_time_heur=30
 
 # maximum time for the experiment :
-max_time=300
+#max_time=300
+max_time = parse(Int64,ARGS[2])
 
 # the temperature parameter :
 temperature=0.93

@@ -61,14 +61,14 @@ function prepareSolIter(seed,N,Nout,qli, nb_iter, inst, sol, cost, allparam, par
     ## Get the instances 
     d["inst"]= inst.Pi
 
-    print("Some proba :")
-    print('\n')
-    print("Tactic boat (should not evolve) :")
-    print(list_tacticboat)
-    print('\n')
-    print("Time proba one ship (should evolve) :")
-    print(allparam.Proba.TimeOneShip)
-    print('\n')
+    #print("Some proba :")
+    #print('\n')
+    #print("Tactic boat (should not evolve) :")
+    #print(list_tacticboat)
+    #print('\n')
+    #print("Time proba one ship (should evolve) :")
+    #print(allparam.Proba.TimeOneShip)
+    #print('\n')
     
     ## Get the port calls
     T_vec=Vector{Vector{Vector{Int64}}}()
