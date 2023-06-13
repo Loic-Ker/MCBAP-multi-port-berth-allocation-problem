@@ -304,6 +304,7 @@ location="/zhome/c3/6/164957/code_git/"
 minN = parse(Int64,ARGS[1])
 maxN = parse(Int64,ARGS[2])
 time = parse(Int64,ARGS[3])
+
 #minN = 8
 #maxN = 8
 #time = 100
