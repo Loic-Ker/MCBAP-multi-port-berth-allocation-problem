@@ -6,8 +6,18 @@ from os import listdir
 from os.path import isfile, join
 import pandas as pd
 
-def getsolfromfileCPLEX(Nin,Nout,seed,qli):
-    file = "D:/DTU-Courses/DTU-Thesis/berth_allocation/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/sols_5min/CPLEX_sol_{}_{}_{}_{}.csv".format(seed,Nin,Nout,qli)
+def getsolfromfileCPLEX(Nin,Nout,seed,qli, type, time_limit):
+    file=''
+    if type=='small':
+        if time_limit==5:
+            file = "D:/DTU-Courses/DTU-Thesis/berth_allocation/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/sols_5min/CPLEX_sol_{}_{}_{}_{}.csv".format(seed,Nin,Nout,qli)
+        else:
+            file = "D:/DTU-Courses/DTU-Thesis/berth_allocation/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/sols_10min/CPLEX_sol_{}_{}_{}_{}.csv".format(seed,Nin,Nout,qli)
+    if type == 'large':
+        if time_limit==5:
+            file = "D:/DTU-Courses/DTU-Thesis/berth_allocation/results_jobs/benchmarks_CPLEX/sols_300s/CPLEX_sol_{}_{}_{}_{}.csv".format(seed,Nin,Nout,qli)
+        else:
+            file = "D:/DTU-Courses/DTU-Thesis/berth_allocation/results_jobs/benchmarks_CPLEX/sols_600s/CPLEX_sol_{}_{}_{}_{}.csv".format(seed,Nin,Nout,qli)
     results_sol = pd.read_csv(file)
     dictresults=dict()
 
@@ -38,7 +48,6 @@ def getsolfromfileCPLEX(Nin,Nout,seed,qli):
 
 
     listx=list(results_sol[results_sol['first']=='x']['second'])[0].replace(' ','').split('\n')
-    print(listx)
     listy=list(results_sol[results_sol['first']=='y']['second'])[0].replace(' ','').split('\n')
     listh=list(results_sol[results_sol['first']=='hand']['second'])[0].replace(' ','').split('\n')
     for i in range(0,len(listx)):

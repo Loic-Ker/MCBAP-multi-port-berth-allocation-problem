@@ -68,14 +68,10 @@ function doOverlapRectangleCorrect(x1l, x1r, y1d, y1u, x2l, x2r, y2d, y2u)
 end
 
 
-function CPLEXoptimize(N,Nout,seed,qli, time, location)
+function CPLEXoptimize(N,Nout,seed,qli, location, expname)
     m = Model(CPLEX.Optimizer)
     set_optimizer_attribute(m, "CPX_PARAM_EPINT", 1e-8)
-    set_optimizer_attribute(m, "CPX_PARAM_TILIM", time)
-    set_optimizer_attribute(m, "CPXPARAM_Threads", 1)
 
-
-    #inst = readInstFromFile("D:/DTU-Courses/DTU-Thesis/berth_allocation/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
     inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/Large/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
     @unpack N, Ntot, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT, Nl, gamma, Hc, Dc, Fc, Ic, Pc, beta, ports = inst
     
@@ -151,21 +147,21 @@ function CPLEXoptimize(N,Nout,seed,qli, time, location)
         
 
         #### Fixing variables to compare to heur
-        #heur_results = CSV.File("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/greedy_only/sols/HEUR_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv") |> Dict
-        #x_heur = eval(Meta.parse(heur_results["x"]))
-        #y_heur = eval(Meta.parse(heur_results["y"]))
-        #hand_heur = eval(Meta.parse(heur_results["hand"]))
-        #a_heur = eval(Meta.parse(heur_results["a"]))
-        #v_heur = eval(Meta.parse(heur_results["v"]))
+        heur_results = CSV.File(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/final_sols/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv") |> Dict
+        x_heur = eval(Meta.parse(heur_results["x"]))
+        y_heur = eval(Meta.parse(heur_results["y"]))
+        hand_heur = eval(Meta.parse(heur_results["hand"]))
+        a_heur = eval(Meta.parse(heur_results["a"]))
+        v_heur = eval(Meta.parse(heur_results["v"]))
 
-        #for n in 1:N
-        #    for c in 1:length(inst.Pi[n])
-        #        @constraint(m,x[n,c]==x_heur[n][c])
-        #        @constraint(m,y[n,c]==y_heur[n][c])
-        #        @constraint(m,hand[n,c]==hand_heur[n][c])
-        #        @constraint(m,a[n,c]==a_heur[n][c])
-        #    end
-        #end
+        for n in 1:N
+            for c in 1:length(inst.Pi[n])
+                @constraint(m,x[n,c]==x_heur[n][c])
+                @constraint(m,y[n,c]==y_heur[n][c])
+                @constraint(m,hand[n,c]==hand_heur[n][c])
+                #@constraint(m,a[n,c]==a_heur[n][c])
+            end
+        end
 
         #speeds = length(delta)
         #for n in 1:N
@@ -275,25 +271,22 @@ end
 
 
 
-function makeSoltest(time, location)
-    newbenchmark = DataFrame(Seed= [""],N= [""],Nout= [""],qli= [""], Time= [0], CPLEX= [0], Box= [""]) #HeurCost= [0],
+function makeSoltest(expname, location)
+    newbenchmark = DataFrame(Seed= [0],N= [0],Nout= [0],qli= [0], CPLEXHeur= [0], Heur=[0], Box= [""]) #HeurCost= [0],
+    xf = CSV.read(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/NLarge.csv", DataFrame)
     all_instances = readdir(location*"MCBAP-multi-port-berth-allocation-problem/Large")
-    for instance_name in [all_instances[1]]
+    for instance_name in all_instances
         split_instance = split(instance_name,"_")
-        seed=split_instance[3]
-        N=split_instance[4]
-        Nout=split_instance[5]
-        qli=split(split_instance[6],".")[1]
+        seed=parse(Int64,split_instance[3])
+        N=parse(Int64,split_instance[4])
+        Nout=parse(Int64,split_instance[5])
+        qli=parse(Int64,split(split_instance[6],".")[1])
         print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
-        start = time_ns()
-        box, d, cost = CPLEXoptimize(N,Nout,seed,qli, time, location) 
-        elapsed = ceil(Int, round((time_ns()-start)/1e9,digits=3))
+        box, d, cost = CPLEXoptimize(N,Nout,seed,qli, location, expname)
         print('\n')
-        print(cost)
-        print('\n')
-        CSV.write(location*"results_jobs/benchmarks_CPLEX/sols_5min/CPLEX_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
-        #CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/sols/CPLEX_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
-        this_benchmark=DataFrame(Seed= [seed],N= [N],Nout= [Nout],qli= [qli], Time= [elapsed], CPLEX=[ceil(Int, cost)],  Box= [box]) #HeurCost= [costHeur],
+        filtering=xf[(xf.Seed.==seed) .& (xf.N.==N) .& (xf.qli.==qli) .& (xf.Nout.==Nout),:]
+        costHeur = filtering.HeurCost[1]
+        this_benchmark=DataFrame(Seed= [seed],N= [N],Nout= [Nout],qli= [qli],CPLEXHeur=[ceil(Int, cost)],Heur=[ceil(Int, costHeur)],Box= [box])
         newbenchmark=append!(newbenchmark,this_benchmark)
     end
     return newbenchmark
@@ -301,22 +294,8 @@ end
 
 location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
 #location="/zhome/c3/6/164957/code_git/"
-#time = parse(Int64,ARGS[1])
-#minN = 8
-#maxN = 8
-time = 300
-newbenchmark = makeSoltest(time, location)
-CSV.write(location*"results_jobs/benchmarks_CPLEX/CPLEX_NLarge_results_5min.csv", newbenchmark)
-    
+expname="exp3biginst5mins"
+newbenchmark = makeSoltest(expname, location)
 
-## At each iteration :
-    # Get the different cost right after greedy heurisitics
-    # And after the local searh and compare
-    # Compare also solutions visually before and after ?
-    # Get successfull and not successfull iteration
-    # Get the probability of each coefficient
-    # For each visit : when was it added ? What was the tactic ? What was the cost to add it ?
 
-## At the end : 
-    # Get the cost of each visit
-    # Get the cost for each type of boat 
+CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/checkcost_HEUR.csv", newbenchmark)
