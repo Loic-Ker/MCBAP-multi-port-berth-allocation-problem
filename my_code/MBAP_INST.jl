@@ -253,7 +253,7 @@ function readInstFromFile(filename::String)
         end
         push!(inst.h[i], vecH)
         #NOTE: Temp
-        #inst.T[i,c,2] = ceil(Int, 2.5*inst.T[i,c,2])
+        inst.T[i,c,2] = ceil(Int, 2.5*inst.T[i,c,2])
     end
     updateTvals(inst)
     #NOTE: Temp
