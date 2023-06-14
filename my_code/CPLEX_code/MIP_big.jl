@@ -1,5 +1,6 @@
 
 include("../MBAP_INST.jl")
+include("MIP_Bernardo.jl")
 import XLSX
 ## Package to save the dict
 using CSV, Tables
@@ -70,7 +71,6 @@ end
 
 function CPLEXoptimize(N,Nout,seed,qli, time, location)
     m = Model(CPLEX.Optimizer)
-    set_optimizer_attribute(m, "CPX_PARAM_EPINT", 1e-8)
     set_optimizer_attribute(m, "CPX_PARAM_TILIM", time)
     set_optimizer_attribute(m, "CPXPARAM_Threads", 1)
     set_silent(m)
@@ -78,13 +78,13 @@ function CPLEXoptimize(N,Nout,seed,qli, time, location)
 
     #inst = readInstFromFile("D:/DTU-Courses/DTU-Thesis/berth_allocation/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
     inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/Large/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
-    @unpack N, Ntot, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT, Nl, gamma, Hc, Dc, Fc, Ic, Pc, beta, ports = inst
+    @unpack N, Ntot, P, Pi, visits, shipsIn, shipsOut, h, S, dist, delta, qli, T, Bp, maxT, Nl, gamma, Hc, Dc, Fc, Ic, Pc, beta, ports = inst
     
 
     shipsOutFlatt=collect(Iterators.flatten(shipsOut))
     txt_error=""
     feasible=true
-    ## Now let's compare with the other boats
+    # Check if the out ships are overlapping
     for n in N+1:Ntot-1
         l = ceil(Int, Nl[n]/qli)
         for n_ in n+1:Ntot
@@ -116,33 +116,17 @@ function CPLEXoptimize(N,Nout,seed,qli, time, location)
         end
     end
     if feasible
-        Pi_extend =  deepcopy(inst.Pi)
-        for n in 1:N
-            append!(Pi_extend[n],[P+1])
-        end
-        dist= hcat(dist,[0 for p in 1:P])
-        dist = [dist;transpose([0 for p in 1:(P+1)])]
 
-        @variable(m,x[n=1:Ntot, 1:length(inst.Pi[n])] >= 0)
-        @variable(m,y[n=1:Ntot, 1:length(inst.Pi[n])] >= 0)
+        @variable(m,x[n=1:Ntot, 1:length(inst.Pi[n])] >= 1, Int) #Started with 0
+        @variable(m,y[n=1:Ntot, 1:length(inst.Pi[n])] >= 0, Int)
 
-        ## The ones to check the positions
+        ## The ones to check the positions/times
         @variable(m,sig[n1=1:Ntot,n2=1:Ntot, 1:length(inst.Pi[n1]), 1:length(inst.Pi[n2])], Bin)
         @variable(m,del[n1=1:Ntot,n2=1:Ntot, 1:length(inst.Pi[n1]), 1:length(inst.Pi[n2])], Bin)
         @variable(m,hand[n=1:Ntot, 1:length(inst.Pi[n])] >= 0)
 
-        
-        for n in N+1:Ntot
-            for c in 1:length(inst.Pi[n])
-                @constraint(m,x[n,c]==round(Int, shipsOutFlatt[n-N].berth/qli)+1)
-                @constraint(m,y[n,c]==shipsOutFlatt[n-N].time)
-                @constraint(m,hand[n,c]==shipsOutFlatt[n-N].hand)
-            end
-        end
-
-        
         ## Specific optimization
-        @variable(m,v[n=1:N, 1:length(inst.Pi[n]), 1:length(delta)], Bin)
+        @variable(m,v[n=1:N, 1:length(inst.Pi[n])-1, 1:S], Bin)
         @variable(m,d[n=1:N, 1:length(inst.Pi[n])] >= 0)
         @variable(m,u[n=1:N, 1:length(inst.Pi[n])] >= 0)
 
@@ -150,51 +134,31 @@ function CPLEXoptimize(N,Nout,seed,qli, time, location)
         @variable(m,a[n=1:N, 1:length(inst.Pi[n])] >= 0)
         @variable(m,r[n=1:N, 1:length(inst.Pi[n])] >= 0)
         
-
-        #### Fixing variables to compare to heur
-        #heur_results = CSV.File("D:/DTU-Courses/DTU-Thesis/berth_allocation/benchmarks_HEUR/greedy_only/sols/HEUR_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv") |> Dict
-        #x_heur = eval(Meta.parse(heur_results["x"]))
-        #y_heur = eval(Meta.parse(heur_results["y"]))
-        #hand_heur = eval(Meta.parse(heur_results["hand"]))
-        #a_heur = eval(Meta.parse(heur_results["a"]))
-        #v_heur = eval(Meta.parse(heur_results["v"]))
-
-        #for n in 1:N
-        #    for c in 1:length(inst.Pi[n])
-        #        @constraint(m,x[n,c]==x_heur[n][c])
-        #        @constraint(m,y[n,c]==y_heur[n][c])
-        #        @constraint(m,hand[n,c]==hand_heur[n][c])
-        #        @constraint(m,a[n,c]==a_heur[n][c])
-        #    end
-        #end
-
-        #speeds = length(delta)
-        #for n in 1:N
-        #    if length(inst.Pi[n])>1
-        #        l=length(inst.Pi[n])-1
-        #        for c in 1:l
-        #            for s in 1:speeds
-        #                if v_heur[n][c]==s
-        #                    @constraint(m, v[n,c,s]==1)
-        #                end
-        #            end
-        #        end
-        #    end
-        #end
+        ##Out ships constraints
+        for n in N+1:Ntot
+            for c in 1:length(inst.Pi[n])
+                @constraint(m,x[n,c]==round(Int, shipsOutFlatt[n-N].berth/qli)+1) ## No +1 here
+                @constraint(m,y[n,c]==shipsOutFlatt[n-N].time)
+                @constraint(m,hand[n,c]==shipsOutFlatt[n-N].hand)
+            end
+        end
 
         ## Berth constraints
-        @constraint(m,c1[n=1:N, c=1:length(inst.Pi[n])], x[n,c]+ceil(Int, Nl[n]/qli) <= inst.Bp[inst.Pi[n][c]])
+        @constraint(m,c1[n=1:N, c=1:length(inst.Pi[n])], x[n,c]+ceil(Int, shipsIn[n].l/qli)-1 <= inst.Bp[inst.Pi[n][c]])
 
-        ##inst.Bp[inst.Pi[n1][c1]]
-        ##maxT
-        ## Boat constraints
+        ## Boat constraints, position/time
         for n1 in 1:Ntot
             for c1 in 1:length(inst.Pi[n1])
                 for n2 in 1:Ntot
                     for c2 in 1:length(inst.Pi[n2])
                         if (n1!=n2 && inst.Pi[n1][c1]==inst.Pi[n2][c2] && ((n1<=N) || (n2<=N)))
-                            @constraint(m, x[n1,c1]+ceil(Int, Nl[n1]/qli) <= x[n2,c2]+100000*(1-sig[n1,n2,c1,c2]))
-                            @constraint(m, y[n1,c1]+hand[n1,c1] <= y[n2,c2]+100000*(1-del[n1,n2,c1,c2]))
+                            if n1<=N
+                                dist_here = ceil(Int, shipsIn[n1].l/qli)
+                            else
+                                dist_here = ceil(Int, shipsOutFlatt[n1-N].length/qli) ## changed this in one condition (was not sure I was doing the right thing)
+                            end
+                            @constraint(m, x[n1,c1]+dist_here <= x[n2,c2]+10000*(1-sig[n1,n2,c1,c2]))
+                            @constraint(m, y[n1,c1]+hand[n1,c1] <= y[n2,c2]+10000*(1-del[n1,n2,c1,c2]))
                         end
                     end
                 end
@@ -202,11 +166,11 @@ function CPLEXoptimize(N,Nout,seed,qli, time, location)
         end  
         
         ## Boat constraints dependent variables
-        for n1 in 1:Ntot
-            for c1 in 1:length(inst.Pi[n1])
-                for n2 in n1:Ntot
+        for n1 in 1:N
+            for n2 in 1:Ntot
+                for c1 in 1:length(inst.Pi[n1])
                     for c2 in 1:length(inst.Pi[n2])
-                        if (n1!=n2 && inst.Pi[n1][c1]==inst.Pi[n2][c2] && ((n1<=N) || (n2<=N)))
+                        if (n1<n2 && inst.Pi[n1][c1]==inst.Pi[n2][c2] && ((n1<=N) || (n2<=N)))
                             @constraint(m, del[n1,n2,c1,c2]+del[n2,n1,c2,c1]+sig[n1,n2,c1,c2]+sig[n2,n1,c2,c1] >=1)
                         end
                     end
@@ -215,7 +179,7 @@ function CPLEXoptimize(N,Nout,seed,qli, time, location)
         end  
         
 
-        ## Time constraints
+        ## Time constraints with speed
         speeds = length(delta)
         for n in 1:N
             if length(inst.Pi[n])>1
@@ -228,16 +192,16 @@ function CPLEXoptimize(N,Nout,seed,qli, time, location)
         end
 
         @constraint(m,c6[n=1:N, c=1:length(inst.Pi[n])], a[n,c] <= y[n,c])
-        @constraint(m,c7[n=1:N, c=1:length(inst.Pi[n])],  T[n,c,1]<= y[n,c])
+        @constraint(m,c7[n=1:N, c=1:length(inst.Pi[n])],  shipsIn[n].sT[c]<= y[n,c]) ## change there the starting time (T[n,c,1] before)
         @constraint(m,c8[n=1:N, c=1:length(inst.Pi[n])],  y[n,c]+hand[n,c]-shipsIn[n].eT[c]<= d[n,c])
         @constraint(m,c9[n=1:N, c=1:length(inst.Pi[n])],  y[n,c]+hand[n,c]-T[n,c,2]<= u[n,c])
         @constraint(m,c10[n=1:N, c=1:length(inst.Pi[n])],   hand[n,c] == (1 + beta*r[n,c]*qli)*ports[inst.Pi[n][c]].minH[shipsIn[n].type])
-        @constraint(m,c11[n=1:N, c=1:length(inst.Pi[n])],   x[n,c]-(inst.shipsIn[n].Bi[c]/qli)-1 <= r[n,c])
-        @constraint(m,c12[n=1:N, c=1:length(inst.Pi[n])],   (inst.shipsIn[n].Bi[c]/qli)+1-x[n,c] <= r[n,c])
+        @constraint(m,c11[n=1:N, c=1:length(inst.Pi[n])],   x[n,c] - ((inst.shipsIn[n].Bi[c]/qli)+1) <= r[n,c]) ## change there +1
+        @constraint(m,c12[n=1:N, c=1:length(inst.Pi[n])],   (shipsIn[n].Bi[c]/qli)+1-x[n,c] <= r[n,c]) ## here too
 
         speeds = length(delta)
         @objective(m, Min, sum(sum(u[n,c]*Pc+d[n,c]*Dc+hand[n,c]*Hc+(y[n,c]-a[n,c])*Ic for c in 1:length(inst.Pi[n]))
-        +sum(sum(v[n,c,s]*gamma[shipsIn[n].type,s] for s in 1:speeds)*dist[Pi_extend[n][c],Pi_extend[n][c+1]]*Fc for c in 1:length(inst.Pi[n])) 
+        +sum(sum(v[n,c,s]*gamma[shipsIn[n].type,s] for s in 1:speeds)*dist[p,Pi[n][c+1]]*Fc for (c,p) in enumerate(Pi[n][1:end-1]))  
         for n in 1:N)) 
 
         optimize!(m)                  #Solving the model
@@ -279,13 +243,15 @@ end
 function makeSoltest(time, location, seedchosen)
     newbenchmark = DataFrame(Seed= [0],N= [0],Nout= [0],qli= [0], Time= [0], CPLEX= [0], Box= [""]) #HeurCost= [0],
     all_instances = readdir(location*"MCBAP-multi-port-berth-allocation-problem/Large")
+    test=true
     for instance_name in all_instances
         split_instance = split(instance_name,"_")
         seed=parse(Int64,split_instance[3])
         N=parse(Int64,split_instance[4])
         Nout=parse(Int64,split_instance[5])
         qli=parse(Int64,split(split_instance[6],".")[1])
-	if seed==seedchosen
+	if seed==seedchosen && test==true
+        test==false
 		print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
 		start = time_ns()
 		box, d, cost = CPLEXoptimize(N,Nout,seed,qli, time, location) 
@@ -297,6 +263,11 @@ function makeSoltest(time, location, seedchosen)
 		#CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/sols/CPLEX_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
 		this_benchmark=DataFrame(Seed= [seed],N= [N],Nout= [Nout],qli= [qli], Time= [elapsed], CPLEX=[ceil(Int, cost)],  Box= [box]) #HeurCost= [costHeur],
 		newbenchmark=append!(newbenchmark,this_benchmark)
+        new_cost= MIPmodel(N,Nout,seed,qli, time)
+        print('\n')
+        print("Bernardo's cost")
+        print(new_cost)
+        print('\n')
 	end
     end
     return newbenchmark

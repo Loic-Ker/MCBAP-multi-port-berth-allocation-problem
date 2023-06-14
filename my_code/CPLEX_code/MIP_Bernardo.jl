@@ -2,7 +2,7 @@
 include("../MBAP_INST_CPLEX.jl")
 
 function MIPmodel(N,Nout,seed,qli, tl)
-    inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/data_small/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
+    inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/Large/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
     @unpack N, Ntot, shipsIn, shipsOut, P, ports, visits, Pi, Nl, S, T, Ic, Dc, Hc, Fc, Pc, delta, gamma, dist, beta, Bp, qli, maxT = inst
     
     m = Model(CPLEX.Optimizer)
