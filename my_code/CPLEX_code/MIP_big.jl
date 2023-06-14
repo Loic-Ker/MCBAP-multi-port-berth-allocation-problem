@@ -1,6 +1,5 @@
 
 include("../MBAP_INST.jl")
-include("MIP_Bernardo.jl")
 import XLSX
 ## Package to save the dict
 using CSV, Tables
@@ -251,7 +250,7 @@ function makeSoltest(time, location, seedchosen)
         Nout=parse(Int64,split_instance[5])
         qli=parse(Int64,split(split_instance[6],".")[1])
 	if seed==seedchosen && test==true
-        test==false
+        	test==false
 		print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
 		start = time_ns()
 		box, d, cost = CPLEXoptimize(N,Nout,seed,qli, time, location) 
@@ -263,11 +262,6 @@ function makeSoltest(time, location, seedchosen)
 		#CSV.write("D:/DTU-Courses/DTU-Thesis/berth_allocation/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/sols/CPLEX_sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
 		this_benchmark=DataFrame(Seed= [seed],N= [N],Nout= [Nout],qli= [qli], Time= [elapsed], CPLEX=[ceil(Int, cost)],  Box= [box]) #HeurCost= [costHeur],
 		newbenchmark=append!(newbenchmark,this_benchmark)
-        new_cost= MIPmodel(N,Nout,seed,qli, time)
-        print('\n')
-        print("Bernardo's cost")
-        print(new_cost)
-        print('\n')
 	end
     end
     return newbenchmark
@@ -279,7 +273,7 @@ time = parse(Int64,ARGS[1])
 seedchosen = parse(Int64,ARGS[2])
 #minN = 8
 #maxN = 8
-#time = 300
+time = 10
 newbenchmark = makeSoltest(time, location, seedchosen)
 CSV.write(location*"results_jobs/benchmarks_CPLEX/CPLEX_NLarge_results_$time"*"s_$seedchosen"*".csv", newbenchmark)
     
