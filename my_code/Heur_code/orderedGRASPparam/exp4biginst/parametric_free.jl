@@ -1378,6 +1378,9 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
     when_dict=Dict()
     count_better_heur_solution = 0
     min_cost_heur=1000000000
+    usedcplex=0
+    from_reconstruct=false
+    from_reconstruct_iter=0
     for n in 1:N
         when_dict[n]=Dict()
         for c in 1:length(inst.Pi[n])
@@ -1413,6 +1416,8 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
             proba_temperature = 1
             #new_sol = greedyorderedconstruction(inst, paramchosen, allparam, when_list, max_time_heur)
             new_sol = greedyremoverandomconstruction(inst, sol, paramchosen, allparam, paramfixed, max_time_heur)
+            from_reconstruct=true
+            from_reconstruct_iter=1
         end
         proba_temperature = proba_temperature*temperature
         elapsed_heur = round((time_ns()-start_heur)/1e9,digits=3)
@@ -1436,15 +1441,22 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
             #print('\n')
             #print(new_sol.visits)
             d_before=prepareSolIter(seed,N,Nout,qli,nb_iter,inst, new_sol, new_cost_heur, allparam, paramfixed, expname)
+            d_before["reconstruct"]=from_reconstruct_iter
+            from_reconstruct_iter=0
             d_alliter_before[nb_iter]=d_before
             start_local=time_ns()
 
             new_sol, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = pushTime(inst, new_sol, paramfixed, time_local)
             #new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = new_cost_heur, delay_cost_heur, waiting_cost_heur, penalty_cost_heur, handling_cost_heur, fuel_cost_heur
-            if new_cost<min_cost_heur
+            if new_cost<min_cost_heur && from_reconstruct==false
                 min_cost_heur=new_cost
             end
+            from_reconstruct=false
             if new_cost<min_cost_heur+0.1*min_cost_heur && nb_iter>10
+                usedcplex=1
+                print('\n')
+                print("We use CPLEX to find a better solution")
+                print('\n')
                 first_good_solution = true
                 when_list = Vector{Tuple}()
                 count_better_heur_solution+=1
@@ -1510,7 +1522,9 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
             if new_cost>=worst_cost
                 worst_cost=deepcopy(new_cost)
             end
-
+            
+            d_after["usedCPLEX"]=usedcplex
+            usedcplex=0
             d_alliter_after[nb_iter]=d_after
             nb_iter+=1
 
