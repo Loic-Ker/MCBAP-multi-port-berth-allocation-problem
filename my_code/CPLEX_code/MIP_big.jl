@@ -156,8 +156,8 @@ function CPLEXoptimize(N,Nout,seed,qli, time, location)
                             else
                                 dist_here = ceil(Int, shipsOutFlatt[n1-N].length/qli) ## changed this in one condition (was not sure I was doing the right thing)
                             end
-                            @constraint(m, x[n1,c1]+dist_here <= x[n2,c2]+10000*(1-sig[n1,n2,c1,c2]))
-                            @constraint(m, y[n1,c1]+hand[n1,c1] <= y[n2,c2]+10000*(1-del[n1,n2,c1,c2]))
+                            @constraint(m, x[n1,c1]+dist_here <= x[n2,c2]+100000*(1-sig[n1,n2,c1,c2]))
+                            @constraint(m, y[n1,c1]+hand[n1,c1] <= y[n2,c2]+100000*(1-del[n1,n2,c1,c2]))
                         end
                     end
                 end
@@ -242,15 +242,13 @@ end
 function makeSoltest(time, location, seedchosen, Nchosen)
     newbenchmark = DataFrame(Seed= [0],N= [0],Nout= [0],qli= [0], Time= [0], CPLEX= [0], Box= [""]) #HeurCost= [0],
     all_instances = readdir(location*"MCBAP-multi-port-berth-allocation-problem/Large")
-    test=true
     for instance_name in all_instances
         split_instance = split(instance_name,"_")
         seed=parse(Int64,split_instance[3])
         N=parse(Int64,split_instance[4])
         Nout=parse(Int64,split_instance[5])
         qli=parse(Int64,split(split_instance[6],".")[1])
-	if seed==seedchosen && N==Nchosen && test==true
-        test==false
+	if seed==seedchosen && N==Nchosen
 		print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
 		start = time_ns()
 		box, d, cost = CPLEXoptimize(N,Nout,seed,qli, time, location) 
@@ -271,12 +269,12 @@ end
 location="/zhome/c3/6/164957/code_git/"
 time = parse(Int64,ARGS[1])
 seedchosen = parse(Int64,ARGS[2])
-Nchosen = parse(Int64,ARGS[2])
+Nchosen = parse(Int64,ARGS[3])
 #minN = 8
 #maxN = 8
-time = 10
+time=60
 newbenchmark = makeSoltest(time, location, seedchosen, Nchosen)
-CSV.write(location*"results_jobs/benchmarks_CPLEX/CPLEX_NLarge_results_$time"*"s_$seedchosen"*".csv", newbenchmark)
+CSV.write(location*"results_jobs/benchmarks_CPLEX/CPLEX_NLarge_results_$time"*"s_$seedchosen"*"n_$Nchosen"*".csv", newbenchmark)
     
 
 ## At each iteration :
