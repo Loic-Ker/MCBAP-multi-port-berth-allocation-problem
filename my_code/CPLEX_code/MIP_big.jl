@@ -248,7 +248,7 @@ function makeSoltest(time, location, seedchosen, Nchosen)
         N=parse(Int64,split_instance[4])
         Nout=parse(Int64,split_instance[5])
         qli=parse(Int64,split(split_instance[6],".")[1])
-	if seed==seedchosen && N==Nchosen
+	if seed==seedchosen && N==Nchosen && Nout==Noutchosen
 		print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
 		start = time_ns()
 		box, d, cost = CPLEXoptimize(N,Nout,seed,qli, time, location) 
