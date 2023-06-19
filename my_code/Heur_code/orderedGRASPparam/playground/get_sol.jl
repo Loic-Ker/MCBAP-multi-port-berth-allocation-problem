@@ -297,7 +297,7 @@ list_paramvisit = allparam.Alpha.CostOneShip
 list_paramconstrained = allparam.Alpha.RateConstrained
 makeExpText(type1, type2, type3, paramfixed, list_paramvisit, list_paramconstrained, time_local, max_time_heur, max_time, expname, location)
 newbenchmark = makeSolHeur(type1, type2, type3, paramfixed, temperature, time_local, max_time_heur, max_time, expname, location, seedchosen, Nchosen, Noutchosen, qlichosen)
-CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/NLarge_playground_$seedchosen"*".csv", newbenchmark)
+CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/NLarge_playground_$seedchosen"*"n_$Nchosen"*".csv", newbenchmark)
 newbenchmark
 
 
