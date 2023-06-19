@@ -377,6 +377,9 @@ def make_datasetiter(algo_folder, exp, seed, Nin,Nout,qli):
 "penalty_sollocal":results[i]['penalty_sollocal'],
 "handling_cost_sollocal":results[i]['handling_cost_sollocal'],
 "fuel_cost_sollocal":results[i]['fuel_cost_sollocal'],
+"proba_tacticboat":results[i]['proba_tacticboat'],
+"proba_tacticall":results[i]['proba_tacticall'],
+"proba_tacticlocalsearch":results[i]['proba_tacticlocalsearch'],
 "timeheur":results[i]['timeheur'],
 "timelocal":results[i]['timelocal'],
 "failed":results[i]['failed']}

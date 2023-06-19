@@ -66,11 +66,13 @@ mutable struct Sol
     visits::Vector{Vector{Visit}}
     store::ToStoreSol
     failed::Int64
+    reconstruct::Int64
+    usedCPLEX::Int64
 end
 
 
 
-Sol(inst::Instance) = Sol(0., [[ones(Bool, inst.Bp[inst.Pi[n][c]]-ceil(Int, inst.shipsIn[n].l/inst.qli)+1, ceil(Int, inst.maxT+1)) for c in 1:length(inst.Pi[n])] for n in 1:inst.N], [[Visit() for c in 1:length(inst.Pi[n])] for n in 1:inst.N], ToStoreSol(SplitCosts(0,0,0,0,0,0),SplitCosts(0,0,0,0,0,0),0.0,0.0,Probabilities([1.0],[1.0],[1.0],[1.0],[1.0],[1.0],[1.0], [1.0], [1.0], [1.0])),0)
+Sol(inst::Instance) = Sol(0., [[ones(Bool, inst.Bp[inst.Pi[n][c]]-ceil(Int, inst.shipsIn[n].l/inst.qli)+1, ceil(Int, inst.maxT+1)) for c in 1:length(inst.Pi[n])] for n in 1:inst.N], [[Visit() for c in 1:length(inst.Pi[n])] for n in 1:inst.N], ToStoreSol(SplitCosts(0,0,0,0,0,0),SplitCosts(0,0,0,0,0,0),0.0,0.0,Probabilities([1.0],[1.0],[1.0],[1.0],[1.0],[1.0],[1.0], [1.0], [1.0], [1.0])),0,0,0)
 
 ## A solution is a matrix of one of length of : number of discretized berthing positions minus size of ship * maximum time limit for all boat and ports,
 ## Then we have this for each visit of each boat (a bit overkilled no ?).

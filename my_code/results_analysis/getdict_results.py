@@ -15,9 +15,9 @@ def getsolfromfileCPLEX(Nin,Nout,seed,qli, type, time_limit):
             file = "D:/DTU-Courses/DTU-Thesis/berth_allocation/MCBAP-multi-port-berth-allocation-problem/results_jobs/benchmarks_CPLEX/sols_10min/CPLEX_sol_{}_{}_{}_{}.csv".format(seed,Nin,Nout,qli)
     if type == 'large':
         if time_limit==5:
-            file = "D:/DTU-Courses/DTU-Thesis/berth_allocation/results_jobs/benchmarks_CPLEX/sols_300s/CPLEX_sol_{}_{}_{}_{}.csv".format(seed,Nin,Nout,qli)
+            file = "D:/DTU-Courses/DTU-Thesis/berth_allocation/results_jobs/benchmarks_CPLEX/sols_2400s/CPLEX_sol_{}_{}_{}_{}.csv".format(seed,Nin,Nout,qli)
         else:
-            file = "D:/DTU-Courses/DTU-Thesis/berth_allocation/results_jobs/benchmarks_CPLEX/sols_600s/CPLEX_sol_{}_{}_{}_{}.csv".format(seed,Nin,Nout,qli)
+            file = "D:/DTU-Courses/DTU-Thesis/berth_allocation/results_jobs/benchmarks_CPLEX/sols_2400s/CPLEX_sol_{}_{}_{}_{}.csv".format(seed,Nin,Nout,qli)
     results_sol = pd.read_csv(file)
     dictresults=dict()
 
@@ -375,14 +375,20 @@ def getiterfromfileHEUR(Nin,Nout,seed,qli,algo_folder,exp):
         dictresults["oneboatdistance"] = ast.literal_eval(list(results_sol[results_sol['first']=="oneboatdistance"]['second'])[0])
         dictresults["oneboatcost"] = ast.literal_eval(list(results_sol[results_sol['first']=="oneboatcost"]['second'])[0])
         dictresults["oneboattime"] = ast.literal_eval(list(results_sol[results_sol['first']=="oneboattime"]['second'])[0])
+        dictresults["allboatscount"] = ast.literal_eval(list(results_sol[results_sol['first']=="allboatscount"]['second'])[0])
+        dictresults["allboatstime"] = ast.literal_eval(list(results_sol[results_sol['first']=="allboatstime"]['second'])[0])
+        dictresults["allboatscost"] = ast.literal_eval(list(results_sol[results_sol['first']=="allboatscost"]['second'])[0])
+        dictresults["rateconstrained"] = ast.literal_eval(list(results_sol[results_sol['first']=="rateconstrained"]['second'])[0])
         
-        print(results_sol[results_sol['first']=="proba_tacticboat"]['second'])
-        dictresults["proba_tacticboat"] = results_sol[results_sol['first']=="proba_tacticboat"]['second']
-        dictresults["proba_tacticall"] = results_sol[results_sol['first']=="proba_tacticall"]['second']
-        dictresults["proba_tacticlocalsearch"] = results_sol[results_sol['first']=="proba_tacticlocalsearch"]['second']
+        dictresults["proba_tacticboat"] = ast.literal_eval(list(results_sol[results_sol['first']=="proba_tacticboat"]['second'])[0])
+        dictresults["proba_tacticall"] = ast.literal_eval(list(results_sol[results_sol['first']=="proba_tacticall"]['second'])[0])
+        dictresults["proba_tacticlocalsearch"] = ast.literal_eval(list(results_sol[results_sol['first']=="proba_tacticlocalsearch"]['second'])[0])
         
         dictresults["failed"] = float(results_sol[results_sol['first']=="failed"]['second'])
         dictresults["better"] = float(results_sol[results_sol['first']=="better"]['second'])
+        
+        dictresults["reconstruct"] = float(list(results_sol[results_sol['first']=="reconstruct"]['second'])[0])
+        dictresults["usedCPLEX"] = float(list(results_sol[results_sol['first']=="usedCPLEX"]['second'])[0])
 
         dict_all_iters[nb_iter]=dictresults
 
@@ -419,7 +425,16 @@ def make_datasetiter(algo_folder, exp, seed, Nin,Nout,qli):
             "fuel_cost_sollocal",
             "timeheur",
             "timelocal",
-            "failed"))
+            "oneboatdistance",
+            "oneboatcost",
+            "oneboattime",
+            "allboatscount",
+            "allboatstime",
+            "allboatscost",
+            "rateconstained",
+            "failed",
+            "reconstruct",
+            "usedCPLEX"))
 
     for i in results.keys():
         for n in range(1,Nin+1):
@@ -451,6 +466,15 @@ def make_datasetiter(algo_folder, exp, seed, Nin,Nout,qli):
 "fuel_cost_sollocal":results[i]['fuel_cost_sollocal'],
 "timeheur":results[i]['timeheur'],
 "timelocal":results[i]['timelocal'],
-"failed":results[i]['failed']}
+"oneboatdistance":results[i]['oneboatdistance'],
+"oneboatcost":results[i]['oneboatcost'],
+"oneboattime":results[i]['oneboattime'],
+"allboatscount":results[i]['allboatscount'],
+"allboatstime":results[i]['allboatstime'],
+"allboatscost":results[i]['allboatscost'],
+"rateconstained":results[i]['rateconstrained'],
+"failed":results[i]['failed'],
+'reconstruct':results[i]['reconstruct'],
+'usedCPLEX':results[i]['usedCPLEX']}
                 dataset = dataset.append(dataset_row, ignore_index=True)
     return dataset
