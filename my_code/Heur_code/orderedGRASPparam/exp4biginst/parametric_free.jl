@@ -1442,7 +1442,6 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
             #print(new_sol.visits)
             d_before=prepareSolIter(seed,N,Nout,qli,nb_iter,inst, new_sol, new_cost_heur, allparam, paramfixed, expname)
             d_before["reconstruct"]=from_reconstruct_iter
-            from_reconstruct_iter=0
             d_alliter_before[nb_iter]=d_before
             start_local=time_ns()
 
@@ -1524,6 +1523,8 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
             end
             
             d_after["usedCPLEX"]=usedcplex
+            d_after["reconstruct"]=from_reconstruct_iter
+            from_reconstruct_iter=0
             usedcplex=0
             d_alliter_after[nb_iter]=d_after
             nb_iter+=1

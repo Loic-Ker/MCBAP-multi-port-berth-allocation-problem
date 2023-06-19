@@ -96,6 +96,7 @@ mutable struct FixedParameters
     PropToRemove::Float64
     WindowSize::Float64
     PushOnlyConstrained::Bool
+    lookforconstrained::Bool
 end
 
 
@@ -119,7 +120,7 @@ function initializeParam()
     alphanormal = [0.15,0.2,0.25]
     #alphanormal = [0.2,0.2,0.2,0.2]
     alphaconstrained = [0.2,0.4,0.6]
-    alphaconstrained = [0,0,0]
+    #alphaconstrained = [0,0,0]
     averagenormal = [1.0,1.0,1.0]
     nbnormal = [0,0,0]
     probanormal = [1/3,1/3,1/3]

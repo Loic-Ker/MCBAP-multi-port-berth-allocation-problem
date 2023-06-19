@@ -265,16 +265,18 @@ function makeSoltest(time, location, seedchosen, Nchosen)
     return newbenchmark
 end
 
-#location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
-location="/zhome/c3/6/164957/code_git/"
-time = parse(Int64,ARGS[1])
-seedchosen = parse(Int64,ARGS[2])
-Nchosen = parse(Int64,ARGS[3])
+location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
+#location="/zhome/c3/6/164957/code_git/"
+#time = parse(Int64,ARGS[1])
+#seedchosen = parse(Int64,ARGS[2])
+seedchosen=1
+#Nchosen = parse(Int64,ARGS[3])
+Nchosen=30
 #minN = 8
 #maxN = 8
-time=60
+time=100
 newbenchmark = makeSoltest(time, location, seedchosen, Nchosen)
-CSV.write(location*"results_jobs/benchmarks_CPLEX/CPLEX_NLarge_results_$time"*"s_$seedchosen"*"n_$Nchosen"*".csv", newbenchmark)
+CSV.write(location*"results_jobs/benchmarks_CPLEX/CPLEX_NLarge_results_$time"*"s_$seedchosen"*"_$Nchosen"*".csv", newbenchmark)
     
 
 ## At each iteration :

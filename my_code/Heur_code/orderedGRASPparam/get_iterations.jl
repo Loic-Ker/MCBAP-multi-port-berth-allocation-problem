@@ -57,6 +57,8 @@ function prepareSolIter(seed,N,Nout,qli, nb_iter, inst, sol, cost, allparam, par
     
     d["failed"] = sol.failed
     d["better"] = 0
+    d["reconstruct"]=sol.reconstruct
+    d["usedCPLEX"]=sol.usedCPLEX
 
     ## Get the instances 
     d["inst"]= inst.Pi
