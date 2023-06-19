@@ -248,7 +248,7 @@ function makeSoltest(time, location, seedchosen, Nchosen)
         N=parse(Int64,split_instance[4])
         Nout=parse(Int64,split_instance[5])
         qli=parse(Int64,split(split_instance[6],".")[1])
-	if seed==seedchosen && N==Nchosen && Nout==Noutchosen
+	if seed==seedchosen && N==Nchosen #&& Nout==Noutchosen
 		print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
 		start = time_ns()
 		box, d, cost = CPLEXoptimize(N,Nout,seed,qli, time, location) 
@@ -271,10 +271,11 @@ time = parse(Int64,ARGS[1])
 seedchosen = parse(Int64,ARGS[2])
 Nchosen = parse(Int64,ARGS[3])
 #Noutchosen = parse(Int64,ARGS[4])
+Noutchosen = 5
 #minN = 8
 #maxN = 8
 time=2400
-newbenchmark = makeSoltest(time, location, seedchosen, Nchosen, Noutchosen)
+newbenchmark = makeSoltest(time, location, seedchosen, Nchosen)
 CSV.write(location*"results_jobs/benchmarks_CPLEX/CPLEX_NLarge_results_$time"*"s_$seedchosen"*"n_$Nchosen"*".csv", newbenchmark)
     
 

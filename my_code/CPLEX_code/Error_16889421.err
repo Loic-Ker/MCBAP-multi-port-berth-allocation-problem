@@ -1,0 +1,7 @@
+ERROR: LoadError: MethodError: no method matching makeSoltest(::Int64, ::String, ::Int64, ::Int64, ::Int64)
+Closest candidates are:
+  makeSoltest(::Any, ::Any, ::Any, ::Any) at ~/code_git/MCBAP-multi-port-berth-allocation-problem/my_code/CPLEX_code/MIP_big.jl:242
+Stacktrace:
+ [1] top-level scope
+   @ ~/code_git/MCBAP-multi-port-berth-allocation-problem/my_code/CPLEX_code/MIP_big.jl:278
+in expression starting at /zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/my_code/CPLEX_code/MIP_big.jl:278
