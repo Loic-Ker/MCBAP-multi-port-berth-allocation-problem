@@ -626,6 +626,7 @@ end
 
 
 function manualLocalSearch(inst::Instance, this_sol::Sol, cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost, allparam, timelocal)
+    @unpack N, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp = inst
     start = time_ns()
     elapsed = round((time_ns()-start)/1e9,digits=3)
     sol=deepcopy(this_sol)
@@ -643,33 +644,44 @@ function manualLocalSearch(inst::Instance, this_sol::Sol, cost, delay_cost, wait
     while elapsed<timelocal
         start_step = time_ns()
         new_sol, feasible = localSearchRemovalReplace(inst, sol, allparam)
-        new_cost1, delay_cost1, waiting_cost1, penalty_cost1, handling_cost1, fuel_cost1=checkSolutionCost(inst, new_sol)
-        new_sol1, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = pushTime(inst, new_sol, paramfixed, time_local)
-        print('\n')
-        print("Local search old cost: ")
-        print('\n')
-        print(old_cost)
-        print('\n')
-        print("Local search new cost: ")
-        print('\n')
-        print(new_cost)
-        if new_cost1>new_cost
-            new_sol=deepcopy(new_sol1)
-            new_cost=deepcopy(new_cost1)
-            delay_cost=deepcopy(delay_cost1)
-            waiting_cost=deepcopy(waiting_cost1)
-            penalty_cost=deepcopy(penalty_cost1)
-            handling_cost=deepcopy(handling_cost1)
-            fuel_cost=deepcopy(fuel_cost1)
+        feasible1=true
+        for n in 1:N
+            # The times :
+            for (c,p) in enumerate(inst.Pi[n])
+                if new_sol.visits[n][c].planned == false
+                    feasible1 = false              
+                end
+            end
         end
-        if new_cost<old_cost
-            sol=deepcopy(new_sol)
-            old_cost=deepcopy(new_cost)
-            old_delay_cost=deepcopy(delay_cost)
-            old_waiting_cost=deepcopy(waiting_cost)
-            old_penalty_cost=deepcopy(penalty_cost)
-            old_handling_cost=deepcopy(handling_cost)
-            old_fuel_cost=deepcopy(fuel_cost)
+        if feasible && feasible1 && checkSolutionFeasability(inst, new_sol)
+            new_cost1, delay_cost1, waiting_cost1, penalty_cost1, handling_cost1, fuel_cost1=checkSolutionCost(inst, new_sol)
+            new_sol1, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = pushTime(inst, new_sol, paramfixed, time_local)
+            print('\n')
+            print("Local search old cost: ")
+            print('\n')
+            print(old_cost)
+            print('\n')
+            print("Local search new cost: ")
+            print('\n')
+            print(new_cost)
+            if new_cost1>new_cost
+                new_sol=deepcopy(new_sol1)
+                new_cost=deepcopy(new_cost1)
+                delay_cost=deepcopy(delay_cost1)
+                waiting_cost=deepcopy(waiting_cost1)
+                penalty_cost=deepcopy(penalty_cost1)
+                handling_cost=deepcopy(handling_cost1)
+                fuel_cost=deepcopy(fuel_cost1)
+            end
+            if new_cost<old_cost
+                sol=deepcopy(new_sol)
+                old_cost=deepcopy(new_cost)
+                old_delay_cost=deepcopy(delay_cost)
+                old_waiting_cost=deepcopy(waiting_cost)
+                old_penalty_cost=deepcopy(penalty_cost)
+                old_handling_cost=deepcopy(handling_cost)
+                old_fuel_cost=deepcopy(fuel_cost)
+            end
         end
         elapsed = round((time_ns()-start)/1e9,digits=3)
     end
