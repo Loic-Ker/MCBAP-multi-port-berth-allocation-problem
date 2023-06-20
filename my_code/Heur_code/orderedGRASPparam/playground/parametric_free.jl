@@ -1440,8 +1440,8 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
             #print("Before local search")
             #print('\n')
             #print(new_sol.visits)
-            d_before=prepareSolIter(seed,N,Nout,qli,nb_iter,inst, new_sol, new_cost_heur, allparam, paramfixed, expname)
-            d_alliter_before[nb_iter]=d_before
+            #d_before=prepareSolIter(seed,N,Nout,qli,nb_iter,inst, new_sol, new_cost_heur, allparam, paramfixed, expname)
+            #d_alliter_before[nb_iter]=d_before
             start_local=time_ns()
 
             #print('\n')
@@ -1546,15 +1546,17 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
                 new_sol.reconstruct=1
             end
 
-            d_after = prepareSolIter(seed,N,Nout,qli,nb_iter,inst, new_sol, new_cost, allparam, paramfixed, expname)
-            
             if new_cost<cost
                 #print('\n')
                 #print("################# lol")
-                d_after["better"]=1
+                sol.better=1
                 cost=deepcopy(new_cost)
                 sol=deepcopy(new_sol)
             end
+
+            d_after = prepareSolIterSoft(seed,N,Nout,qli,nb_iter,inst, new_sol, new_cost, allparam, paramfixed, expname)
+            
+            
 
             if reconstruct_no_improve>20
                 if cost<best_cost
@@ -1614,7 +1616,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
         #print('\n')
         #print("The solution is feasible")
         for iter in keys(d_alliter_after)
-            CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$iter"*"_beforelocal"*".csv", d_alliter_before[iter])
+            #CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$iter"*"_beforelocal"*".csv", d_alliter_before[iter])
             CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*"/iter_$iter"*".csv", d_alliter_after[iter])
         end
         #print('\n')

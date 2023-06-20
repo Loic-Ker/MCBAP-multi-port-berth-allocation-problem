@@ -395,8 +395,165 @@ def getiterfromfileHEUR(Nin,Nout,seed,qli,algo_folder,exp):
     return dict_all_iters
 
 
+def getiterfromfileHEURSoft(Nin,Nout,seed,qli,algo_folder,exp):
+    location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/results_jobs/benchmarks_HEUR/{}/{}/iterations/sol_{}_{}_{}_{}".format(algo_folder,exp,seed,Nin,Nout,qli)
+    list_iter = [f for f in listdir(location) if isfile(join(location, f))]
+    nb_iter=0
+    dict_all_iters=dict()
+    for file in list_iter:
+        nb_iter+=1
+        results_sol = pd.read_csv(location+'/'+file)
+
+        dictresults=dict()
+
+        
+
+        listinst = list(results_sol[results_sol['first']=='inst']['second'])
+        for i in range(0,len(listinst)):
+            listinst[i]=ast.literal_eval(listinst[i])
+        listinst=listinst[0]
+        dictinst=dict()
+        for n in range(0,len(listinst)):
+            dictinst[n+1]= listinst[n]
+
+        
+        listlength=list(results_sol[results_sol['first']=='length_boats']['second'])
+        for i in range(0,len(listlength)):
+            listlength[i]=ast.literal_eval(listlength[i])
+        listlength=listlength[0]
+        dictlength=dict()
+        for n in dictinst.keys():
+            dictlength[n]=listlength[n-1]
+
+        listcalls = ast.literal_eval(list(results_sol[results_sol['first']=='calls']['second'])[0])
+        dictcalls=dict()
+        for n in range(0,Nin):
+            dictcalls[n+1]=dict()
+            for c in range(0,len(listinst[n])):
+                dictcalls[n+1][c+1]=listcalls[n][c]
+
+
+        list_cost_visit=ast.literal_eval(list(results_sol[results_sol['first']=='cost_visit']['second'])[0].replace("Vector{Any}",''))
+        list_delay_cost_visit=ast.literal_eval(list(results_sol[results_sol['first']=='delay_cost_visit']['second'])[0].replace("Vector{Any}",''))
+        list_when=ast.literal_eval(list(results_sol[results_sol['first']=='when']['second'])[0].replace("Vector{Any}",''))
+        list_tacticall_chosen=ast.literal_eval(list(results_sol[results_sol['first']=='tacticall_chosen']['second'])[0].replace("Vector{Any}",''))
+        list_tacticboat_chosen=ast.literal_eval(list(results_sol[results_sol['first']=='tacticboat_chosen']['second'])[0].replace("Vector{Any}",''))
+        list_penalty_visit=ast.literal_eval(list(results_sol[results_sol['first']=='penalty_visit']['second'])[0].replace("Vector{Any}",''))
+        list_fuel_cost_visit=ast.literal_eval(list(results_sol[results_sol['first']=='fuel_cost_visit']['second'])[0].replace("Vector{Any}",''))
+        list_handling_cost_visit=ast.literal_eval(list(results_sol[results_sol['first']=='handling_cost_visit']['second'])[0].replace("Vector{Any}",''))
+        list_waiting_cost_visit=ast.literal_eval(list(results_sol[results_sol['first']=='waiting_cost_visit']['second'])[0].replace("Vector{Any}",''))
+
+        dict_cost_visit=dict()
+        dict_delay_cost_visit=dict()
+        dict_when=dict()
+        dict_tacticall_chosen=dict()
+        dict_tacticboat_chosen=dict()
+        dict_penalty_visit=dict()
+        dict_fuel_cost_visit=dict()
+        dict_handling_cost_visit=dict()
+        dict_waiting_cost_visit=dict()
+        for n in range(1,len(list_cost_visit)+1):
+            if n not in dict_cost_visit.keys():
+                dict_cost_visit[n]=dict()
+            for c in range(1,len(list_cost_visit[n-1])+1):
+                dict_cost_visit[n][c]=list_cost_visit[n-1][c-1]
+        for n in range(1,len(list_delay_cost_visit)+1):
+            if n not in dict_delay_cost_visit.keys():
+                dict_delay_cost_visit[n]=dict()
+            for c in range(1,len(list_delay_cost_visit[n-1])+1):
+                dict_delay_cost_visit[n][c]=list_delay_cost_visit[n-1][c-1]
+        for n in range(1,len(list_when)+1):
+            if n not in dict_when.keys():
+                dict_when[n]=dict()
+            for c in range(1,len(list_when[n-1])+1):
+                dict_when[n][c]=list_when[n-1][c-1]
+        for n in range(1,len(list_tacticall_chosen)+1):
+            if n not in dict_tacticall_chosen.keys():
+                dict_tacticall_chosen[n]=dict()
+            for c in range(1,len(list_tacticall_chosen[n-1])+1):
+                dict_tacticall_chosen[n][c]=list_tacticall_chosen[n-1][c-1]
+        for n in range(1,len(list_tacticboat_chosen)+1):
+            if n not in dict_tacticboat_chosen.keys():
+                dict_tacticboat_chosen[n]=dict()
+            for c in range(1,len(list_tacticboat_chosen[n-1])+1):
+                dict_tacticboat_chosen[n][c]=list_tacticboat_chosen[n-1][c-1]
+        for n in range(1,len(list_penalty_visit)+1):
+            if n not in dict_penalty_visit.keys():
+                dict_penalty_visit[n]=dict()
+            for c in range(1,len(list_penalty_visit[n-1])+1):
+                dict_penalty_visit[n][c]=list_penalty_visit[n-1][c-1]
+        for n in range(1,len(list_fuel_cost_visit)+1):
+            if n not in dict_fuel_cost_visit.keys():
+                dict_fuel_cost_visit[n]=dict()
+            for c in range(1,len(list_fuel_cost_visit[n-1])+1):
+                dict_fuel_cost_visit[n][c]=list_fuel_cost_visit[n-1][c-1]
+        for n in range(1,len(list_handling_cost_visit)+1):
+            if n not in dict_handling_cost_visit.keys():
+                dict_handling_cost_visit[n]=dict()
+            for c in range(1,len(list_handling_cost_visit[n-1])+1):
+                dict_handling_cost_visit[n][c]=list_handling_cost_visit[n-1][c-1]
+        for n in range(1,len(list_waiting_cost_visit)+1):
+            if n not in dict_waiting_cost_visit.keys():
+                dict_waiting_cost_visit[n]=dict()
+            for c in range(1,len(list_waiting_cost_visit[n-1])+1):
+                dict_waiting_cost_visit[n][c]=list_waiting_cost_visit[n-1][c-1]
+
+        dictresults['cost_visit']=dict_cost_visit
+        dictresults['delay_cost_visit']=dict_delay_cost_visit
+        dictresults['when']=dict_when
+        dictresults['tacticall_chosen']=dict_tacticall_chosen
+        dictresults['tacticboat_chosen']=dict_tacticboat_chosen
+        dictresults['penalty_visit']=dict_penalty_visit
+        dictresults['fuel_cost_visit']=dict_fuel_cost_visit
+        dictresults['handling_cost_visit']=dict_handling_cost_visit
+        dictresults['waiting_cost_visit']=dict_waiting_cost_visit
+        dictresults['length']=dictlength
+        dictresults['calls']=dictcalls
+        dictresults['inst']=listinst
+        dictresults['objectif']=float(list(results_sol[results_sol['first']=='objectif']['second'])[0])
+
+        dictresults["cost_solheur"] = float(results_sol[results_sol['first']=="cost_solheur"]['second'])
+        dictresults["delay_cost_solheur"] = float(results_sol[results_sol['first']=="delay_cost_solheur"]['second'])
+        dictresults["waiting_cost_solheur"] = float(results_sol[results_sol['first']=="waiting_cost_solheur"]['second'])
+        dictresults["penalty_solheur"] = float(results_sol[results_sol['first']=="penalty_solheur"]['second'])
+        dictresults["handling_cost_solheur"] = float(results_sol[results_sol['first']=="handling_cost_solheur"]['second'])
+        dictresults["fuel_cost_solheur"] = float(results_sol[results_sol['first']=="fuel_cost_solheur"]['second'])
+
+        dictresults["cost_sollocal"] = float(results_sol[results_sol['first']=="cost_sollocal"]['second'])
+        dictresults["delay_cost_sollocal"] = float(results_sol[results_sol['first']=="delay_cost_sollocal"]['second'])
+        dictresults["waiting_cost_sollocal"] = float(results_sol[results_sol['first']=="waiting_cost_sollocal"]['second'])
+        dictresults["penalty_sollocal"] = float(results_sol[results_sol['first']=="penalty_sollocal"]['second'])
+        dictresults["handling_cost_sollocal"] = float(results_sol[results_sol['first']=="handling_cost_sollocal"]['second'])
+        dictresults["fuel_cost_sollocal"] =float(results_sol[results_sol['first']=="fuel_cost_sollocal"]['second'])
+
+        dictresults["timeheur"]= float(results_sol[results_sol['first']=="timeheur"]['second'])
+        dictresults["timelocal"]= float(results_sol[results_sol['first']=="timelocal"]['second'])
+        dictresults["oneboatdistance"] = ast.literal_eval(list(results_sol[results_sol['first']=="oneboatdistance"]['second'])[0])
+        dictresults["oneboatcost"] = ast.literal_eval(list(results_sol[results_sol['first']=="oneboatcost"]['second'])[0])
+        dictresults["oneboattime"] = ast.literal_eval(list(results_sol[results_sol['first']=="oneboattime"]['second'])[0])
+        dictresults["allboatscount"] = ast.literal_eval(list(results_sol[results_sol['first']=="allboatscount"]['second'])[0])
+        dictresults["allboatstime"] = ast.literal_eval(list(results_sol[results_sol['first']=="allboatstime"]['second'])[0])
+        dictresults["allboatscost"] = ast.literal_eval(list(results_sol[results_sol['first']=="allboatscost"]['second'])[0])
+        dictresults["rateconstrained"] = ast.literal_eval(list(results_sol[results_sol['first']=="rateconstrained"]['second'])[0])
+        
+        dictresults["proba_tacticboat"] = ast.literal_eval(list(results_sol[results_sol['first']=="proba_tacticboat"]['second'])[0])
+        dictresults["proba_tacticall"] = ast.literal_eval(list(results_sol[results_sol['first']=="proba_tacticall"]['second'])[0])
+        dictresults["proba_tacticlocalsearch"] = ast.literal_eval(list(results_sol[results_sol['first']=="proba_tacticlocalsearch"]['second'])[0])
+        
+        dictresults["failed"] = float(results_sol[results_sol['first']=="failed"]['second'])
+        dictresults["better"] = float(results_sol[results_sol['first']=="better"]['second'])
+        
+        dictresults["reconstruct"] = float(list(results_sol[results_sol['first']=="reconstruct"]['second'])[0])
+        dictresults["usedCPLEX"] = float(list(results_sol[results_sol['first']=="usedCPLEX"]['second'])[0])
+
+        dict_all_iters[nb_iter]=dictresults
+
+    return dict_all_iters
+
+
 def make_datasetiter(algo_folder, exp, seed, Nin,Nout,qli):
-    results = getiterfromfileHEUR(algo_folder=algo_folder, exp=exp, seed=seed,Nin=Nin,Nout=Nout,qli=qli)
+    results = getiterfromfileHEURSoft(algo_folder=algo_folder, exp=exp, seed=seed,Nin=Nin,Nout=Nout,qli=qli)
+    #results = getiterfromfileHEUR(algo_folder=algo_folder, exp=exp, seed=seed,Nin=Nin,Nout=Nout,qli=qli)
     dataset = pd.DataFrame(columns=('iter','n','c','port',
             'cost_visit',
             'delay_cost_visit',
