@@ -237,8 +237,8 @@ function makeSolHeur(type1, type2, type3, paramfixed, temperature, time_local, m
     return newbenchmark
 end
 
-location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
-#location="/zhome/c3/6/164957/code_git/"
+#location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
+location="/zhome/c3/6/164957/code_git/"
 
 
 # The parameters of the experiment :
@@ -288,7 +288,7 @@ temperature=0.93
 seedchosen = parse(Int64,ARGS[3])
 Nchosen=parse(Int64,ARGS[4])
 #seedchosen=2
-Noutchosen=5
+Noutchosen=parse(Int64,ARGS[5])
 #Nchosen=30
 qlichosen=10
 
@@ -297,7 +297,7 @@ list_paramvisit = allparam.Alpha.CostOneShip
 list_paramconstrained = allparam.Alpha.RateConstrained
 makeExpText(type1, type2, type3, paramfixed, list_paramvisit, list_paramconstrained, time_local, max_time_heur, max_time, expname, location)
 newbenchmark = makeSolHeur(type1, type2, type3, paramfixed, temperature, time_local, max_time_heur, max_time, expname, location, seedchosen, Nchosen, Noutchosen, qlichosen)
-CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/NLarge_playground_$seedchosen"*"n_$Nchosen"*".csv", newbenchmark)
+CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/NLarge_playground_$seedchosen"*"n_$Nchosen"*"_$Noutchosen.csv", newbenchmark)
 newbenchmark
 
 

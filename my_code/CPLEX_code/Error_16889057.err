@@ -1,5 +1,0 @@
-ERROR: LoadError: UndefVarError: Noutchosen not defined
-Stacktrace:
- [1] top-level scope
-   @ ~/code_git/MCBAP-multi-port-berth-allocation-problem/my_code/CPLEX_code/MIP_big.jl:277
-in expression starting at /zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/my_code/CPLEX_code/MIP_big.jl:277
