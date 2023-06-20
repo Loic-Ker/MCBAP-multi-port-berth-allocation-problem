@@ -24,7 +24,7 @@
 #BSUB -N
 ### -- Specify the output and error file. %J is the job-id --
 ### -- -o and -e mean append, -oo and -eo mean overwrite --
-#BSUB -o Output_%J.out
+##BSUB -o Output_%J.out
 #BSUB -e Error_%J.err
 # here follow the commands you want to execute
-julia-1.7.0 MIP_big.jl 3600 2 70 5 10
+julia-1.7.0 get_sol.jl 10 2400 2 50 10
