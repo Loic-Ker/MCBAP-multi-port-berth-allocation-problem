@@ -1395,17 +1395,17 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
 
         if random_value <= proba_temperature || nb_iter_reconstruct < 20 #|| first_good_solution == false
             proba_temperature = proba_temperature*temperature
-            print('\n')
-            print("First step")
+            #print('\n')
+            #print("First step")
             new_sol = greedyrandomizedconstruction(inst, paramchosen, allparam, paramfixed, max_time_heur)
-            print('\n')
-            print("#############################")
+            #print('\n')
+            #print("#############################")
         else
-            print('\n')
-            print("GREEDY ORDERED CONSTRUCTION")
-            print('\n')
-            print("The temperature is : $proba_temperature")
-            print('\n')
+            #print('\n')
+            #print("GREEDY ORDERED CONSTRUCTION")
+            #print('\n')
+            #print("The temperature is : $proba_temperature")
+            #print('\n')
             #print("#############################")
             proba_temperature = 1
             #new_sol = greedyorderedconstruction(inst, paramchosen, allparam, when_list, max_time_heur)
@@ -1416,10 +1416,10 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
         proba_temperature = proba_temperature*temperature
         elapsed_heur = round((time_ns()-start_heur)/1e9,digits=3)
         feasible = true
-        print('\n')
-        print("Time heur")
-        print('\n')
-        print(elapsed_heur)
+        #print('\n')
+        #print("Time heur")
+        #print('\n')
+        #print(elapsed_heur)
         ## No conflicts with within one boat schedule :
         for n in 1:N
             # The times :
@@ -1429,10 +1429,10 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
                 end
             end
         end
-        print('\n')
-        print("Second step")
-        print('\n')
-        print("###########################")
+        #print('\n')
+        #print("Second step")
+        #print('\n')
+        #print("###########################")
         if feasible && checkSolutionFeasability(inst, new_sol)
             new_cost_heur, delay_cost_heur, waiting_cost_heur, penalty_cost_heur, handling_cost_heur, fuel_cost_heur = checkSolutionCost(inst, new_sol)
             
@@ -1444,18 +1444,18 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
             d_alliter_before[nb_iter]=d_before
             start_local=time_ns()
 
-            print('\n')
-            print("New cost heur")
-            print('\n')
-            print(new_cost_heur)
-            print('\n')
-            print("Min cost heur")
-            print('\n')
-            print(min_cost_heur)
-            print('\n')
-            print("Does it come from a reconstruct?")
-            print('\n')
-            print(from_reconstruct)
+            #print('\n')
+            #print("New cost heur")
+            #print('\n')
+            #print(new_cost_heur)
+            #print('\n')
+            #print("Min cost heur")
+            #print('\n')
+            #print(min_cost_heur)
+            #print('\n')
+            #print("Does it come from a reconstruct?")
+            #print('\n')
+            #print(from_reconstruct)
             if new_cost_heur<min_cost_heur && from_reconstruct==false
                 min_cost_heur=deepcopy(new_cost_heur)
             end
@@ -1506,10 +1506,10 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
             #new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = new_cost_heur, delay_cost_heur, waiting_cost_heur, penalty_cost_heur, handling_cost_heur, fuel_cost_heur
 
             elapsed_local = round((time_ns()-start_local)/1e9,digits=3)
-            print('\n')
-            print("Time local search")
-            print('\n')
-            print(elapsed_local)
+            #print('\n')
+            #print("Time local search")
+            #print('\n')
+            #print(elapsed_local)
             #print('\n')
             #print("Cost at the end of local search")
             #print('\n')
@@ -1532,12 +1532,12 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
                     new_sol.visits[n][c].store.cost =  SplitCosts(ceil(Int, this_cost), ceil(Int,delay_cost), ceil(Int,waiting_cost), ceil(Int,penalty), ceil(Int,handling_cost), ceil(Int,fuel_cost))
                 end
             end
-            print('\n')
-            print("The tactics")
-            print('\n')
-            print(usedcplex)
-            print('\n')
-            print(from_reconstruct_iter)
+            #print('\n')
+            #print("The tactics")
+            #print('\n')
+            #print(usedcplex)
+            #print('\n')
+            #print(from_reconstruct_iter)
             
             if usedcplex==1
                 new_sol.usedCPLEX=1
@@ -1558,10 +1558,10 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
 
             if reconstruct_no_improve>20
                 if cost<best_cost
-                    print('\n')
-                    print("#######################")
-                    print('\n')
-                    print("Start from 0")
+                    #print('\n')
+                    #print("#######################")
+                    #print('\n')
+                    #print("Start from 0")
                     best_cost=deepcopy(cost)
                     best_sol=deepcopy(sol)
                     min_cost_heur=1000000000
@@ -1590,10 +1590,10 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
             #allparam = UpdateParametersExp(paramchosen, allparam, N, cost, worst_cost) 
         end
         elapsed = round((time_ns()-start)/1e9,digits=3)
-    print('\n')
-    print("End")
-    print('\n')
-    print("###########################")
+    #print('\n')
+    #print("End")
+    #print('\n')
+    #print("###########################")
     end
     
     #print('\n')
@@ -1688,8 +1688,8 @@ function testallfunction()
     temperature=0.93
 
 
-    print("Start")
-    print('\n')
+    #print("Start")
+    #print('\n')
     for instance_name in all_instances
         split_instance = split(instance_name,"_")
         seed=parse(Int64,split_instance[3])
@@ -1709,15 +1709,15 @@ function testallfunction()
             end
         end
         if feasible && checkSolutionFeasability(inst, sol)
-            print('\n')
-            print("The probas :")
-            print('\n')
-            print(allparam.Proba)
-            print('\n')
-            print("The solution :")
-            print('\n')
-            print(sol.visits)
-            print('\n')
+            #print('\n')
+            #print("The probas :")
+            #print('\n')
+            #print(allparam.Proba)
+            #print('\n')
+            #print("The solution :")
+            #print('\n')
+            #print(sol.visits)
+            #print('\n')
             print("And the cost is ")
             print('\n')
             print(cost)
