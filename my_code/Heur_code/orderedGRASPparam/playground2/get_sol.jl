@@ -263,8 +263,8 @@ function makeSolHeur(type1, type2, type3, paramfixed, temperature, time_local, m
     return newbenchmark
 end
 
-location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
-#location="/zhome/c3/6/164957/code_git/"
+#location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
+location="/zhome/c3/6/164957/code_git/"
 
 
 # The parameters of the experiment :
@@ -296,7 +296,7 @@ alpharandommin=0.1
 alpharandommax=0.4
 
 # When do we start from zero for the reconstruction :
-maxnoimprove=9
+maxnoimprove=10
 
 # Which sol to take from the heuristic for the local search :
 windowlocalsearch=0.01
@@ -323,12 +323,12 @@ max_time=2400
 temperature=0.93
 
 # look for a specific seed
-#seedchosen = parse(Int64,ARGS[3])
-#Nchosen=parse(Int64,ARGS[4])
-#Noutchosen=parse(Int64,ARGS[5])
-seedchosen=2
-Nchosen=50
-Noutchosen=5
+seedchosen = parse(Int64,ARGS[3])
+Nchosen=parse(Int64,ARGS[4])
+Noutchosen=parse(Int64,ARGS[5])
+#seedchosen=2
+#Nchosen=50
+#Noutchosen=10
 qlichosen=10
 
 allparam = initializeParam()

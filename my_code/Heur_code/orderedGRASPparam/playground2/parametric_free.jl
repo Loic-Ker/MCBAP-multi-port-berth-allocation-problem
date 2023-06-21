@@ -12,7 +12,7 @@ include("../toolsMatrixTimes.jl")
 include("../check_solution.jl")
 include("../utilInit.jl")
 #include("../localCPLEX.jl")
-include("../localsearch.jl")
+include("../localsearch2.jl")
 
 mutable struct NewVisit
     n::Int64    # ship number
@@ -1392,6 +1392,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
     first_good_solution= false
 
     not_first_time=false
+    focus_on_remove=false
 
     while elapsed<max_time
         paramchosen = ChooseParam(allparam, type1, type2, type3)
@@ -1402,25 +1403,46 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
             proba_temperature = proba_temperature*temperature
             #print('\n')
             #print("First step")
-            print('\n')
-            print("GREEDY")
-            print('\n')
-            print("The temperature is : $proba_temperature")
-            print('\n')
-            print("=======================================")
+            #print('\n')
+            #print("GREEDY")
+            #print('\n')
+            #print("The temperature is : $proba_temperature")
+            #print('\n')
+            #print("=======================================")
             new_sol = greedyrandomizedconstruction(inst, paramchosen, allparam, paramfixed, max_time_heur)
             #print('\n')
             #print("#############################")
         else
-            print('\n')
-            print("RECONSTRUCTION")
-            print('\n')
-            print("The temperature is : $proba_temperature")
-            print('\n')
-            print("#############################")
+            #print('\n')
+            #print("RECONSTRUCTION")
+            #print('\n')
+            #print("The temperature is : $proba_temperature")
+            #print('\n')
+            #print("#############################")
             proba_temperature = 1
             #new_sol = greedyorderedconstruction(inst, paramchosen, allparam, when_list, max_time_heur)
-            new_sol = greedyremoverandomconstruction(inst, sol, paramchosen, allparam, paramfixed, max_time_heur)
+            if reconstruct_no_improve>5
+                focus_on_remove=true
+            end
+
+            if focus_on_remove==false
+                new_sol = greedyremoverandomconstruction(inst, sol, paramchosen, allparam, paramfixed, max_time_heur)
+            else
+                foundbetter=false
+                for i in 1:10
+                    new_sol = greedyremoverandomconstruction(inst, sol, paramchosen, allparam, paramfixed, max_time_heur)
+                    new_cost, delay_cost_heur, waiting_cost_heur, penalty_cost_heur, handling_cost_heur, fuel_cost_heur = checkSolutionCost(inst, new_sol)
+                    if new_cost<sol.store.costLocal.all
+                        foundbetter=true
+                        sol = deepcopy(new_sol)
+                        cost=deepcopy(new_cost)
+                    end
+                end
+                if foundbetter
+                    new_sol = deepcopy(sol)
+                    new_cost=deepcopy(cost)
+                end
+            end
             #new_sol=deepcopy(sol)
             from_reconstruct=true
             from_reconstruct_iter=1
@@ -1470,10 +1492,10 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
             #print(from_reconstruct)
             
             if from_reconstruct==false
-                print('\n')
-                print("The new cost without reconstruct ;")
-                print('\n')
-                print(new_cost_heur)
+                #print('\n')
+                #print("The new cost without reconstruct ;")
+                #print('\n')
+                #print(new_cost_heur)
                 if new_cost_heur<min_cost_heur
                     min_cost_heur=deepcopy(new_cost_heur)
                 end
@@ -1486,14 +1508,14 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
 
             if new_cost_heur<min_cost_heur+paramfixed.windowLocalSearch*min_cost_heur && nb_iter_reconstruct>10
                 #new_sol, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = pushTime(inst, new_sol, paramfixed, time_local)
-                new_sol, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = manualLocalSearch(inst, new_sol, new_cost_heur, delay_cost_heur, waiting_cost_heur, penalty_cost_heur, handling_cost_heur, fuel_cost_heur, allparam, paramfixed, time_local)
+                new_sol, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = manualLocalSearch(inst, new_sol, new_cost_heur, delay_cost_heur, waiting_cost_heur, penalty_cost_heur, handling_cost_heur, fuel_cost_heur, allparam, paramfixed, time_local, reconstruct_no_improve)
                 #new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = new_cost_heur, delay_cost_heur, waiting_cost_heur, penalty_cost_heur, handling_cost_heur, fuel_cost_heur
             else
                 new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = new_cost_heur, delay_cost_heur, waiting_cost_heur, penalty_cost_heur, handling_cost_heur, fuel_cost_heur
             end
 
             if from_reconstruct==true
-                if new_cost<best_reconstruct_cost
+                if new_cost<best_reconstruct_cost-0.0015*best_reconstruct_cost
                     best_reconstruct_cost=new_cost
                     reconstruct_no_improve=0
                 else
@@ -1563,12 +1585,12 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
 
             d_after = prepareSolIterSoft(seed,N,Nout,qli,nb_iter,inst, new_sol, new_cost, allparam, paramfixed, expname)
             
-            print('\n')
-            print("###################################")
-            print(greedy_no_improve)
-            print('\n')
-            print("#######################")
-            print(reconstruct_no_improve)
+            #print('\n')
+            #print("###################################")
+            #print(greedy_no_improve)
+            #print('\n')
+            #print("#######################")
+            #print(reconstruct_no_improve)
             if reconstruct_no_improve>paramfixed.maxNoImprove
                 if cost<best_cost
                     best_cost=deepcopy(cost)
@@ -1582,6 +1604,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
                 reconstruct_no_improve=0
                 proba_temperature = 1
                 greedy_no_improve=0
+                focus_on_remove=false
             end
     
             from_reconstruct_iter=0
