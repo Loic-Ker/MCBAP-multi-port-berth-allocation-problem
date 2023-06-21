@@ -72,6 +72,7 @@ function CPLEXoptimize(N,Nout,seed,qli, time, location)
     m = Model(CPLEX.Optimizer)
     set_optimizer_attribute(m, "CPX_PARAM_TILIM", time)
     set_optimizer_attribute(m, "CPXPARAM_Threads", 1)
+    set_optimizer_attribute(m, "CPX_PARAM_EPINT", 1e-8)
     set_silent(m)
 
 
@@ -278,7 +279,7 @@ qlichosen = parse(Int64,ARGS[5])
 #maxN = 8
 #time=100
 newbenchmark = makeSoltest(time, location, seedchosen, Nchosen, Noutchosen, qlichosen)
-CSV.write(location*"results_jobs/benchmarks_CPLEX/one_by_one/CPLEX_NLarge_results_$time"*"s_$seedchosen"*"_$Nchosen"*"_$Noutchosen"*"_$qli"*".csv", newbenchmark)
+CSV.write(location*"results_jobs/benchmarks_CPLEX/one_by_one/CPLEX_NLarge_results_$time"*"s_$seedchosen"*"_$Nchosen"*"_$Noutchosen"*"_$qlichosen"*".csv", newbenchmark)
     
 
 ## At each iteration :

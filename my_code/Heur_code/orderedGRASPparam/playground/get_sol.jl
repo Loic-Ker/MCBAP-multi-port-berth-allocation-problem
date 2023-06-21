@@ -198,7 +198,7 @@ function makeSolHeur(type1, type2, type3, paramfixed, temperature, time_local, m
 	N=parse(Int64,split_instance[4])
 	Nout=parse(Int64,split_instance[5])
 	qli=parse(Int64,split(split_instance[6],".")[1])
-	if seed ==seed_chosen && N==Nchosen && Nout==Noutchosen #&& qli==qlichosen
+	if seed ==seed_chosen && N==Nchosen && Nout==Noutchosen && qli==qlichosen
 		inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/Large/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
 		print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
 		if isdir(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
@@ -237,8 +237,8 @@ function makeSolHeur(type1, type2, type3, paramfixed, temperature, time_local, m
     return newbenchmark
 end
 
-location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
-#location="/zhome/c3/6/164957/code_git/"
+#location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
+location="/zhome/c3/6/164957/code_git/"
 
 
 # The parameters of the experiment :
@@ -285,12 +285,12 @@ max_time=2400
 temperature=0.93
 
 # look for a specific seed
-#seedchosen = parse(Int64,ARGS[3])
-#Nchosen=parse(Int64,ARGS[4])
-#Noutchosen=parse(Int64,ARGS[5])
-seedchosen=2
-Nchosen=50
-Noutchosen=10
+seedchosen = parse(Int64,ARGS[3])
+Nchosen=parse(Int64,ARGS[4])
+Noutchosen=parse(Int64,ARGS[5])
+#seedchosen=2
+#Nchosen=50
+#Noutchosen=10
 qlichosen=10
 
 allparam = initializeParam()
