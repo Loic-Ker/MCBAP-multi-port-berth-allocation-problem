@@ -383,7 +383,7 @@ function findConstrainedPos(inst::Instance, sol::Sol, port::Int, t1::Int, t2::In
     return pos
 end
 
-function SelectNewVisitPerShipLocalSearch(inst::Instance, sol::Sol, n, c, p)
+function SelectNewVisitPerShipLocalSearch(inst::Instance, sol::Sol, n, c, p, reconstruct_no_improve)
     @unpack N, h, qli, shipsIn, Pi, Bp, delta, dist, T, maxC, maxT, Pc = inst
     @unpack M = sol
     l = ceil(Int, shipsIn[n].l/qli)
@@ -392,7 +392,7 @@ function SelectNewVisitPerShipLocalSearch(inst::Instance, sol::Sol, n, c, p)
     t2=sol.visits[n][c].maxT    
     bestPos=shipsIn[n].Bi[c]/qli
     only_constrained=true
-    if only_constrained==true
+    if only_constrained==true #&& reconstruct_no_improve<7
         pos = findConstrainedPos(inst, sol, p, t1, t2, n, c, l)
         for (b,t) in pos
             hand = ceil(Int, h[n][c][b])
@@ -410,14 +410,30 @@ function SelectNewVisitPerShipLocalSearch(inst::Instance, sol::Sol, n, c, p)
     end
     new_visits_constrained = sort(new_visits_constrained, by = x -> x[2])
     if length(new_visits_constrained)<=0
+
         t1=sol.visits[n][c].minT
         t2=sol.visits[n][c].maxT
         
         bestPos=shipsIn[n].Bi[c]/qli
+
+        #if c>1
+        #    pP = Pi[n][c-1]
+        #    p = Pi[n][c]
+        #    S = length(delta)
+        #    timemin = delta[1]*dist[pP,p]
+        #    for s in 1:S
+        #        tt = delta[s]*dist[pP,p]
+        #        if tt<timemin
+        #            timemin = tt
+        #        end
+        #    end
+        #end
+
         ## Check all the possible solutions
         for b in 1:Bp[p]-l
             hand = ceil(Int, h[n][c][b])
             find_it=false
+            #if c==1 || reconstruct_no_improve<7
             t=t1-1
             while t<t2 && find_it==false
                 t=t+1
@@ -433,6 +449,27 @@ function SelectNewVisitPerShipLocalSearch(inst::Instance, sol::Sol, n, c, p)
                     end
                 end
             end
+            #else
+            #    tbestfuel=sol.visits[n][c-1].t+ceil(Int, h[n][c-1][sol.visits[n][c-1].b])+timemin
+            #    t=ceil(Int,tbestfuel-rand(Uniform(0.01,0.2))*tbestfuel)
+            #    if t>t2 || t<t1
+            #        t=t1-1
+            #    end
+            #    while t<t2 && find_it==false
+            #        t=t+1
+            #        if t + hand <= t2
+            #            if M[n][c][b,t+1]
+            #                this_cost, delay_cost, waiting_cost, penalty, handling_cost, fuel_cost, feas = computeCostPosSol(inst, n, c, b, t,sol)
+            #                time=penalty
+            #                if feas
+            #                    distance = abs(bestPos-b)/l
+            #                    find_it=true
+            #                    push!(new_visits_constrained, (NewVisit(n,c,b,t,this_cost,distance,time, true, ToStoreVisit(SplitCosts(ceil(Int, this_cost), ceil(Int,delay_cost), ceil(Int,waiting_cost), ceil(Int,penalty), ceil(Int,handling_cost), ceil(Int,fuel_cost)),0,"","")), t+hand, this_cost))
+            #                end
+            #            end
+            #        end
+            #    end
+            #end
         end
     end
     new_visits_constrained = sort(new_visits_constrained, by = x -> x[2])
@@ -443,7 +480,7 @@ function SelectNewVisitPerShipLocalSearch(inst::Instance, sol::Sol, n, c, p)
     end
 end
 
-function SelectNewVisitLocalSearch(inst::Instance, sol::Sol, list_visits::Vector{Tuple}) #, placed::Vector{Tuple{Int64,Int64}})
+function SelectNewVisitLocalSearch(inst::Instance, sol::Sol, list_visits::Vector{Tuple}, reconstruct_no_improve) #, placed::Vector{Tuple{Int64,Int64}})
     #TODO: t1 cannot be greater than t2!
     # adapt to given planned previous visits for each ship
     @unpack N, h, qli, shipsIn, Pi, Bp, delta, dist, T, maxC, maxT = inst
@@ -460,7 +497,7 @@ function SelectNewVisitLocalSearch(inst::Instance, sol::Sol, list_visits::Vector
     for (n,c) in list_visits
         sch = sol.visits[n]
         if sch[c].planned == false
-            visit_constrained, feasible=SelectNewVisitPerShipLocalSearch(inst, sol, n, c, Pi[n][c])
+            visit_constrained, feasible=SelectNewVisitPerShipLocalSearch(inst, sol, n, c, Pi[n][c], reconstruct_no_improve)
             if feasible
                 push!(new_visits_constrained,visit_constrained)
             end
@@ -474,7 +511,7 @@ function SelectNewVisitLocalSearch(inst::Instance, sol::Sol, list_visits::Vector
     end
 end
 
-function replaceFromList(inst::Instance, this_sol::Sol, allparam::AllParameters, boats_to_be_visited)
+function replaceFromList(inst::Instance, this_sol::Sol, allparam::AllParameters, boats_to_be_visited, reconstruct_no_improve)
     @unpack N, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT = inst
     sol=deepcopy(this_sol)
     continue_=true
@@ -501,7 +538,7 @@ function replaceFromList(inst::Instance, this_sol::Sol, allparam::AllParameters,
     end
 
     sol.M=generateOccupiedMx(inst, sol.visits)
-    new_visit, feasible = SelectNewVisitLocalSearch(inst, sol, list_to_be_visited_first)
+    new_visit, feasible = SelectNewVisitLocalSearch(inst, sol, list_to_be_visited_first, reconstruct_no_improve)
     while length(list_to_be_visited)>0
         @unpack n,c,b,t,cost,distance,constrained,store= new_visit
         deleteat!(list_to_be_visited, findall(x->x==(n,c),list_to_be_visited))
@@ -533,9 +570,9 @@ function replaceFromList(inst::Instance, this_sol::Sol, allparam::AllParameters,
 
         if continue_
             if length(list_to_be_visited_first)>0
-                new_visit, feasible = SelectNewVisitLocalSearch(inst, sol, list_to_be_visited_first)
+                new_visit, feasible = SelectNewVisitLocalSearch(inst, sol, list_to_be_visited_first, reconstruct_no_improve)
             else
-                new_visit, feasible = SelectNewVisitLocalSearch(inst, sol, list_to_be_visited)
+                new_visit, feasible = SelectNewVisitLocalSearch(inst, sol, list_to_be_visited, reconstruct_no_improve)
             end
             if feasible==false
                 return initializeSol(inst, allparam), false
@@ -557,7 +594,7 @@ function pertubateCost(n,c,sol,inst, listindex)
     return pertubatedcost
 end
 
-function localSearchRemovalReplace(inst::Instance, this_sol::Sol, allparam, paramfixed)
+function localSearchRemovalReplace(inst::Instance, this_sol::Sol, allparam, paramfixed, reconstruct_no_improve)
     @unpack N, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT = inst
     sol=deepcopy(this_sol)
     nb_to_remove = ceil(Int, rand(Uniform(paramfixed.LocalSearchBoatMin,paramfixed.LocalSearchBoatMax))*N)
@@ -612,9 +649,9 @@ function localSearchRemovalReplace(inst::Instance, this_sol::Sol, allparam, para
         end
     end
     
-    sol, feasible = replaceFromList(inst, sol, allparam, boats_to_be_visited)
+    sol, feasible = replaceFromList(inst, sol, allparam, boats_to_be_visited, reconstruct_no_improve)
     if feasible
-        sol, feasible = replaceFromList(inst, sol, allparam, random_removals)
+        sol, feasible = replaceFromList(inst, sol, allparam, random_removals, reconstruct_no_improve)
         if feasible
             return sol, true
         else
@@ -626,7 +663,7 @@ function localSearchRemovalReplace(inst::Instance, this_sol::Sol, allparam, para
 end
 
 
-function manualLocalSearch(inst::Instance, this_sol::Sol, cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost, allparam, paramfixed, timelocal)
+function manualLocalSearch(inst::Instance, this_sol::Sol, cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost, allparam, paramfixed, timelocal, reconstruct_no_improve)
     @unpack N, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp = inst
     start = time_ns()
     elapsed = round((time_ns()-start)/1e9,digits=3)
@@ -644,7 +681,7 @@ function manualLocalSearch(inst::Instance, this_sol::Sol, cost, delay_cost, wait
 
     while elapsed<timelocal
         start_step = time_ns()
-        new_sol, feasible = localSearchRemovalReplace(inst, sol, allparam, paramfixed)
+        new_sol, feasible = localSearchRemovalReplace(inst, sol, allparam, paramfixed, reconstruct_no_improve)
         feasible1=true
         for n in 1:N
             # The times :

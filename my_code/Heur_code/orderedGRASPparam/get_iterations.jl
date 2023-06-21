@@ -50,8 +50,10 @@ function prepareSolIterSoft(seed,N,Nout,qli, nb_iter, inst, sol, cost, allparam,
     d["allboatscost"]=allparam.Proba.CostAllShip
     d["allboatscount"]=allparam.Proba.CountAllShip
     d["allboatstime"]=allparam.Proba.TimeAllShip
-    d["localsearchboat"]=paramfixed.LocalSearchBoat
-    d["localsearchrandom"]=paramfixed.LocalSearchRandom
+    d["localsearchboatmin"]=paramfixed.LocalSearchBoatMin
+    d["localsearchboatmax"]=paramfixed.LocalSearchBoatMax
+    d["localsearchrandommin"]=paramfixed.LocalSearchRandomMin
+    d["localsearchrandommax"]=paramfixed.LocalSearchRandomMax
 
     d["rateconstrained"]=allparam.Proba.RateConstrained
     
@@ -89,57 +91,10 @@ function prepareSolIterSoft(seed,N,Nout,qli, nb_iter, inst, sol, cost, allparam,
         end
     d["length_boats"]= Nlen
     
-    cost_visit = Vector{Vector{Any}}(undef, 0)
-    delay_cost_visit = Vector{Vector{Any}}(undef, 0)
-    waiting_cost_visit = Vector{Vector{Any}}(undef, 0)
-    penalty_visit = Vector{Vector{Any}}(undef, 0)
-    handling_cost_visit = Vector{Vector{Any}}(undef, 0)
-    fuel_cost_visit = Vector{Vector{Any}}(undef, 0)
-    tacticboat_chosen = Vector{Vector{Any}}(undef, 0)
-    tacticall_chosen = Vector{Vector{Any}}(undef, 0)
-    when = Vector{Vector{Any}}(undef, 0)
-    for n in 1:N
-        cost_thisboat = Vector{Any}(undef, 0)
-        delay_cost_thisboat = Vector{Any}(undef, 0)
-        waiting_cost_thisboat = Vector{Any}(undef, 0)
-        penalty_thisboat = Vector{Any}(undef, 0)
-        handling_cost_thisboat = Vector{Any}(undef, 0)
-        fuel_cost_thisboat = Vector{Any}(undef, 0)
-        tacticboat_thisboat = Vector{Any}(undef, 0)
-        tacticall_thisboat = Vector{Any}(undef, 0)
-        when_thisboat = Vector{Any}(undef, 0)
-        for (c,p) in enumerate(inst.Pi[n])
-            push!(cost_thisboat, sol.visits[n][c].store.cost.all)
-            push!(delay_cost_thisboat, sol.visits[n][c].store.cost.delay)
-            push!(waiting_cost_thisboat, sol.visits[n][c].store.cost.waiting)
-            push!(penalty_thisboat, sol.visits[n][c].store.cost.penalty)
-            push!(handling_cost_thisboat, sol.visits[n][c].store.cost.handling)
-            push!(fuel_cost_thisboat, sol.visits[n][c].store.cost.fuel)
-            push!(tacticboat_thisboat, sol.visits[n][c].store.tacticBoat)
-            push!(tacticall_thisboat, sol.visits[n][c].store.tacticAll)
-            push!(when_thisboat, sol.visits[n][c].store.when)
-        end
-        push!(cost_visit,cost_thisboat)
-        push!(delay_cost_visit,delay_cost_thisboat)
-        push!(waiting_cost_visit,waiting_cost_thisboat)
-        push!(penalty_visit,penalty_thisboat)
-        push!(fuel_cost_visit,fuel_cost_thisboat)
-        push!(handling_cost_visit,handling_cost_thisboat)
-        push!(tacticboat_chosen, tacticboat_thisboat)
-        push!(tacticall_chosen, tacticall_thisboat)
-        push!(when, when_thisboat)
-    end
+    #cost_visit = Vector{Vector{Any}}(undef, 0)
 
     d["objectif"]=cost
-    d["cost_visit"]=cost_visit
-    d["delay_cost_visit"]=delay_cost_visit
-    d["waiting_cost_visit"]=waiting_cost_visit
-    d["handling_cost_visit"]=handling_cost_visit
-    d["fuel_cost_visit"]=fuel_cost_visit
-    d["penalty_visit"]=penalty_visit
-    d["tacticboat_chosen"]=tacticboat_chosen
-    d["tacticall_chosen"]=tacticall_chosen
-    d["when"]=when
+    
 
     return d
 end
@@ -197,8 +152,12 @@ function prepareSolIter(seed,N,Nout,qli, nb_iter, inst, sol, cost, allparam, par
     d["allboatscost"]=allparam.Proba.CostAllShip
     d["allboatscount"]=allparam.Proba.CountAllShip
     d["allboatstime"]=allparam.Proba.TimeAllShip
-    d["localsearchboat"]=paramfixed.LocalSearchBoat
-    d["localsearchrandom"]=paramfixed.LocalSearchRandom
+    d["localsearchboatmin"]=paramfixed.LocalSearchBoatMin
+    d["localsearchboatmax"]=paramfixed.LocalSearchBoatMax
+    d["localsearchrandommin"]=paramfixed.LocalSearchRandomMin
+    d["localsearchrandommax"]=paramfixed.LocalSearchRandomMax
+    d["CPLEXRandom"]=paramfixed.CPLEXRandom
+    d["CPLEXBoat"]=paramfixed.CPLEXBoat
 
     d["rateconstrained"]=allparam.Proba.RateConstrained
     

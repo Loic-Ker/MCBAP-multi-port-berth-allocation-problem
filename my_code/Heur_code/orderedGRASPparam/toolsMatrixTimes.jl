@@ -47,6 +47,7 @@ function findLowestSpeed(t, delta::Vector{Float64}, dist::Int64)
     return -1
 end
 
+
 # generate matrix M of occupied positions
 function generateOccupiedMx(inst::Instance, sol) #, unassigned::Vector{Tuple{Int64, Int64}})
     @unpack N, P, Pi, T, Bp, h, dist, qli, shipsIn, shipsOut, delta, maxT, maxC = inst

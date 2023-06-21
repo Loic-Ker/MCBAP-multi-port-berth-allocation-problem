@@ -91,12 +91,18 @@ end
 
 
 mutable struct FixedParameters
-    LocalSearchRandom::Int64
-    LocalSearchBoat::Int64
+    LocalSearchRandomMin::Float64
+    LocalSearchRandomMax::Float64
+    LocalSearchBoatMin::Float64
+    LocalSearchBoatMax::Float64
     PropToRemove::Float64
     WindowSize::Float64
     PushOnlyConstrained::Bool
     lookforconstrained::Bool
+    maxNoImprove::Int64
+    windowLocalSearch::Float64
+    CPLEXBoat::Int64
+    CPLEXRandom::Int64
 end
 
 
