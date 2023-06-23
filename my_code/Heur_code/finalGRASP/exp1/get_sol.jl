@@ -112,109 +112,119 @@ newbenchmark = [Any["Seed","N","Nout","qli","OldLB","OldUB","OldTime","NewCost",
 
 import XLSX
 
-
-function makeExpText(type1, type2, type3, paramfixed, list_paramvisit, list_paramconstrained, time_local, max_time_heur, max_time, expname, location)
+function makeExpText(temperature, paramfixed, time_local, max_time_heur, max_time, expname, location)
     
-    filename = location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/explanations.txt"
-    types = "There are no fiwed types but three possible parameters"
+    filename = location*"results_jobs/benchmarks_HEUR/final/$expname"*"/explanations.txt"
+    type1 = paramfixed.OneBoat
+    type2 = paramfixed.AllBoat
+    type3 = paramfixed.ReversedAllBoat
+    type4 = paramfixed.LocalSearch
     txttype1 = "The tactic for one boat is $type1"
-    txttype2 = "The tactic for all boats is $type2"
-    txttype3 = "The tactic for the ocal search is $type3"
-
+    txtalphatype1 = "The alpha parameters possible are $paramfixed.Alphaoneboat"
     window=paramfixed.WindowSize
     txtwindow = "The window size for the visits to look at is $window"
+    txttype2 = "The tactic for all boats is $type2"
+    txtalphatype2 = "The alpha parameters possible are $paramfixed.Alphaallboat"
+    txttype3bis = "Do we reverse the order of the visits : $paramfixed.Reversed (all is both)"
+    txtalphatype3 = "The alpha parameters possible are $paramfixed.Alphareversedallboat"
+    txttype4 = "The tactic for the local search : $type4"
+
+    alphaboatmin=paramfixed.LocalSearchBoat
+    alpharandommin=paramfixed.LocalSearchRandom
+    # Which sol to take from the heuristic for the local search :
+    windowlocalsearch=paramfixed.windowLocalSearch
+    txtwindowlocalsearch = "The window cost size for the local search (which one to take) : $windowlocalsearch"
+    txtalphaboat = "For the local search we take a proportion of $alphaboatmin worst ships by cost to removre"
+    txtalpharandom = "For the local search we take a proportion of $alpharandommin random boats to remove"
+    pushatconstraint=paramfixed.PushOnlyConstrained
+    txtpushatconstraint = "Should we push only at constraints position during the time push of local search : $pushatconstraint"
 
     lookforconstraint=paramfixed.lookforconstrained
     txtlookforconstraint = "Should we look for constrained at the beginning : $lookforconstraint"
+    type5 = paramfixed.Alpharateconstrained
+    txttype5 = "The alpha parameters for the proportion of constrained are $type5"
+    type6 = paramfixed.Alphapropremove
+    txttype6 = "The alpha parameters for the proportion of ships to remove during reconstruction are $type6"
 
-    alphaboatmin=paramfixed.LocalSearchBoatMin
-    alphaboatmax=paramfixed.LocalSearchBoatMax
-    alpharandommin=paramfixed.LocalSearchRandomMin
-    alpharandommax=paramfixed.LocalSearchRandomMax
-    txtalphaboat = "For the local search we take a proportion of $alphaboatmin and $alphaboatmax worst ships by cost to removre"
-    txtalpharandom = "For the local search we take a proportion of $alpharandommin and $alpharandommax  random boats to remove"
+    txttemperature = "The temperature for the simulated annealing is $temperature"
 
-    proptoremove=paramfixed.PropToRemove
-    txtproptoremove = "The prop of ships to remove for the reconstruction : $proptoremove"
+    # When do we start from zero for the reconstruction :
+    maxnoimprove=paramfixed.maxNoImprove
+    txtmaxnoimprove = "The maximum number of iteration without improvement : $maxnoimprove"
 
-    pushatconstraint=paramfixed.PushOnlyConstrained
-    txtpushatconstraint = "Should we push at constraints position : $pushatconstraint"
+    greedymaxnoimprove=paramfixed.GreedymaxNoImprove
+    txtgreedymaxnoimprove = "The maximum number of iteration without improvement for the greedy heuristic : $greedymaxnoimprove"
 
+    until=paramfixed.Until
+    txtuntil = "The maximum number of iteration to do only with the heuristic before the reconstruction : $until"
 
+    focusremoveuntil=paramfixed.FocusRemoveUntil
+    txtfocusremoveuntil = "The maximum number of iteration without improvement with the reconstruction before focusing on the removal part : $focusremoveuntil"
 
-    
-    txtoneship = "The alpha parameters for one ship : "
-    for el in list_paramvisit
-        txtoneship = txtoneship*"$el "
-    end
-    txtallship = "The alpha parameters for all ships : "
-    for el in list_paramconstrained
-        txtallship = txtallship*"$el "
-    end
-
+    nbfocusremove=paramfixed.NbFocusRemove
+    txtnbfocusremove = "The number of iteration to do while focusing on the removal part : $nbfocusremove"
 
     txttimelocal = "The maximum time for the local search : $time_local "
     txttimeheur = "The maximum time for the heuristic : $max_time_heur "
     txttimemax = "The time of the exp : $max_time"
 
 
-    # When do we start from zero for the reconstruction :
-    maxnoimprove=paramfixed.maxNoImprove
-    txtmaxnoimprove = "The maximum number of iteration without improvement : $maxnoimprove"
-
-    # Which sol to take from the heuristic for the local search :
-    windowlocalsearch=paramfixed.windowLocalSearch
-    txtwindowlocalsearch = "The window cost size for the local search (which one to take) : $windowlocalsearch"
-
-    cplexboat = paramfixed.CPLEXBoat
-    txtcploxboat = "The CPLEX removal for the boat tactic : $cplexboat"
-    cplexrandom = paramfixed.CPLEXRandom
-    txtcplexrandom = "The CPLEX removal for the random tactic : $cplexrandom"
-
 
     open(filename, "w") do file
         write(file,'\n')
-        write(file, txtlookforconstraint)
+        write(file,txttype1)
         write(file,'\n')
-        write(file, txtwindow)
+        write(file,txtalphatype1)
         write(file,'\n')
-        write(file, txtproptoremove)
+        write(file,txtwindow)
         write(file,'\n')
-        write(file, txtpushatconstraint)
+        write(file,txttype2)
         write(file,'\n')
-        write(file, txtalphaboat)
+        write(file,txtalphatype2)
         write(file,'\n')
-        write(file, txtalpharandom)
+        write(file,txttype3bis)
         write(file,'\n')
-        write(file, txtmaxnoimprove)
+        write(file,txtalphatype3)
         write(file,'\n')
-        write(file, txtwindowlocalsearch)
+        write(file,txttype4)
         write(file,'\n')
-        write(file, txtcploxboat)
+        write(file,txtwindowlocalsearch)
         write(file,'\n')
-        write(file, txtcplexrandom)
+        write(file,txtalphaboat)
         write(file,'\n')
-        write(file, txttype1)
+        write(file,txtalpharandom)
         write(file,'\n')
-        write(file, txttype2)
+        write(file,txtpushatconstraint)
         write(file,'\n')
-        write(file, txttype3)
+        write(file,txtlookforconstraint)
         write(file,'\n')
-        write(file, txtoneship)
+        write(file,txttype5)
         write(file,'\n')
-        write(file, txtallship)
+        write(file,txttype6)
         write(file,'\n')
-        write(file, txttimeheur)
+        write(file,txttemperature)
         write(file,'\n')
-        write(file, txttimelocal)
+        write(file,txtmaxnoimprove)
         write(file,'\n')
-        write(file, txttimemax)
+        write(file,txtgreedymaxnoimprove)
+        write(file,'\n')
+        write(file,txtuntil)
+        write(file,'\n')
+        write(file,txtfocusremoveuntil)
+        write(file,'\n')
+        write(file,txtnbfocusremove)
+        write(file,'\n')
+        write(file,txttimelocal)
+        write(file,'\n')
+        write(file,txttimeheur)
+        write(file,'\n')
+        write(file,txttimemax)
         write(file,'\n')
     end
 end
 
 
-function makeSolHeur(type1, type2, type3, paramfixed, temperature, time_local, max_time_heur, max_time, expname, location, seed_chosen, Nchosen, Noutchosen, qlichosen)
+function makeSolHeur(paramfixed, temperature, time_local, max_time_heur, max_time, expname, location, seed_chosen, Nchosen, Noutchosen, qlichosen)
     xf = CSV.read(location*"MCBAP-multi-port-berth-allocation-problem/Small_Inst_Res.csv", DataFrame)
     newbenchmark = DataFrame(Seed= [0],N= [0],Nout= [0],qli= [0],HeurCost= [0])
     all_instances = readdir(location*"MCBAP-multi-port-berth-allocation-problem/Large")
@@ -224,14 +234,14 @@ function makeSolHeur(type1, type2, type3, paramfixed, temperature, time_local, m
 	N=parse(Int64,split_instance[4])
 	Nout=parse(Int64,split_instance[5])
 	qli=parse(Int64,split(split_instance[6],".")[1])
-	if seed ==seed_chosen && N==Nchosen && Nout==Noutchosen #&& qli==qlichosen
+	if seed ==seed_chosen && N==Nchosen && Nout==Noutchosen && qli==qlichosen
 		inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/Large/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
 		print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
-		if isdir(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
-		    mkdir(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
+		if isdir(location*"results_jobs/benchmarks_HEUR/final/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
+		    mkdir(location*"results_jobs/benchmarks_HEUR/final/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
 		end
-		if isdir(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
-		    mkdir(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
+		if isdir(location*"results_jobs/benchmarks_HEUR/final/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
+		    mkdir(location*"results_jobs/benchmarks_HEUR/final/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
 		end
 		sol, cost, allparam = GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temperature, time_local, max_time_heur, max_time, expname, location)
 		#print('\n')
@@ -253,7 +263,7 @@ function makeSolHeur(type1, type2, type3, paramfixed, temperature, time_local, m
 		end
 		if feasible && checkSolutionFeasability(inst, sol)
 		    d=prepareSol(inst, sol, cost)
-		    CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/final_sols/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
+		    CSV.write(location*"results_jobs/benchmarks_HEUR/final/$expname"*"/final_sols/sol_$seed"*"_$N"*"_$Nout"*"_$qli"*".csv", d)
 		end
 	    
 		this_benchmark=DataFrame(Seed= [seed],N= [N],Nout= [Nout],qli= [qli],HeurCost= [ ceil(Int, cost)])
@@ -270,7 +280,7 @@ location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
 # The parameters of the experiment :
 
 # The experience name :
-expname="playground2"
+expname="exp1"
 
 # The tactic types :
 type1="time" 
@@ -278,7 +288,7 @@ type2="cost"
 type3="random"
 
 # The window size for the visits to look at :
-window=0.1
+window=0.01
 
 # The prop of ships to remove for the reconstruction :
 proptoremove=0.01
@@ -287,36 +297,82 @@ proptoremove=0.01
 pushatconstraint=true
 
 # Look for constrained at the beginning :
-lookforconstraint=true
+lookforconstraint=false
 
 # The proportion of boats to remove for the local search :
-alphaboatmin=0.1
-alphaboatmax=0.4
-alpharandommin=0.1
-alpharandommax=0.4
+alphaboat=0.2
+alpharandom=0.1
 
-# When do we start from zero for the reconstruction :
+# When do we start from zero for the reconstruction or the pathrelinking methods :
 maxnoimprove=10
 
 # Which sol to take from the heuristic for the local search :
-windowlocalsearch=0.01
+windowlocalsearch=0.3
 
-cplexboat=5
-cplexrandom=18
+# One boat tactic :
+oneboat="all"
+onboatvec = [0.001, 0.1, 0.3, 0.5, 0.7]
+
+# All boat tactic :
+allboat="all"
+allboatvec = [0.001, 0.1, 0.3, 0.5, 0.7]
+
+# Reversed all boat tactic :
+reversedallboat="all"
+reversedallboatvec = [0.001, 0.1, 0.3, 0.5, 0.7]
+
+# Local search tactic :
+localsearch="all"
+
+# Rate constrained :
+alpharateconstrained = [0.2,0.4,0.6]
+
+# Prop to remove :
+alphapropremove = [0.001,0.05,0.15]
+
+# Number of non improvement greedy algo :
+greedymaxnoimprove=120000
+
+# Make the heuristic without reconstruct until :
+until=100000
+
+# Dont focus on removal without recontrusct improvement until :
+focusremoveuntil=7
+
+# Number of remove in a row :
+nbfocusremove = 6
+
+# Needed rate improvement to accept the reconstruction or the pathrelinking (after local) :
+rateimprovereconstruct = 0.0015
 
 
+# Make path relinking instead of ALNS :
+pathrelinking="yes"
+# Max time for the relinking
+maxtimerelinking=2
+# The length of the elite set :
+lengthelite=10
+removepathrelinking= 0.2
+
+reversed="all"
 # All the parameters :
-paramfixed=FixedParameters(alpharandommin,alpharandommax,alphaboatmin,alphaboatmax,proptoremove,window, pushatconstraint, lookforconstraint, maxnoimprove, windowlocalsearch, cplexboat, cplexrandom)
+paramfixed = FixedParameters(oneboat, onboatvec, reversed, allboat, allboatvec, reversedallboat, reversedallboatvec, localsearch, 
+alpharandom, alphaboat, 
+alpharateconstrained, alphapropremove, 
+window, pushatconstraint, lookforconstraint,
+maxnoimprove, greedymaxnoimprove, until, focusremoveuntil, nbfocusremove, 
+rateimprovereconstruct, windowlocalsearch, 
+pathrelinking, maxtimerelinking, lengthelite, removepathrelinking)
 
 # Maximum time for the local search :
-time_local=4
+time_local=1
 #time_local= parse(Int64,ARGS[1])
 
 # Maximum time for the heuristic :
 max_time_heur=30
 
 # maximum time for the experiment :
-max_time=2100
+max_time=1200
 #max_time = parse(Int64,ARGS[2])
 
 # the temperature parameter :
@@ -327,16 +383,16 @@ temperature=0.93
 #Nchosen=parse(Int64,ARGS[4])
 #Noutchosen=parse(Int64,ARGS[5])
 seedchosen=2
-Nchosen=50
-Noutchosen=10
+Nchosen=30
+Noutchosen=5
 qlichosen=10
 
-allparam = initializeParam()
-list_paramvisit = allparam.Alpha.CostOneShip
-list_paramconstrained = allparam.Alpha.RateConstrained
-makeExpText(type1, type2, type3, paramfixed, list_paramvisit, list_paramconstrained, time_local, max_time_heur, max_time, expname, location)
-newbenchmark = makeSolHeur(type1, type2, type3, paramfixed, temperature, time_local, max_time_heur, max_time, expname, location, seedchosen, Nchosen, Noutchosen, qlichosen)
-CSV.write(location*"results_jobs/benchmarks_HEUR/orderedGRASPparam/$expname"*"/NLarge_playground_$seedchosen"*"n_$Nchosen"*"_$Noutchosen"*"_$qlichosen.csv", newbenchmark)
+allparam = initializeParam(paramfixed)
+#list_paramvisit = allparam.Alpha.CostOneShip
+#list_paramconstrained = allparam.Alpha.RateConstrained
+makeExpText(temperature, paramfixed, time_local, max_time_heur, max_time, expname, location)
+newbenchmark = makeSolHeur(paramfixed, temperature, time_local, max_time_heur, max_time, expname, location, seedchosen, Nchosen, Noutchosen, qlichosen)
+CSV.write(location*"results_jobs/benchmarks_HEUR/final/$expname"*"/NLarge_playground_test_$seedchosen"*"n_$Nchosen"*"_$Noutchosen"*"_$qlichosen.csv", newbenchmark)
 newbenchmark
 
 
