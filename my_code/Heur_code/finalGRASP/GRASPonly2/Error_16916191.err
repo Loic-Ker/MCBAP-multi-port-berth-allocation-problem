@@ -1,0 +1,19 @@
+ERROR: LoadError: BoundsError: attempt to access 3-element UnitRange{Int64} at index [4]
+Stacktrace:
+ [1] throw_boundserror(A::UnitRange{Int64}, I::Int64)
+   @ Base ./abstractarray.jl:691
+ [2] getindex
+   @ ./range.jl:861 [inlined]
+ [3] sample
+   @ ~/.julia/packages/StatsBase/iMkPf/src/sampling.jl:599 [inlined]
+ [4] sample
+   @ ~/.julia/packages/StatsBase/iMkPf/src/sampling.jl:600 [inlined]
+ [5] ChooseAllParam(allparam::AllParameters, paramfixed::FixedParameters)
+   @ Main ~/code_git/MCBAP-multi-port-berth-allocation-problem/my_code/Heur_code/finalGRASP/utilInit.jl:722
+ [6] GRASP_reactive(seed::Int64, N::Int64, Nout::Int64, qli::Int64, type1::String, type2::String, type3::String, paramfixed::FixedParameters, temperature::Float64, time_local::Int64, max_time_heur::Int64, max_time::Int64, expname::String, location::String)
+   @ Main ~/code_git/MCBAP-multi-port-berth-allocation-problem/my_code/Heur_code/finalGRASP/GRASPonly2/parametric_free.jl:1195
+ [7] makeSolHeur(paramfixed::FixedParameters, temperature::Float64, time_local::Int64, max_time_heur::Int64, max_time::Int64, expname::String, location::String, seed_chosen::Int64, Nchosen::Int64, Noutchosen::Int64, qlichosen::Int64)
+   @ Main ~/code_git/MCBAP-multi-port-berth-allocation-problem/my_code/Heur_code/finalGRASP/GRASPonly2/get_sol.jl:269
+ [8] top-level scope
+   @ ~/code_git/MCBAP-multi-port-berth-allocation-problem/my_code/Heur_code/finalGRASP/GRASPonly2/get_sol.jl:416
+in expression starting at /zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/my_code/Heur_code/finalGRASP/GRASPonly2/get_sol.jl:416
