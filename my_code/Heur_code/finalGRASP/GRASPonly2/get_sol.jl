@@ -257,7 +257,7 @@ function makeSolHeur(paramfixed, temperature, time_local, max_time_heur, max_tim
 	N=parse(Int64,split_instance[4])
 	Nout=parse(Int64,split_instance[5])
 	qli=parse(Int64,split(split_instance[6],".")[1])
-	if seed ==seed_chosen && N==Nchosen #&& Nout==Noutchosen && qli==qlichosen
+	if seed ==seed_chosen && N==Nchosen && Nout==Noutchosen && qli==qlichosen
 		inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/Large/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
 		print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
 		if isdir(location*"results_jobs/benchmarks_HEUR/finalGRASP/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
@@ -303,7 +303,7 @@ location="/zhome/c3/6/164957/code_git/"
 # The parameters of the experiment :
 
 # The experience name :
-expname="GRASPonly1"
+expname="GRASPonly2"
 
 # The tactic types :
 type1="time" 
@@ -333,12 +333,12 @@ maxnoimprove=10
 windowlocalsearch=-1
 
 # One boat tactic :
-oneboat="all"
-onboatvec = [0.001, 0.1, 0.3, 0.5, 0.7]
+oneboat="dist"
+onboatvec = [0.1, 0.3, 0.5]
 
 # All boat tactic :
-allboat="all"
-allboatvec = [0.001, 0.1, 0.3, 0.5, 0.7]
+allboat="time"
+allboatvec = [0.001, 0.1, 0.3, 0.5]
 
 # Reversed all boat tactic :
 reversedallboat="all"
@@ -395,8 +395,8 @@ time_local=3
 max_time_heur=30
 
 # maximum time for the experiment :
-max_time=2400
-#max_time = parse(Int64,ARGS[2])
+#max_time=2400
+max_time = parse(Int64,ARGS[2])
 
 # the temperature parameter :
 temperature=0.93

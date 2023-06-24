@@ -9,9 +9,9 @@
 ### -- specify that the cores must be on the same host --
 #BSUB -R "span[hosts=1]"
 ### -- specify that we need 2GB of memory per core/slot --
-#BSUB -R "rusage[mem=8GB]"
+#BSUB -R "rusage[mem=16GB]"
 ### -- specify that we want the job to get killed if it exceeds 3 GB per core/slot --
-#BSUB -M 8GB
+#BSUB -M 16GB
 ### -- set walltime limit: hh:mm --
 #BSUB -W 24:00
 ### -- set the email address --
@@ -27,4 +27,4 @@
 ##BSUB -o Output_%J.out
 #BSUB -e Error_%J.err
 # here follow the commands you want to execute
-julia-1.7.0 get_sol.jl 10 2400 2 50 10
+julia-1.7.0 get_sol.jl 10 2400 5 30
