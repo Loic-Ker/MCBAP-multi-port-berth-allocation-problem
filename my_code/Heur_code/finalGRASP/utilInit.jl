@@ -332,7 +332,9 @@ function ChooseAllParam(allparam::AllParameters, paramfixed::FixedParameters)
     if tacticoneship=="time"
         indexone = sample(1:length(allparam.Nbexp.TimeOneShip), Weights(Proba.TimeOneShip))
     end
-
+    
+    #print('\n')
+    #print(1:length(allparam.Nbexp.TimeAllShip))
     indexall=0
     if tacticallship=="cost"
         indexall = sample(1:length(allparam.Nbexp.CostAllShip), Weights(Proba.CostAllShip))
@@ -343,10 +345,13 @@ function ChooseAllParam(allparam::AllParameters, paramfixed::FixedParameters)
     if tacticallship=="time"
         indexall = sample(1:length(allparam.Nbexp.TimeAllShip), Weights(Proba.TimeAllShip))
     end
-
+    #print('\n')
+    #print(indexall)
+    #print("<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>")
     indexreversedall=0
+
     if tacticreversedallship=="cost"
-        indexreversedall = sample(1:length(allparam.Nbexp.ReversedAllOneShip), Weights(Proba.ReversedCostAllShip))
+        indexreversedall = sample(1:length(allparam.Nbexp.ReversedCostAllShip), Weights(Proba.ReversedCostAllShip))
     end
     if tacticreversedallship=="dist"
         indexreversedall = sample(1:length(allparam.Nbexp.ReversedDistAllShip), Weights(Proba.ReversedDistAllShip))
@@ -357,9 +362,9 @@ function ChooseAllParam(allparam::AllParameters, paramfixed::FixedParameters)
 
     indexconstraint = sample(1:length(allparam.Nbexp.RateConstrained), Weights(Proba.RateConstrained))
     indexprobtoremove = sample(1:length(allparam.Nbexp.PropToRemove), Weights(Proba.PropToRemove))
-
     
-    return ChosenParameters(tacticoneship, reversedtactic, tacticallship, tacticreversedallship, tacticlocal, indexone, indexreversedall, indexall, indexconstraint, indexprobtoremove)
+    
+    return ChosenParameters(tacticoneship, reversedtactic, tacticallship, tacticreversedallship, tacticlocal, indexone, indexall, indexreversedall, indexconstraint, indexprobtoremove)
 end
 
 
@@ -633,112 +638,6 @@ function UpdateAllParameters(paramchosen::ChosenParameters, allparam::AllParamet
     return newparam
 end
 
-
-function ChooseAllParam(allparam::AllParameters, paramfixed::FixedParameters)
-    @unpack Proba, AverageCost, Nbexp, Q = allparam
-    
-    if paramfixed.OneBoat=="all"
-        tacticoneship = sample(["cost","dist","time"], Weights(Proba.TacticOneBoat))
-    end
-    if paramfixed.OneBoat=="cost"
-        tacticoneship="cost"
-    end
-    if paramfixed.OneBoat=="dist"
-        tacticoneship="dist"
-    end
-    if paramfixed.OneBoat=="time"
-        tacticoneship="time"
-    end
-    
-    if paramfixed.Reversed=="all"
-        reversedtactic = sample(["yes","no"], Weights(Proba.Reversed))
-    end
-    if paramfixed.Reversed=="yes"
-        reversedtactic="yes"
-    end
-    if paramfixed.Reversed=="no"
-        reversedtactic="no"
-    end
-
-    if paramfixed.AllBoat=="all"
-        tacticallship = sample(["cost","dist","time"], Weights(Proba.TacticAllBoats))
-    end
-    if paramfixed.AllBoat=="cost"
-        tacticallship="cost"
-    end
-    if paramfixed.AllBoat=="dist"
-        tacticallship="dist"
-    end
-    if paramfixed.AllBoat=="time"
-        tacticallship="time"
-    end
-
-    if paramfixed.ReversedAllBoat=="all"
-        tacticreversedallship = sample(["cost","dist","time"], Weights(Proba.ReversedTacticAllBoats))
-    end
-    if paramfixed.ReversedAllBoat=="cost"
-        tacticreversedallship="cost"
-    end
-    if paramfixed.ReversedAllBoat=="dist"
-        tacticreversedallship="dist"
-    end
-    if paramfixed.ReversedAllBoat=="time"
-        tacticreversedallship="time"
-    end
-
-    if paramfixed.LocalSearch=="all"
-        tacticlocal = sample(["cost","dist","time"], Weights(Proba.TacticLocalSearch))
-    end
-    if paramfixed.LocalSearch=="cost"
-        tacticlocal="cost"
-    end
-    if paramfixed.LocalSearch=="dist"
-        tacticlocal="dist"
-    end
-    if paramfixed.LocalSearch=="time"
-        tacticlocal="time"
-    end
-    
-    indexone=0
-   
-    if tacticoneship=="cost"
-        indexone = sample(1:length(allparam.Nbexp.CostOneShip), Weights(Proba.CostOneShip))
-    end
-    if tacticoneship=="dist"
-        indexone = sample(1:length(allparam.Nbexp.DistOneShip), Weights(Proba.DistOneShip))
-    end
-    if tacticoneship=="time"
-        indexone = sample(1:length(allparam.Nbexp.TimeOneShip), Weights(Proba.TimeOneShip))
-    end
-
-    indexall=0
-    if tacticallship=="cost"
-        indexall = sample(1:length(allparam.Nbexp.CostOneShip), Weights(Proba.CostAllShip))
-    end
-    if tacticallship=="dist"
-        indexall = sample(1:length(allparam.Nbexp.DistOneShip), Weights(Proba.DistAllShip))
-    end
-    if tacticallship=="time"
-        indexall = sample(1:length(allparam.Nbexp.TimeOneShip), Weights(Proba.TimeAllShip))
-    end
-
-    indexreversedall=0
-    if tacticreversedallship=="cost"
-        indexreversedall = sample(1:length(allparam.Nbexp.ReversedCostAllShip), Weights(Proba.ReversedCostAllShip))
-    end
-    if tacticreversedallship=="dist"
-        indexreversedall = sample(1:length(allparam.Nbexp.ReversedCostAllShip), Weights(Proba.ReversedDistAllShip))
-    end
-    if tacticreversedallship=="time"
-        indexreversedall = sample(1:length(allparam.Nbexp.ReversedTimeAllShip), Weights(Proba.ReversedTimeAllShip))
-    end
-
-    indexconstraint = sample(1:length(allparam.Nbexp.RateConstrained), Weights(Proba.RateConstrained))
-    indexprobtoremove = sample(1:length(allparam.Nbexp.PropToRemove), Weights(Proba.PropToRemove))
-
-    
-    return ChosenParameters(tacticoneship, reversedtactic, tacticallship, tacticreversedallship, tacticlocal, indexone, indexreversedall, indexall, indexconstraint, indexprobtoremove)
-end
 
 
 function ChooseAfterReconstruct(allparam::AllParameters, paramchosen::ChosenParameters, paramfixed::FixedParameters)

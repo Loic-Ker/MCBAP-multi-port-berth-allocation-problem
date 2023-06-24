@@ -305,11 +305,6 @@ location="/zhome/c3/6/164957/code_git/"
 # The experience name :
 expname="GRASPonly2"
 
-# The tactic types :
-type1="time" 
-type2="cost" 
-type3="random"
-
 # The window size for the visits to look at :
 window=0.01
 
@@ -396,14 +391,17 @@ max_time_heur=30
 
 # maximum time for the experiment :
 #max_time=2400
-max_time = parse(Int64,ARGS[2])
+#max_time = parse(Int64,ARGS[2])
+max_time=100
 
 # the temperature parameter :
 temperature=0.93
 
 # look for a specific seed
 seedchosen = parse(Int64,ARGS[3])
+#seedchosen = 2
 Nchosen=parse(Int64,ARGS[4])
+#Nchosen=30
 #Noutchosen=parse(Int64,ARGS[5])
 Noutchosen=5
 #qlichosen=parse(Int64,ARGS[6])
