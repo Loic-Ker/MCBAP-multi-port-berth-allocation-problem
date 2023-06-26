@@ -660,8 +660,8 @@ function localSearchRemovalReplace(inst::Instance, this_sol::Sol, allparam, para
     if feasible
         sol, feasible = replaceFromList(inst, sol, allparam, paramchosen, random_removals, reconstruct_no_improve)
         elapsed = round((time_ns()-start)/1e9,digits=3)
-        print('\n')
-        println("Local Search second step: $(elapsed) seconds")
+        #print('\n')
+        #println("Local Search second step: $(elapsed) seconds")
         if feasible
             return sol, true
         else
@@ -684,10 +684,10 @@ function manualLocalSearch(inst::Instance, this_sol::Sol, cost, delay_cost, wait
     old_penalty_cost=deepcopy(penalty_cost)
     old_handling_cost=deepcopy(handling_cost)
     old_fuel_cost=deepcopy(fuel_cost)
-    print('\n')
-    print("Initial cost: ")
-    print('\n')
-    print(old_cost)
+    #print('\n')
+    #print("Initial cost: ")
+    #print('\n')
+    #print(old_cost)
 
     while elapsed<timelocal
         start_step = time_ns()
@@ -704,14 +704,14 @@ function manualLocalSearch(inst::Instance, this_sol::Sol, cost, delay_cost, wait
         if feasible && feasible1 && checkSolutionFeasability(inst, new_sol)
             new_cost1, delay_cost1, waiting_cost1, penalty_cost1, handling_cost1, fuel_cost1=checkSolutionCost(inst, new_sol)
             new_sol1, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = pushTime(inst, new_sol, paramfixed, time_local)
-            print('\n')
-            print("Local search old cost: ")
-            print('\n')
-            print(old_cost)
-            print('\n')
-            print("Local search new cost: ")
-            print('\n')
-            print(new_cost)
+            #print('\n')
+            #print("Local search old cost: ")
+            #print('\n')
+            #print(old_cost)
+            #print('\n')
+            #print("Local search new cost: ")
+            #print('\n')
+            #print(new_cost)
             if new_cost1>new_cost
                 new_sol=deepcopy(new_sol1)
                 new_cost=deepcopy(new_cost1)
