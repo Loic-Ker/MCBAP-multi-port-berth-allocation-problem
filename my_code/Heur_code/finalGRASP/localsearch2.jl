@@ -543,43 +543,47 @@ function replaceFromList(inst::Instance, this_sol::Sol, allparam::AllParameters,
     sol.M=generateOccupiedMx(inst, sol.visits)
     new_visit, feasible = SelectNewVisitLocalSearch(inst, sol, list_to_be_visited_first, paramchosen, paramfixed, reconstruct_no_improve)
     while length(list_to_be_visited)>0
-        @unpack n,c,b,t,cost,distance,constrained,store= new_visit
-        deleteat!(list_to_be_visited, findall(x->x==(n,c),list_to_be_visited))
-        deleteat!(list_to_be_visited_first, findall(x->x==(n,c),list_to_be_visited_first))
-        if c<length(Pi[n])
-            push!(list_to_be_visited_first, (n,c+1))
-        end
-        l = ceil(Int, shipsIn[n].l/qli)
-        hand = ceil(Int, h[n][c][b])
-        @unpack M, visits = sol
-        sol.visits = updateTimesAfterVisit(inst, visits, n, c, b, t)
-        sol.M = updateMpositions(inst, n, c, b, t, l, hand, M)
-        @unpack M, visits = sol
-        sol.visits[n][c].p = Pi[n][c]
-        sol.visits[n][c].b = b
-        sol.visits[n][c].t = t
-        sol.visits[n][c].planned = true
-        sol.visits[n][c].store = store
+        if feasible
+            @unpack n,c,b,t,cost,distance,constrained,store= new_visit
+            deleteat!(list_to_be_visited, findall(x->x==(n,c),list_to_be_visited))
+            deleteat!(list_to_be_visited_first, findall(x->x==(n,c),list_to_be_visited_first))
+            if c<length(Pi[n])
+                push!(list_to_be_visited_first, (n,c+1))
+            end
+            l = ceil(Int, shipsIn[n].l/qli)
+            hand = ceil(Int, h[n][c][b])
+            @unpack M, visits = sol
+            sol.visits = updateTimesAfterVisit(inst, visits, n, c, b, t)
+            sol.M = updateMpositions(inst, n, c, b, t, l, hand, M)
+            @unpack M, visits = sol
+            sol.visits[n][c].p = Pi[n][c]
+            sol.visits[n][c].b = b
+            sol.visits[n][c].t = t
+            sol.visits[n][c].planned = true
+            sol.visits[n][c].store = store
                 
-        continue_=false
-        for n in boats_to_be_visited
-            for (c,p) in enumerate(Pi[n])
-                if sol.visits[n][c].planned == false
-                    continue_ = true
+            continue_=false
+            for n in boats_to_be_visited
+                for (c,p) in enumerate(Pi[n])
+                    if sol.visits[n][c].planned == false
+                        continue_ = true
+                    end
                 end
             end
-        end
 
 
-        if continue_
-            if length(list_to_be_visited_first)>0
-                new_visit, feasible = SelectNewVisitLocalSearch(inst, sol, list_to_be_visited_first, paramchosen, paramfixed, reconstruct_no_improve)
-            else
-                new_visit, feasible = SelectNewVisitLocalSearch(inst, sol, list_to_be_visited, paramchosen, paramfixed, reconstruct_no_improve)
+            if continue_
+                if length(list_to_be_visited_first)>0
+                    new_visit, feasible = SelectNewVisitLocalSearch(inst, sol, list_to_be_visited_first, paramchosen, paramfixed, reconstruct_no_improve)
+                else
+                    new_visit, feasible = SelectNewVisitLocalSearch(inst, sol, list_to_be_visited, paramchosen, paramfixed, reconstruct_no_improve)
+                end
+                if feasible==false
+                    return initializeSol(inst, allparam), false
+                end
             end
-            if feasible==false
-                return initializeSol(inst, allparam), false
-            end
+        else
+            return initializeSol(inst, allparam), false
         end
     end
     return sol, true
