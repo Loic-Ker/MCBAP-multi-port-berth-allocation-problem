@@ -234,7 +234,7 @@ function makeSolHeur(paramfixed, temperature, time_local, max_time_heur, max_tim
 	N=parse(Int64,split_instance[4])
 	Nout=parse(Int64,split_instance[5])
 	qli=parse(Int64,split(split_instance[6],".")[1])
-	if seed ==seed_chosen && N==Nchosen && Nout==Noutchosen && qli==qlichosen
+	if seed ==seed_chosen && N==Nchosen #&& Nout==Noutchosen && qli==qlichosen
 		inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/Large/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
 		print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
 		if isdir(location*"results_jobs/benchmarks_HEUR/finalGRASP/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
@@ -273,14 +273,14 @@ function makeSolHeur(paramfixed, temperature, time_local, max_time_heur, max_tim
     return newbenchmark
 end
 
-location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
-#location="/zhome/c3/6/164957/code_git/"
+#location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
+location="/zhome/c3/6/164957/code_git/"
 
 
 # The parameters of the experiment :
 
 # The experience name :
-expname="exp1"
+expname="GRASPpath1"
 
 # The tactic types :
 type1="time" 
@@ -311,15 +311,15 @@ windowlocalsearch=0.3
 
 # One boat tactic :
 oneboat="all"
-onboatvec = [0.001, 0.1, 0.3, 0.5, 0.7]
+onboatvec = [0.1, 0.3, 0.5]
 
 # All boat tactic :
 allboat="all"
-allboatvec = [0.001, 0.1, 0.3, 0.5, 0.7]
+allboatvec = [0.1, 0.3, 0.5]
 
 # Reversed all boat tactic :
 reversedallboat="all"
-reversedallboatvec = [0.001, 0.1, 0.3, 0.5, 0.7]
+reversedallboatvec = [0.1, 0.3, 0.5]
 
 # Local search tactic :
 localsearch="all"
@@ -351,7 +351,7 @@ pathrelinking="yes"
 # Max time for the relinking
 maxtimerelinking=2
 # The length of the elite set :
-lengthelite=10
+lengthelite=6
 removepathrelinking= 0.2
 
 reversed="all"
@@ -365,25 +365,26 @@ rateimprovereconstruct, windowlocalsearch,
 pathrelinking, maxtimerelinking, lengthelite, removepathrelinking)
 
 # Maximum time for the local search :
-time_local=1
+time_local=3
 #time_local= parse(Int64,ARGS[1])
 
 # Maximum time for the heuristic :
 max_time_heur=30
 
 # maximum time for the experiment :
-max_time=1200
+max_time=2400
 #max_time = parse(Int64,ARGS[2])
+#max_time=100
 
 # the temperature parameter :
 temperature=0.93
 
 # look for a specific seed
-#seedchosen = parse(Int64,ARGS[3])
-#Nchosen=parse(Int64,ARGS[4])
+seedchosen = parse(Int64,ARGS[3])
+Nchosen=parse(Int64,ARGS[4])
 #Noutchosen=parse(Int64,ARGS[5])
-seedchosen=2
-Nchosen=30
+#seedchosen=2
+#Nchosen=30
 Noutchosen=5
 qlichosen=10
 
@@ -392,7 +393,7 @@ allparam = initializeParam(paramfixed)
 #list_paramconstrained = allparam.Alpha.RateConstrained
 makeExpText(temperature, paramfixed, time_local, max_time_heur, max_time, expname, location)
 newbenchmark = makeSolHeur(paramfixed, temperature, time_local, max_time_heur, max_time, expname, location, seedchosen, Nchosen, Noutchosen, qlichosen)
-CSV.write(location*"results_jobs/benchmarks_HEUR/finalGRASP/$expname"*"/NLarge_playground_test_$seedchosen"*"n_$Nchosen"*"_$Noutchosen"*"_$qlichosen.csv", newbenchmark)
+CSV.write(location*"results_jobs/benchmarks_HEUR/finalGRASP/$expname"*"/NLarge_playground_test_$seedchosen"*"n_$Nchosen"*".csv", newbenchmark)
 newbenchmark
 
 
