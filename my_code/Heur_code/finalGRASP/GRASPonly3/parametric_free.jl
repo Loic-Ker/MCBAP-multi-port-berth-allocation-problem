@@ -1380,7 +1380,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
                     for n in 1:N
                         # The times :
                         for (c,p) in enumerate(inst.Pi[n])
-                            if new_sol_path_loop.visits[n][c].planned == false || n==-1 || c==-1 || new_sol_path_loop.visits[n][c].b==-1
+                            if new_sol.visits[n][c].planned == false
                                 feasible = false              
                             end
                         end

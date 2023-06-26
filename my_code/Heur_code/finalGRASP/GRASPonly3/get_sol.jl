@@ -120,13 +120,17 @@ function makeExpText(temperature, paramfixed, time_local, max_time_heur, max_tim
     type3 = paramfixed.ReversedAllBoat
     type4 = paramfixed.LocalSearch
     txttype1 = "The tactic for one boat is $type1"
-    txtalphatype1 = "The alpha parameters possible are $paramfixed.Alphaoneboat"
+    thisoneboat=paramfixed.Alphaoneboat
+    txtalphatype1 = "The alpha parameters possible are $thisoneboat"
     window=paramfixed.WindowSize
     txtwindow = "The window size for the visits to look at is $window"
     txttype2 = "The tactic for all boats is $type2"
-    txtalphatype2 = "The alpha parameters possible are $paramfixed.Alphaallboat"
-    txttype3bis = "Do we reverse the order of the visits : $paramfixed.Reversed (all is both)"
-    txtalphatype3 = "The alpha parameters possible are $paramfixed.Alphareversedallboat"
+    thisalphaboat = paramfixed.Alphaallboat
+    txtalphatype2 = "The alpha parameters possible are $thisalphaboat"
+    thisreverse=paramfixed.Reversed
+    txttype3bis = "Do we reverse the order of the visits : $thisreverse (all is both)"
+    thisallboats=paramfixed.Alphareversedallboat
+    txtalphatype3 = "The alpha parameters possible are $thisallboats"
     txttype4 = "The tactic for the local search : $type4"
 
     alphaboatmin=paramfixed.LocalSearchBoat
@@ -164,10 +168,21 @@ function makeExpText(temperature, paramfixed, time_local, max_time_heur, max_tim
     nbfocusremove=paramfixed.NbFocusRemove
     txtnbfocusremove = "The number of iteration to do while focusing on the removal part : $nbfocusremove"
 
+    pathrelinking = paramfixed.pathRelinking
+    txtpathrelinking = "Do we have path relinking ? $pathrelinking"
+
+    maxtimerelinking = paramfixed.MaxTimeRelinking
+    txtmaxtimerelinking = "The maximum time for the path relinking : $maxtimerelinking"
+
+    removepathrelinking = paramfixed.RemovePathRelinking
+    txtremovepathrelinking = "The proportion we remove for the path relinking : $removepathrelinking"
+
+    lenggthelite = paramfixed.LengthElite
+    txtlengthelite = "The length of the elite pool : $lenggthelite"
+
     txttimelocal = "The maximum time for the local search : $time_local "
     txttimeheur = "The maximum time for the heuristic : $max_time_heur "
     txttimemax = "The time of the exp : $max_time"
-
 
 
     open(filename, "w") do file
@@ -214,6 +229,14 @@ function makeExpText(temperature, paramfixed, time_local, max_time_heur, max_tim
         write(file,'\n')
         write(file,txtnbfocusremove)
         write(file,'\n')
+        write(file,txtpathrelinking)
+        write(file,'\n')
+        write(file,txtmaxtimerelinking)
+        write(file,'\n')
+        write(file,txtremovepathrelinking)
+        write(file,'\n')
+        write(file,txtlengthelite)
+        write(file,'\n')
         write(file,txttimelocal)
         write(file,'\n')
         write(file,txttimeheur)
@@ -243,6 +266,7 @@ function makeSolHeur(paramfixed, temperature, time_local, max_time_heur, max_tim
 		if isdir(location*"results_jobs/benchmarks_HEUR/finalGRASP/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
 		    mkdir(location*"results_jobs/benchmarks_HEUR/finalGRASP/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
 		end
+
 		sol, cost, allparam = GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temperature, time_local, max_time_heur, max_time, expname, location)
 		#print('\n')
 		#print("The solution :")
@@ -273,19 +297,18 @@ function makeSolHeur(paramfixed, temperature, time_local, max_time_heur, max_tim
     return newbenchmark
 end
 
-location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
-#location="/zhome/c3/6/164957/code_git/"
-
-
-# The parameters of the experiment :
-
-# The experience name :
-expname="GRASPpath1"
+#location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
+location="/zhome/c3/6/164957/code_git/"
 
 # The tactic types :
 type1="time" 
 type2="cost" 
 type3="random"
+
+# The parameters of the experiment :
+
+# The experience name :
+expname="GRASPonly2"
 
 # The window size for the visits to look at :
 window=0.01
@@ -307,19 +330,19 @@ alpharandom=0.1
 maxnoimprove=10
 
 # Which sol to take from the heuristic for the local search :
-windowlocalsearch=0.3
+windowlocalsearch=-1
 
 # One boat tactic :
-oneboat="all"
-onboatvec = [0.1, 0.3, 0.5]
+oneboat="time"
+onboatvec = [0.001, 0.1, 0.3, 0.5]
 
 # All boat tactic :
-allboat="all"
-allboatvec = [0.1, 0.3, 0.5]
+allboat="cost"
+allboatvec = [0.001, 0.1, 0.3, 0.5]
 
 # Reversed all boat tactic :
 reversedallboat="all"
-reversedallboatvec = [0.1, 0.3, 0.5]
+reversedallboatvec = [0.001, 0.1, 0.3, 0.5, 0.7]
 
 # Local search tactic :
 localsearch="all"
@@ -334,7 +357,7 @@ alphapropremove = [0.001,0.05,0.15]
 greedymaxnoimprove=120000
 
 # Make the heuristic without reconstruct until :
-until=100000
+until=1000000
 
 # Dont focus on removal without recontrusct improvement until :
 focusremoveuntil=7
@@ -347,11 +370,11 @@ rateimprovereconstruct = 0.0015
 
 
 # Make path relinking instead of ALNS :
-pathrelinking="yes"
+pathrelinking="no"
 # Max time for the relinking
 maxtimerelinking=2
 # The length of the elite set :
-lengthelite=6
+lengthelite=10
 removepathrelinking= 0.2
 
 reversed="all"
@@ -374,18 +397,19 @@ max_time_heur=30
 # maximum time for the experiment :
 max_time=2400
 #max_time = parse(Int64,ARGS[2])
-#max_time=700
+#max_time=100
 
 # the temperature parameter :
 temperature=0.93
 
 # look for a specific seed
 seedchosen = parse(Int64,ARGS[3])
+#seedchosen = 2
 Nchosen=parse(Int64,ARGS[4])
+#Nchosen=30
 #Noutchosen=parse(Int64,ARGS[5])
-#seedchosen=3
-#Nchosen=70
-Noutchosen=10
+Noutchosen=5
+#qlichosen=parse(Int64,ARGS[6])
 qlichosen=10
 
 allparam = initializeParam(paramfixed)
