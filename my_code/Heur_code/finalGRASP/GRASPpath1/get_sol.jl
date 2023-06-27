@@ -120,13 +120,17 @@ function makeExpText(temperature, paramfixed, time_local, max_time_heur, max_tim
     type3 = paramfixed.ReversedAllBoat
     type4 = paramfixed.LocalSearch
     txttype1 = "The tactic for one boat is $type1"
-    txtalphatype1 = "The alpha parameters possible are $paramfixed.Alphaoneboat"
+    thisoneboat=paramfixed.Alphaoneboat
+    txtalphatype1 = "The alpha parameters possible are $thisoneboat"
     window=paramfixed.WindowSize
     txtwindow = "The window size for the visits to look at is $window"
     txttype2 = "The tactic for all boats is $type2"
-    txtalphatype2 = "The alpha parameters possible are $paramfixed.Alphaallboat"
-    txttype3bis = "Do we reverse the order of the visits : $paramfixed.Reversed (all is both)"
-    txtalphatype3 = "The alpha parameters possible are $paramfixed.Alphareversedallboat"
+    thisalphaboat = paramfixed.Alphaallboat
+    txtalphatype2 = "The alpha parameters possible are $thisalphaboat"
+    thisreverse=paramfixed.Reversed
+    txttype3bis = "Do we reverse the order of the visits : $thisreverse (all is both)"
+    thisallboats=paramfixed.Alphareversedallboat
+    txtalphatype3 = "The alpha parameters possible are $thisallboats"
     txttype4 = "The tactic for the local search : $type4"
 
     alphaboatmin=paramfixed.LocalSearchBoat
@@ -234,7 +238,7 @@ function makeSolHeur(paramfixed, temperature, time_local, max_time_heur, max_tim
 	N=parse(Int64,split_instance[4])
 	Nout=parse(Int64,split_instance[5])
 	qli=parse(Int64,split(split_instance[6],".")[1])
-	if seed ==seed_chosen && N==Nchosen #&& Nout==Noutchosen && qli==qlichosen
+	if seed ==seed_chosen && N==Nchosen && Nout==Noutchosen && qli==qlichosen
 		inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/Large/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
 		print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
 		if isdir(location*"results_jobs/benchmarks_HEUR/finalGRASP/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
@@ -383,8 +387,8 @@ temperature=0.93
 seedchosen = parse(Int64,ARGS[3])
 Nchosen=parse(Int64,ARGS[4])
 #Noutchosen=parse(Int64,ARGS[5])
-#seedchosen=3
-#Nchosen=70
+seedchosen=5
+Nchosen=50
 Noutchosen=10
 qlichosen=10
 

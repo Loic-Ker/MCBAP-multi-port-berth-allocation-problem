@@ -120,13 +120,17 @@ function makeExpText(temperature, paramfixed, time_local, max_time_heur, max_tim
     type3 = paramfixed.ReversedAllBoat
     type4 = paramfixed.LocalSearch
     txttype1 = "The tactic for one boat is $type1"
-    txtalphatype1 = "The alpha parameters possible are $paramfixed.Alphaoneboat"
+    thisoneboat=paramfixed.Alphaoneboat
+    txtalphatype1 = "The alpha parameters possible are $thisoneboat"
     window=paramfixed.WindowSize
     txtwindow = "The window size for the visits to look at is $window"
     txttype2 = "The tactic for all boats is $type2"
-    txtalphatype2 = "The alpha parameters possible are $paramfixed.Alphaallboat"
-    txttype3bis = "Do we reverse the order of the visits : $paramfixed.Reversed (all is both)"
-    txtalphatype3 = "The alpha parameters possible are $paramfixed.Alphareversedallboat"
+    thisalphaboat = paramfixed.Alphaallboat
+    txtalphatype2 = "The alpha parameters possible are $thisalphaboat"
+    thisreverse=paramfixed.Reversed
+    txttype3bis = "Do we reverse the order of the visits : $thisreverse (all is both)"
+    thisallboats=paramfixed.Alphareversedallboat
+    txtalphatype3 = "The alpha parameters possible are $thisallboats"
     txttype4 = "The tactic for the local search : $type4"
 
     alphaboatmin=paramfixed.LocalSearchBoat
@@ -234,7 +238,7 @@ function makeSolHeur(paramfixed, temperature, time_local, max_time_heur, max_tim
 	N=parse(Int64,split_instance[4])
 	Nout=parse(Int64,split_instance[5])
 	qli=parse(Int64,split(split_instance[6],".")[1])
-	if seed ==seed_chosen && N==Nchosen && Nout==Noutchosen && qli==qlichosen
+	if seed ==seed_chosen && N==Nchosen #&& Nout==Noutchosen && qli==qlichosen
 		inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/Large/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
 		print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
 		if isdir(location*"results_jobs/benchmarks_HEUR/finalGRASP/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
@@ -273,14 +277,14 @@ function makeSolHeur(paramfixed, temperature, time_local, max_time_heur, max_tim
     return newbenchmark
 end
 
-location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
-#location="/zhome/c3/6/164957/code_git/"
+#location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
+location="/zhome/c3/6/164957/code_git/"
 
 
 # The parameters of the experiment :
 
 # The experience name :
-expname="exp1"
+expname="GRASPpathreconstruct1"
 
 # The tactic types :
 type1="time" 
@@ -331,10 +335,10 @@ alpharateconstrained = [0.2,0.4,0.6]
 alphapropremove = [0.001,0.05,0.15]
 
 # Number of non improvement greedy algo :
-greedymaxnoimprove=120000
+greedymaxnoimprove=12
 
 # Make the heuristic without reconstruct until :
-until=100000
+until=10
 
 # Dont focus on removal without recontrusct improvement until :
 focusremoveuntil=7
@@ -372,18 +376,19 @@ time_local=1
 max_time_heur=30
 
 # maximum time for the experiment :
-max_time=1200
+#max_time=600
 #max_time = parse(Int64,ARGS[2])
+max_time=2400
 
 # the temperature parameter :
 temperature=0.93
 
 # look for a specific seed
-#seedchosen = parse(Int64,ARGS[3])
-#Nchosen=parse(Int64,ARGS[4])
+seedchosen = parse(Int64,ARGS[3])
+Nchosen=parse(Int64,ARGS[4])
 #Noutchosen=parse(Int64,ARGS[5])
-seedchosen=2
-Nchosen=30
+#seedchosen=2
+#Nchosen=30
 Noutchosen=5
 qlichosen=10
 

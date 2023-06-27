@@ -320,7 +320,7 @@ proptoremove=0.01
 pushatconstraint=true
 
 # Look for constrained at the beginning :
-lookforconstraint=false
+lookforconstraint=true
 
 # The proportion of boats to remove for the local search :
 alphaboat=0.2
@@ -333,11 +333,11 @@ maxnoimprove=10
 windowlocalsearch=-1
 
 # One boat tactic :
-oneboat="time"
+oneboat="all"
 onboatvec = [0.001, 0.1, 0.3, 0.5]
 
 # All boat tactic :
-allboat="cost"
+allboat="all"
 allboatvec = [0.001, 0.1, 0.3, 0.5]
 
 # Reversed all boat tactic :
@@ -348,7 +348,7 @@ reversedallboatvec = [0.001, 0.1, 0.3, 0.5, 0.7]
 localsearch="all"
 
 # Rate constrained :
-alpharateconstrained = [0.2,0.4,0.6]
+alpharateconstrained = [0.2,0.4,0.6,0.8]
 
 # Prop to remove :
 alphapropremove = [0.001,0.05,0.15]
@@ -388,7 +388,7 @@ rateimprovereconstruct, windowlocalsearch,
 pathrelinking, maxtimerelinking, lengthelite, removepathrelinking)
 
 # Maximum time for the local search :
-time_local=3
+time_local=2
 #time_local= parse(Int64,ARGS[1])
 
 # Maximum time for the heuristic :

@@ -151,48 +151,51 @@ function SelectNewVisitPerShip(inst::Instance, sol::Sol, paramchosen::ChosenPara
     
     bestPos=shipsIn[n].Bi[c]/qli
     ## Check all the possible solutions
-    for b in 1:Bp[p]-l
-        hand = ceil(Int, h[n][c][b])
-        find_it=false
-        t=t1-1
-        while t<t2 && find_it==false
-            t=t+1
-            if t + hand <= t2
-                if M[n][c][b,t+1]
-                    this_cost, delay_cost, waiting_cost, penalty, handling_cost, fuel_cost, feas = computeCostPosSol(inst, n, c, b, t,sol)
-                    time=deepcopy(t)
+    random_value = rand()
+    if paramfixed.lookforconstrained==false || random_value>=Alpha.RateConstrained[paramchosen.IndexRateConstrained]
+        for b in 1:Bp[p]-l
+            hand = ceil(Int, h[n][c][b])
+            find_it=false
+            t=t1-1
+            while t<t2 && find_it==false
+                t=t+1
+                if t + hand <= t2
+                    if M[n][c][b,t+1]
+                        this_cost, delay_cost, waiting_cost, penalty, handling_cost, fuel_cost, feas = computeCostPosSol(inst, n, c, b, t,sol)
+                        time=deepcopy(t)
                     #time=penalty
                     ## look at the the time window or only the penalty
-                    if feas
-                        distance = abs(bestPos-b)/l
-                        if distance>=max_dist
-                            max_dist=distance
+                        if feas
+                            distance = abs(bestPos-b)/l
+                            if distance>=max_dist
+                                max_dist=distance
+                            end
+                            if this_cost>=max_cost
+                                max_cost=this_cost
+                            end
+                            if time>=max_time
+                                max_time=time
+                            end
+                            if distance<=min_dist
+                                min_dist=distance
+                            end
+                            if this_cost<=min_cost
+                                min_cost=this_cost
+                            end
+                            if time<=min_time
+                                min_time=time
+                            end
+                            if (max_time-min_time)/min_time>paramfixed.WindowSize
+                                find_it=true
+                            end
+                            push!(new_visits, NewVisit(n,c,b,t,this_cost,distance,time, false, ToStoreVisit(SplitCosts(ceil(Int, this_cost), ceil(Int,delay_cost), ceil(Int,waiting_cost), ceil(Int,penalty), ceil(Int,handling_cost), ceil(Int,fuel_cost)),0,"","")))
                         end
-                        if this_cost>=max_cost
-                            max_cost=this_cost
-                        end
-                        if time>=max_time
-                            max_time=time
-                        end
-                        if distance<=min_dist
-                            min_dist=distance
-                        end
-                        if this_cost<=min_cost
-                            min_cost=this_cost
-                        end
-                        if time<=min_time
-                            min_time=time
-                        end
-                        if (max_time-min_time)/min_time>paramfixed.WindowSize
-                            find_it=true
-                        end
-                        push!(new_visits, NewVisit(n,c,b,t,this_cost,distance,time, false, ToStoreVisit(SplitCosts(ceil(Int, this_cost), ceil(Int,delay_cost), ceil(Int,waiting_cost), ceil(Int,penalty), ceil(Int,handling_cost), ceil(Int,fuel_cost)),0,"","")))
                     end
                 end
             end
         end
     end  
-    if paramfixed.lookforconstrained==true
+    if paramfixed.lookforconstrained==true && random_value<Alpha.RateConstrained[paramchosen.IndexRateConstrained]
         ## Check the constrained ones
         pos = findConstrainedPos(inst, sol, p, t1, t2, n, c, l)
         for (b,t) in pos
@@ -566,14 +569,9 @@ function SelectNewVisitAllShips(inst::Instance, sol::Sol, paramchosen::ChosenPar
 
     if length(pos_chosen)+length(pos_chosen_constrained)>0
         if length(pos_chosen_constrained)>=1
-            random_value = rand()
-            if random_value<Alpha.RateConstrained[paramchosen.IndexRateConstrained]
-                return pos_chosen_constrained[rand(1:length(pos_chosen_constrained))], true
-            else
-                return pos_chosen[rand(1:length(pos_chosen))], true
-            end
+            return reduce(vcat, (pos_chosen,pos_chosen_constrained))[rand(1:length(pos_chosen)+length(pos_chosen_constrained))], true
         else
-            return pos_chosen[rand(1:length(pos_chosen))], true
+           return pos_chosen[rand(1:length(pos_chosen))], true
         end
     else
         return NewVisit(0,0,0,0,0.0,0.0,0.0, false, ToStoreVisit(SplitCosts(0,0,0,0,0,0),0,"","")), false
@@ -827,12 +825,7 @@ function SelectNewVisitOrderedShips(inst::Instance, sol::Sol, paramchosen::Chose
 
     if length(pos_chosen)+length(pos_chosen_constrained)>0
         if length(pos_chosen_constrained)>=1
-            random_value = rand()
-            if random_value<Alpha.RateConstrained[paramchosen.IndexRateConstrained]
-                return pos_chosen_constrained[rand(1:length(pos_chosen_constrained))], true
-            else
-                return pos_chosen[rand(1:length(pos_chosen))], true
-            end
+            return reduce(vcat, (pos_chosen,pos_chosen_constrained))[rand(1:length(pos_chosen)+length(pos_chosen_constrained))], true
         else
             return pos_chosen[rand(1:length(pos_chosen))], true
         end

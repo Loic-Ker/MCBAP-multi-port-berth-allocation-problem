@@ -870,7 +870,7 @@ function ChooseAfterLocal(allparam::AllParameters, paramchosen::ChosenParameters
 end
 
 
-function UpdateAfterReconstructParameters(paramchosen::ChosenParameters, allparam::AllParameters, cost, new_cost, constained)
+function UpdateAfterReconstructParameters(paramchosen::ChosenParameters, allparam::AllParameters, cost, new_cost, constrained)
     newparam=deepcopy(allparam)
     index=0
     if paramchosen.TacticOneBoat=="cost"
