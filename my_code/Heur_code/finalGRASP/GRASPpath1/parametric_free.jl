@@ -49,7 +49,9 @@ function findConstrainedPos(inst::Instance, sol::Sol, port::Int, t1::Int, t2::In
                                 h = ceil(Int, inst.h[n][c][x])
                                 for y in [t - h, t + hand]
                                     if t1 <= y && y + h <= t2
-                                        
+                                        if x==0
+                                            x=1
+                                        end
                                         push!(pos, (x, y))
                                     end
                                 end
@@ -60,6 +62,9 @@ function findConstrainedPos(inst::Instance, sol::Sol, port::Int, t1::Int, t2::In
                                 h = ceil(Int, inst.h[n][c][x])
                                 for y in t-h:t+hand
                                     if t1 <= y && y + h <= t2
+                                        if x==0
+                                            x=1
+                                        end
                                         push!(pos, (x, y))
                                     end
                                 end
@@ -79,6 +84,9 @@ function findConstrainedPos(inst::Instance, sol::Sol, port::Int, t1::Int, t2::In
             X = [berth - l, berth, berth + length - l, berth + length]
             # Y = [t - h, t, t + hand - h, t + hand]
             for (ix, x) in enumerate(X)
+                if x==0
+                    x=1
+                end
                 if 1 <= x && x + l <= inst.Bp[port]
                     h = ceil(Int, inst.h[n][c][x])
                     if ix in [2,3]
