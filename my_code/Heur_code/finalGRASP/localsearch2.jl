@@ -469,13 +469,13 @@ function SelectNewVisitPerShipLocalSearch(inst::Instance, sol::Sol, n, c, p, par
             #end
         end
     end
-    if paramfixed.LocalSeachOne=="time"
+    if paramfixed.LocalSearchOne=="time"
         new_visits_constrained = sort(new_visits_constrained, by = x -> x[2])
     end
-    if paramfixed.LocalSeachOne=="dist"
+    if paramfixed.LocalSearchOne=="dist"
         new_visits_constrained = sort(new_visits_constrained, by = x -> x[3])
     end
-    if paramfixed.LocalSeachOne=="cost"
+    if paramfixed.LocalSearchOne=="cost"
         new_visits_constrained = sort(new_visits_constrained, by = x -> x[4])
     end
     if length(new_visits_constrained)>0
