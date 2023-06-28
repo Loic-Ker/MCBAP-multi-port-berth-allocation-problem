@@ -469,7 +469,15 @@ function SelectNewVisitPerShipLocalSearch(inst::Instance, sol::Sol, n, c, p, par
             #end
         end
     end
-    new_visits_constrained = sort(new_visits_constrained, by = x -> x[2])
+    if paramfixed.LocalSeachOne=="time"
+        new_visits_constrained = sort(new_visits_constrained, by = x -> x[2])
+    end
+    if paramfixed.LocalSeachOne=="dist"
+        new_visits_constrained = sort(new_visits_constrained, by = x -> x[3])
+    end
+    if paramfixed.LocalSeachOne=="cost"
+        new_visits_constrained = sort(new_visits_constrained, by = x -> x[4])
+    end
     if length(new_visits_constrained)>0
         return new_visits_constrained[1], true
     else
@@ -497,13 +505,16 @@ function SelectNewVisitLocalSearch(inst::Instance, sol::Sol, list_visits::Vector
         end
     end
 
-    if paramchosen.TacticLocalSearch=="cost"
+    #if paramchosen.TacticLocalSearch=="cost"
+    if paramfixed.LocalSearchAll=="cost"
         new_visits_constrained = sort(new_visits_constrained,  by = x -> x[4])
     end
-    if paramchosen.TacticLocalSearch=="dist"
+    #if paramchosen.TacticLocalSearch=="dist"
+    if paramfixed.LocalSearchAll=="dist"
         new_visits_constrained = sort(new_visits_constrained,  by = x -> x[3])
     end
-    if paramchosen.TacticLocalSearch=="time"
+    #if paramchosen.TacticLocalSearch=="time"
+    if paramfixed.LocalSearchAll=="time"
         new_visits_constrained = sort(new_visits_constrained,  by = x -> x[2])
     end
 
@@ -713,6 +724,7 @@ function manualLocalSearch(inst::Instance, this_sol::Sol, cost, delay_cost, wait
             #print('\n')
             #print(new_cost)
             if new_cost1>new_cost
+                new_sol.pushimprove=1
                 new_sol=deepcopy(new_sol1)
                 new_cost=deepcopy(new_cost1)
                 delay_cost=deepcopy(delay_cost1)
@@ -929,7 +941,8 @@ function local_search(inst::Instance, sol::Sol, cost::Int64, paramchosen::Chosen
     #list_initialize_all = shuffle(list_initialize_all)
     start = time_ns()
     elapsed = round((time_ns()-start)/1e9,digits=3)
-    tactic = paramchosen.TacticLocalSearch
+    #tactic = paramchosen.TacticLocalSearch
+    tactic = paramfixed.LocalSearchAll
     first=true
     while elapsed<max_time
         if tactic=="boat"

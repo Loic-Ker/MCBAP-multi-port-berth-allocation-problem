@@ -132,6 +132,8 @@ mutable struct FixedParameters
     ReversedAllBoat::String
     Alphareversedallboat::Vector{Float64}
     LocalSearch::String
+    LocalSearchOne::String
+    LocalSearchAll::String
     LocalSearchRandom::Float64
     LocalSearchBoat::Float64
     Alpharateconstrained::Vector{Float64}

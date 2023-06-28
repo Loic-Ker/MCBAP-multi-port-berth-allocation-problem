@@ -77,6 +77,8 @@ function prepareSolIterSoft(seed,N,Nout,qli, nb_iter, inst, sol, cost, allparam,
     d["average_cost_elite"]=sol.average_cost_elite
     d["average_dist_elite"]=sol.average_dist_elite
 
+    d["pushimprove"]=sol.pushimprove
+
     ## Get the instances 
     d["inst"]= inst.Pi
 

@@ -118,7 +118,8 @@ function makeExpText(temperature, paramfixed, time_local, max_time_heur, max_tim
     type1 = paramfixed.OneBoat
     type2 = paramfixed.AllBoat
     type3 = paramfixed.ReversedAllBoat
-    type4 = paramfixed.LocalSearch
+    type4 = paramfixed.LocalSearchOne
+    type7 = paramfixed.LocalSearchAll
     txttype1 = "The tactic for one boat is $type1"
     thisoneboat=paramfixed.Alphaoneboat
     txtalphatype1 = "The alpha parameters possible are $thisoneboat"
@@ -131,7 +132,8 @@ function makeExpText(temperature, paramfixed, time_local, max_time_heur, max_tim
     txttype3bis = "Do we reverse the order of the visits : $thisreverse (all is both)"
     thisallboats=paramfixed.Alphareversedallboat
     txtalphatype3 = "The alpha parameters possible are $thisallboats"
-    txttype4 = "The tactic for the local search : $type4"
+    txttype4 = "The tactic for the local search one boat : $type4"
+    txttype7 = "The tactic for the local search all boats : $type7"
 
     alphaboatmin=paramfixed.LocalSearchBoat
     alpharandommin=paramfixed.LocalSearchRandom
@@ -168,21 +170,10 @@ function makeExpText(temperature, paramfixed, time_local, max_time_heur, max_tim
     nbfocusremove=paramfixed.NbFocusRemove
     txtnbfocusremove = "The number of iteration to do while focusing on the removal part : $nbfocusremove"
 
-    pathrelinking = paramfixed.pathRelinking
-    txtpathrelinking = "Do we have path relinking ? $pathrelinking"
-
-    maxtimerelinking = paramfixed.MaxTimeRelinking
-    txtmaxtimerelinking = "The maximum time for the path relinking : $maxtimerelinking"
-
-    removepathrelinking = paramfixed.RemovePathRelinking
-    txtremovepathrelinking = "The proportion we remove for the path relinking : $removepathrelinking"
-
-    lenggthelite = paramfixed.LengthElite
-    txtlengthelite = "The length of the elite pool : $lenggthelite"
-
     txttimelocal = "The maximum time for the local search : $time_local "
     txttimeheur = "The maximum time for the heuristic : $max_time_heur "
     txttimemax = "The time of the exp : $max_time"
+
 
 
     open(filename, "w") do file
@@ -202,6 +193,8 @@ function makeExpText(temperature, paramfixed, time_local, max_time_heur, max_tim
         write(file,txtalphatype3)
         write(file,'\n')
         write(file,txttype4)
+        write(file,'\n')
+        write(file,txttype7)
         write(file,'\n')
         write(file,txtwindowlocalsearch)
         write(file,'\n')
@@ -229,14 +222,6 @@ function makeExpText(temperature, paramfixed, time_local, max_time_heur, max_tim
         write(file,'\n')
         write(file,txtnbfocusremove)
         write(file,'\n')
-        write(file,txtpathrelinking)
-        write(file,'\n')
-        write(file,txtmaxtimerelinking)
-        write(file,'\n')
-        write(file,txtremovepathrelinking)
-        write(file,'\n')
-        write(file,txtlengthelite)
-        write(file,'\n')
         write(file,txttimelocal)
         write(file,'\n')
         write(file,txttimeheur)
@@ -245,6 +230,7 @@ function makeExpText(temperature, paramfixed, time_local, max_time_heur, max_tim
         write(file,'\n')
     end
 end
+
 
 
 function makeSolHeur(paramfixed, temperature, time_local, max_time_heur, max_time, expname, location, seed_chosen, Nchosen, Noutchosen, qlichosen)
@@ -344,8 +330,11 @@ allboatvec = [0.001, 0.1, 0.3, 0.5]
 reversedallboat="all"
 reversedallboatvec = [0.001, 0.1, 0.3, 0.5, 0.7]
 
-# Local search tactic :
+
+# Local search tactics :
 localsearch="all"
+localsearchone="dist"
+localsearchall="time"
 
 # Rate constrained :
 alpharateconstrained = [0.2,0.4,0.6,0.8]
@@ -379,7 +368,7 @@ removepathrelinking= 0.2
 
 reversed="all"
 # All the parameters :
-paramfixed = FixedParameters(oneboat, onboatvec, reversed, allboat, allboatvec, reversedallboat, reversedallboatvec, localsearch, 
+paramfixed = FixedParameters(oneboat, onboatvec, reversed, allboat, allboatvec, reversedallboat, reversedallboatvec, localsearch, localsearchone, localsearchall, 
 alpharandom, alphaboat, 
 alpharateconstrained, alphapropremove, 
 window, pushatconstraint, lookforconstraint,
