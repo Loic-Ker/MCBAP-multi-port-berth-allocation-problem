@@ -347,17 +347,17 @@ greedymaxnoimprove=12
 until=10
 
 # Dont focus on removal without recontrusct improvement until :
-focusremoveuntil=7
+focusremoveuntil=1000
 
 # Number of remove in a row :
-nbfocusremove = 6
+nbfocusremove = 10
 
 # Needed rate improvement to accept the reconstruction or the pathrelinking (after local) :
 rateimprovereconstruct = 0.0015
 
 
 # Make path relinking instead of ALNS :
-pathrelinking="yes"
+pathrelinking="no"
 # Max time for the relinking
 maxtimerelinking=2
 # The length of the elite set :
@@ -375,7 +375,7 @@ rateimprovereconstruct, windowlocalsearch,
 pathrelinking, maxtimerelinking, lengthelite, removepathrelinking)
 
 # Maximum time for the local search :
-time_local=1
+time_local=3
 #time_local= parse(Int64,ARGS[1])
 
 # Maximum time for the heuristic :
@@ -390,11 +390,11 @@ max_time=600
 temperature=0.93
 
 # look for a specific seed
-#seedchosen = parse(Int64,ARGS[3])
-#Nchosen=parse(Int64,ARGS[4])
+seedchosen = parse(Int64,ARGS[3])
+Nchosen=parse(Int64,ARGS[4])
 #Noutchosen=parse(Int64,ARGS[5])
-seedchosen=2
-Nchosen=30
+#seedchosen=2
+#Nchosen=30
 Noutchosen=5
 qlichosen=10
 
