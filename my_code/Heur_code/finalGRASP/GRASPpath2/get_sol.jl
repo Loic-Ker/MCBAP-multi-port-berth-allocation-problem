@@ -232,6 +232,7 @@ function makeExpText(temperature, paramfixed, time_local, max_time_heur, max_tim
 end
 
 
+
 function makeSolHeur(paramfixed, temperature, time_local, max_time_heur, max_time, expname, location, seed_chosen, Nchosen, Noutchosen, qlichosen)
     xf = CSV.read(location*"MCBAP-multi-port-berth-allocation-problem/Small_Inst_Res.csv", DataFrame)
     newbenchmark = DataFrame(Seed= [0],N= [0],Nout= [0],qli= [0],HeurCost= [0])
@@ -288,7 +289,7 @@ location="/zhome/c3/6/164957/code_git/"
 # The parameters of the experiment :
 
 # The experience name :
-expname="GRASPpathreconstruct1"
+expname="GRASPpath1"
 
 # The tactic types :
 type1="time" 
@@ -319,15 +320,15 @@ windowlocalsearch=0.3
 
 # One boat tactic :
 oneboat="all"
-onboatvec = [0.001, 0.1, 0.3, 0.5, 0.7]
+onboatvec = [0.1, 0.3, 0.5]
 
 # All boat tactic :
 allboat="all"
-allboatvec = [0.001, 0.1, 0.3, 0.5, 0.7]
+allboatvec = [0.1, 0.3, 0.5]
 
 # Reversed all boat tactic :
 reversedallboat="all"
-reversedallboatvec = [0.001, 0.1, 0.3, 0.5, 0.7]
+reversedallboatvec = [0.1, 0.3, 0.5]
 
 # Local search tactics :
 localsearch="all"
@@ -341,27 +342,27 @@ alpharateconstrained = [0.2,0.4,0.6]
 alphapropremove = [0.001,0.05,0.15]
 
 # Number of non improvement greedy algo :
-greedymaxnoimprove=12
+greedymaxnoimprove=120000
 
 # Make the heuristic without reconstruct until :
-until=10
+until=100000
 
 # Dont focus on removal without recontrusct improvement until :
-focusremoveuntil=1000
+focusremoveuntil=7
 
 # Number of remove in a row :
-nbfocusremove = 10
+nbfocusremove = 6
 
 # Needed rate improvement to accept the reconstruction or the pathrelinking (after local) :
 rateimprovereconstruct = 0.0015
 
 
 # Make path relinking instead of ALNS :
-pathrelinking="no"
+pathrelinking="yes"
 # Max time for the relinking
 maxtimerelinking=2
 # The length of the elite set :
-lengthelite=10
+lengthelite=6
 removepathrelinking= 0.2
 
 reversed="all"
@@ -382,9 +383,9 @@ time_local=3
 max_time_heur=30
 
 # maximum time for the experiment :
-#max_time=600
-#max_time = parse(Int64,ARGS[2])
 max_time=2400
+#max_time = parse(Int64,ARGS[2])
+#max_time=700
 
 # the temperature parameter :
 temperature=0.93
@@ -393,9 +394,9 @@ temperature=0.93
 seedchosen = parse(Int64,ARGS[3])
 Nchosen=parse(Int64,ARGS[4])
 #Noutchosen=parse(Int64,ARGS[5])
-#seedchosen=2
-#Nchosen=30
-Noutchosen=5
+#seedchosen=5
+#Nchosen=50
+Noutchosen=10
 qlichosen=10
 
 allparam = initializeParam(paramfixed)
