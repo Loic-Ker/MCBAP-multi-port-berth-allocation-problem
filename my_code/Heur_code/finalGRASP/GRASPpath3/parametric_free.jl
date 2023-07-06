@@ -1502,7 +1502,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
             #    allparam = UpdateAfterHeurParameters(paramchosen, allparam, cost, new_cost, paramfixed.lookforconstrained)   
             #end
             allparam = UpdateAfterHeurParameters(paramchosen, allparam, cost, new_cost, paramfixed.lookforconstrained)
-            if new_sol.usedLocalSearch=1
+            if new_sol.usedLocalSearch==1
                 allparam = UpdateAfterLocalParameters(paramchosen, allparam, cost, new_cost)
             end
             
@@ -1576,29 +1576,13 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
             #print('\n')
             #print("#######################")
             #print(relinking_no_improve)
-            
-            if reconstruct_no_improve>paramfixed.maxNoImprove
-                if cost<best_cost
-                    best_cost=deepcopy(cost)
-                    best_sol=deepcopy(sol)
-                end
-                sol = greedyrandomizedconstruction(inst, paramchosen, allparam, paramfixed, max_time_heur)
-                min_cost_heur=1000000000
-                best_reconstruct_cost=1000000000
-                cost=1000000000
-                nb_iter_reconstruct=0
-                reconstruct_no_improve=0
-                proba_temperature = 1
-                greedy_no_improve=0
-                focus_on_remove=false
-            end
             from_reconstruct_iter=0
             usedcplex=0
             d_alliter_after[nb_iter]=d_after
             nb_iter+=1
             nb_iter_reconstruct+=1
 
-            if nb_iter_restart_params>40
+            if nb_iter_restart_params>paramfixed.restartParams
                 allparam= RestartParamNb(allparam)
             end
 

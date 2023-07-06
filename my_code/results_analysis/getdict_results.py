@@ -375,7 +375,7 @@ def getiterfromfileHEUR(Nin,Nout,seed,qli,algo_folder,exp):
         dictresults["oneboatdistance"] = ast.literal_eval(list(results_sol[results_sol['first']=="oneboatdistance"]['second'])[0])
         dictresults["oneboatcost"] = ast.literal_eval(list(results_sol[results_sol['first']=="oneboatcost"]['second'])[0])
         dictresults["oneboattime"] = ast.literal_eval(list(results_sol[results_sol['first']=="oneboattime"]['second'])[0])
-        dictresults["allboatscount"] = ast.literal_eval(list(results_sol[results_sol['first']=="allboatscount"]['second'])[0])
+        dictresults["allboatsdist"] = ast.literal_eval(list(results_sol[results_sol['first']=="allboatsdist"]['second'])[0])
         dictresults["allboatstime"] = ast.literal_eval(list(results_sol[results_sol['first']=="allboatstime"]['second'])[0])
         dictresults["allboatscost"] = ast.literal_eval(list(results_sol[results_sol['first']=="allboatscost"]['second'])[0])
         dictresults["rateconstrained"] = ast.literal_eval(list(results_sol[results_sol['first']=="rateconstrained"]['second'])[0])
@@ -437,6 +437,17 @@ def getiterfromfileHEURSoft(Nin,Nout,seed,qli,algo_folder,exp):
         dictresults['inst']=listinst
         dictresults['objectif']=float(list(results_sol[results_sol['first']=='objectif']['second'])[0])
 
+        dictresults["chosen_tacticoneboat"] = results_sol[results_sol['first']=="chosen_tacticoneboat"]['second']
+        dictresults["chosen_reversed"] = results_sol[results_sol['first']=="chosen_reversed"]['second']
+        dictresults["chosen_tacticallboats"] = results_sol[results_sol['first']=="chosen_tacticallboats"]['second']
+        dictresults["chosen_reversedtacticallboats"] = results_sol[results_sol['first']=="chosen_reversedtacticallboats"]['second']
+        dictresults["chosen_tacticlocalsearch"] = results_sol[results_sol['first']=="chosen_tacticlocalsearch"]['second']
+        dictresults["chosen_indexoneship"] = results_sol[results_sol['first']=="chosen_indexoneship"]['second']
+        dictresults["chosen_indexallship"] = results_sol[results_sol['first']=="chosen_indexallship"]['second']
+        dictresults["chosen_indexreversedallship"] = results_sol[results_sol['first']=="chosen_indexreversedallship"]['second']
+        dictresults["chosen_indexrateconstrained"] = results_sol[results_sol['first']=="chosen_indexrateconstrained"]['second']
+        dictresults["chosen_indexproptoremove"] = results_sol[results_sol['first']=="chosen_indexproptoremove"]['second']
+    
         dictresults["cost_solheur"] = float(results_sol[results_sol['first']=="cost_solheur"]['second'])
         dictresults["delay_cost_solheur"] = float(results_sol[results_sol['first']=="delay_cost_solheur"]['second'])
         dictresults["waiting_cost_solheur"] = float(results_sol[results_sol['first']=="waiting_cost_solheur"]['second'])
@@ -456,7 +467,7 @@ def getiterfromfileHEURSoft(Nin,Nout,seed,qli,algo_folder,exp):
         dictresults["oneboatdistance"] = ast.literal_eval(list(results_sol[results_sol['first']=="oneboatdistance"]['second'])[0])
         dictresults["oneboatcost"] = ast.literal_eval(list(results_sol[results_sol['first']=="oneboatcost"]['second'])[0])
         dictresults["oneboattime"] = ast.literal_eval(list(results_sol[results_sol['first']=="oneboattime"]['second'])[0])
-        dictresults["allboatscount"] = ast.literal_eval(list(results_sol[results_sol['first']=="allboatscount"]['second'])[0])
+        dictresults["allboatsdist"] = ast.literal_eval(list(results_sol[results_sol['first']=="allboatsdist"]['second'])[0])
         dictresults["allboatstime"] = ast.literal_eval(list(results_sol[results_sol['first']=="allboatstime"]['second'])[0])
         dictresults["allboatscost"] = ast.literal_eval(list(results_sol[results_sol['first']=="allboatscost"]['second'])[0])
         dictresults["rateconstrained"] = ast.literal_eval(list(results_sol[results_sol['first']=="rateconstrained"]['second'])[0])
@@ -466,10 +477,41 @@ def getiterfromfileHEURSoft(Nin,Nout,seed,qli,algo_folder,exp):
         dictresults["proba_tacticlocalsearch"] = ast.literal_eval(list(results_sol[results_sol['first']=="proba_tacticlocalsearch"]['second'])[0])
         
         dictresults["failed"] = float(results_sol[results_sol['first']=="failed"]['second'])
-        dictresults["better"] = float(results_sol[results_sol['first']=="better"]['second'])
         
-        dictresults["reconstruct"] = float(list(results_sol[results_sol['first']=="reconstruct"]['second'])[0])
-        dictresults["usedCPLEX"] = float(list(results_sol[results_sol['first']=="usedCPLEX"]['second'])[0])
+        try:
+            dictresults["better"] = float(results_sol[results_sol['first']=="better"]['second'])
+        except:
+            dictresults["better"] = "None"
+        
+        try:
+            dictresults["reconstruct"] = float(list(results_sol[results_sol['first']=="reconstruct"]['second'])[0])
+        except:
+            dictresults["reconstruct"] = "None"
+        
+        try:
+            dictresults["pathrelinking"] = ast.literal_eval(list(results_sol[results_sol['first']=="pathrelinking"]['second'])[0])
+        except:
+            dictresults["pathrelinking"] = "None"
+            
+        try:
+            dictresults["usedLocalSearch"] = ast.literal_eval(list(results_sol[results_sol['first']=="usedLocalSearch"]['second'])[0])
+        except:
+            dictresults["usedLocalSearch"] = "None"
+            
+        try:
+            dictresults["average_cost_elite"] = ast.literal_eval(list(results_sol[results_sol['first']=="average_cost_elite"]['second'])[0])
+        except:
+            dictresults["average_cost_elite"] = "None"
+        
+        try:
+            dictresults["average_dist_elite"] = ast.literal_eval(list(results_sol[results_sol['first']=="average_dist_elite"]['second'])[0])
+        except:
+            dictresults["average_dist_elite"] = "None"
+            
+        try:
+            dictresults["pushimprove"] = ast.literal_eval(list(results_sol[results_sol['first']=="pushimprove"]['second'])[0])
+        except:
+            dictresults["pushimprove"] = "None"
 
         dict_all_iters[nb_iter]=dictresults
 
@@ -510,7 +552,7 @@ def make_datasetiter(algo_folder, exp, seed, Nin,Nout,qli):
             "oneboatdistance",
             "oneboatcost",
             "oneboattime",
-            "allboatscount",
+            "allboatsdist",
             "allboatstime",
             "allboatscost",
             "rateconstained",
@@ -551,7 +593,7 @@ def make_datasetiter(algo_folder, exp, seed, Nin,Nout,qli):
 "oneboatdistance":results[i]['oneboatdistance'],
 "oneboatcost":results[i]['oneboatcost'],
 "oneboattime":results[i]['oneboattime'],
-"allboatscount":results[i]['allboatscount'],
+"allboatsdist":results[i]['allboatsdist'],
 "allboatstime":results[i]['allboatstime'],
 "allboatscost":results[i]['allboatscost'],
 "rateconstained":results[i]['rateconstrained'],
@@ -568,6 +610,16 @@ def make_datasetiterSoft(algo_folder, exp, seed, Nin,Nout,qli):
     dataset = pd.DataFrame(columns=('iter',
             'inst',
             'objectif',
+            "chosen_tacticoneboat",
+            "chosen_reversed",
+            "chosen_tacticallboats",
+            "chosen_reversedtacticallboats",
+            "chosen_tacticlocalsearch",
+            "chosen_indexoneship",
+            "chosen_indexallship",
+            "chosen_indexreversedallship",
+            "chosen_indexrateconstrained",
+            "chosen_indexproptoremove",
             "cost_solheur",
             "delay_cost_solheur",
             "waiting_cost_solheur",
@@ -582,20 +634,38 @@ def make_datasetiterSoft(algo_folder, exp, seed, Nin,Nout,qli):
             "fuel_cost_sollocal",
             "timeheur",
             "timelocal",
+            "proba_tacticboat",
+            "proba_tacticall",
+            "proba_tacticlocalsearch",
             "oneboatdistance",
             "oneboatcost",
             "oneboattime",
-            "allboatscount",
+            "allboatsdist",
             "allboatstime",
             "allboatscost",
             "rateconstained",
             "failed",
+            "better",
             "reconstruct",
-            "usedCPLEX"))
+            "pathrelinking",
+            "usedLocalSearch",
+            "average_cost_elite",
+            "average_dist_elite",
+            "pushimprove"))
 
     for i in results.keys():
         dataset_row = {'iter':i,
 'objectif':results[i]['objectif'],
+"chosen_tacticoneboat":results[i]['chosen_tacticoneboat'],
+"chosen_reversed":results[i]['chosen_reversed'],
+"chosen_tacticallboats":results[i]['chosen_tacticallboats'],
+"chosen_reversedtacticallboats":results[i]['chosen_reversedtacticallboats'],
+"chosen_tacticlocalsearch":results[i]['chosen_tacticlocalsearch'],
+"chosen_indexoneship":results[i]['chosen_indexoneship'],
+"chosen_indexallship":results[i]['chosen_indexallship'],
+"chosen_indexreversedallship":results[i]['chosen_indexreversedallship'],
+"chosen_indexrateconstrained":results[i]['chosen_indexrateconstrained'],
+"chosen_indexproptoremove":results[i]['chosen_indexproptoremove'],
 "cost_solheur":results[i]['cost_solheur'],
 "delay_cost_solheur":results[i]['delay_cost_solheur'],
 "waiting_cost_solheur":results[i]['waiting_cost_solheur'],
@@ -610,15 +680,24 @@ def make_datasetiterSoft(algo_folder, exp, seed, Nin,Nout,qli):
 "fuel_cost_sollocal":results[i]['fuel_cost_sollocal'],
 "timeheur":results[i]['timeheur'],
 "timelocal":results[i]['timelocal'],
+"proba_tacticboat":results[i]['proba_tacticboat'],
+"proba_tacticall":results[i]['proba_tacticall'],
+"proba_tacticlocalsearch":results[i]['proba_tacticlocalsearch'],
 "oneboatdistance":results[i]['oneboatdistance'],
 "oneboatcost":results[i]['oneboatcost'],
 "oneboattime":results[i]['oneboattime'],
-"allboatscount":results[i]['allboatscount'],
+"allboatsdist":results[i]['allboatsdist'],
 "allboatstime":results[i]['allboatstime'],
 "allboatscost":results[i]['allboatscost'],
 "rateconstained":results[i]['rateconstrained'],
 "failed":results[i]['failed'],
+"better":results[i]['better'],
 'reconstruct':results[i]['reconstruct'],
-'usedCPLEX':results[i]['usedCPLEX']}
+"pathrelinking":results[i]['pathrelinking'],
+"usedLocalSearch":results[i]['usedLocalSearch'],
+"average_cost_elite":results[i]['average_cost_elite'],
+"average_dist_elite":results[i]['average_dist_elite'],
+"pushimprove":results[i]['pushimprove']}
+        
         dataset = dataset.append(dataset_row, ignore_index=True)
     return dataset

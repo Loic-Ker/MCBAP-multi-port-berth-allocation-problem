@@ -141,7 +141,7 @@ mutable struct FixedParameters
     WindowSize::Float64
     PushOnlyConstrained::Bool
     lookforconstrained::Bool
-    maxNoImprove::Int64
+    restartParams::Int64
     GreedymaxNoImprove::Int64
     Until::Int64
     FocusRemoveUntil::Int64
