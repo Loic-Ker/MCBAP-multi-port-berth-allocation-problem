@@ -497,7 +497,7 @@ def getiterfromfileHEURSoft(Nin,Nout,seed,qli,algo_folder,exp):
             dictresults["usedLocalSearch"] = ast.literal_eval(list(results_sol[results_sol['first']=="usedLocalSearch"]['second'])[0])
         except:
             dictresults["usedLocalSearch"] = "None"
-            
+        
         try:
             dictresults["average_cost_elite"] = ast.literal_eval(list(results_sol[results_sol['first']=="average_cost_elite"]['second'])[0])
         except:

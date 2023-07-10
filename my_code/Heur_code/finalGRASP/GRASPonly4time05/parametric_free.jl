@@ -1498,8 +1498,8 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
                 push!(list_costs_elite, el[2])
                 push!(list_dist_elite, el[3])
             end
-            sol.average_cost_elite=mean(list_costs_elite)
-            sol.average_dist_elite=mean(list_dist_elite)
+            new_sol.average_cost_elite=mean(list_costs_elite)
+            new_sol.average_dist_elite=mean(list_dist_elite)
             d_after = prepareSolIterSoft(seed,N,Nout,qli,nb_iter,inst, new_sol, new_cost, allparam, paramchosen, expname)
             
             #print('\n')

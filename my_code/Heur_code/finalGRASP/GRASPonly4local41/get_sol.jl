@@ -262,8 +262,8 @@ function makeSolHeur(paramfixed, temperature, time_local, max_time_heur, max_tim
     return newbenchmark
 end
 
-location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
-#location="/zhome/c3/6/164957/code_git/"
+#location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
+location="/zhome/c3/6/164957/code_git/"
 
 # The tactic types :
 type1="time" 
@@ -273,10 +273,10 @@ type3="random"
 # The parameters of the experiment :
 
 # The experience name :
-expname="GRASPonly4time01"
+expname="GRASPonly4local41"
 
 # The window size for the visits to look at :
-window=0.1
+window=0.01
 
 # The prop of ships to remove for the reconstruction :
 proptoremove=0.01
@@ -287,26 +287,26 @@ pushatconstraint=true
 # Look for constrained at the beginning :
 lookforconstraint=false
 
-# The proportion of boats to remove for the local search :
-alphaboat=0.2
+# The max proportion of boats to remove for the local search :
+alphaboat=0.4
 alpharandom=0.1
 
 # When do we start from zero the parameters (every n iterations) :
 restartparams=40
 
 # Which sol to take from the heuristic for the local search :
-windowlocalsearch=-1
+windowlocalsearch=0.2
 
 # One boat tactic :
-oneboat="all"
-onboatvec = [0.001, 0.1, 0.3, 0.5]
+oneboat="time"
+onboatvec = [0.01, 0.05, 0.1, 0.15]
 
 # All boat tactic :
 allboat="all"
 allboatvec = [0.001, 0.1, 0.3, 0.5]
 
 # Reversed all boat tactic :
-reversedallboat="all"
+reversedallboat="no"
 reversedallboatvec = [0.001, 0.1, 0.3, 0.5, 0.7]
 
 
@@ -371,10 +371,10 @@ max_time=100
 temperature=0.93
 
 # look for a specific seed
-#seedchosen = parse(Int64,ARGS[3])
-seedchosen = 2
-#Nchosen=parse(Int64,ARGS[4])
-Nchosen=30
+seedchosen = parse(Int64,ARGS[3])
+#seedchosen = 2
+Nchosen=parse(Int64,ARGS[4])
+#Nchosen=30
 #Noutchosen=parse(Int64,ARGS[5])
 Noutchosen=5
 #qlichosen=parse(Int64,ARGS[6])
@@ -385,7 +385,7 @@ allparam = initializeParam(paramfixed)
 #list_paramconstrained = allparam.Alpha.RateConstrained
 makeExpText(temperature, paramfixed, time_local, max_time_heur, max_time, expname, location)
 newbenchmark = makeSolHeur(paramfixed, temperature, time_local, max_time_heur, max_time, expname, location, seedchosen, Nchosen, Noutchosen, qlichosen)
-CSV.write(location*"results_jobs/benchmarks_HEUR/finalGRASP/$expname"*"/NLarge_playground_test_$seedchosen"*"n_$Nchosen"*"nout_$Noutchosen"*"q_qlichosen"*".csv", newbenchmark)
+CSV.write(location*"results_jobs/benchmarks_HEUR/finalGRASP/$expname"*"/NLarge_playground_test_$seedchosen"*"n_$Nchosen"*".csv", newbenchmark)
 newbenchmark
 
 

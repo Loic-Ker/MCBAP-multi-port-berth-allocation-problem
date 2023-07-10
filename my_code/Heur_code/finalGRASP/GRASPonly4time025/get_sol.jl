@@ -385,7 +385,7 @@ allparam = initializeParam(paramfixed)
 #list_paramconstrained = allparam.Alpha.RateConstrained
 makeExpText(temperature, paramfixed, time_local, max_time_heur, max_time, expname, location)
 newbenchmark = makeSolHeur(paramfixed, temperature, time_local, max_time_heur, max_time, expname, location, seedchosen, Nchosen, Noutchosen, qlichosen)
-CSV.write(location*"results_jobs/benchmarks_HEUR/finalGRASP/$expname"*"/NLarge_playground_test_$seedchosen"*"n_$Nchosen"*".csv", newbenchmark)
+CSV.write(location*"results_jobs/benchmarks_HEUR/finalGRASP/$expname"*"/NLarge_playground_test_$seedchosen"*"n_$Nchosen"*"nout_$Noutchosen"*"q_qlichosen"*".csv", newbenchmark)
 newbenchmark
 
 

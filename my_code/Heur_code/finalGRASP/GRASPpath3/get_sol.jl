@@ -297,7 +297,7 @@ type3="random"
 # The parameters of the experiment :
 
 # The experience name :
-expname="GRASPonly4"
+expname="GRASPpath3"
 
 # The window size for the visits to look at :
 window=0.01
