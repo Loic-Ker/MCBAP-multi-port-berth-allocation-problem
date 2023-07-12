@@ -222,7 +222,7 @@ function makeSolHeur(paramfixed, temperature, time_local, max_time_heur, max_tim
 	N=parse(Int64,split_instance[4])
 	Nout=parse(Int64,split_instance[5])
 	qli=parse(Int64,split(split_instance[6],".")[1])
-	if seed ==seed_chosen && N==Nchosen && Nout==Noutchosen && qli==qlichosen
+	if seed ==seed_chosen && N==Nchosen #&& Nout==Noutchosen && qli==qlichosen
 		inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/Large/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
 		print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
 		if isdir(location*"results_jobs/benchmarks_HEUR/finalGRASP/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
@@ -273,13 +273,13 @@ type3="random"
 # The parameters of the experiment :
 
 # The experience name :
-expname="GRASPonly4time025"
+expname="GRASPonly5onecost"
 
 # The window size for the visits to look at :
-window=0.01
+window=0.2
 
 # The prop of ships to remove for the reconstruction :
-proptoremove=0.25
+proptoremove=0.01
 
 # Should we push at constraints position :
 pushatconstraint=true
@@ -287,19 +287,19 @@ pushatconstraint=true
 # Look for constrained at the beginning :
 lookforconstraint=false
 
-# The proportion of boats to remove for the local search :
+# The max proportion of boats to remove for the local search :
 alphaboat=0.2
 alpharandom=0.1
 
 # When do we start from zero the parameters (every n iterations) :
-restartparams=40
+restartparams=50
 
 # Which sol to take from the heuristic for the local search :
 windowlocalsearch=-1
 
 # One boat tactic :
-oneboat="all"
-onboatvec = [0.001, 0.1, 0.3, 0.5]
+oneboat="cost"
+onboatvec = [0.001, 0.1, 0.15, 0.2]
 
 # All boat tactic :
 allboat="all"
@@ -345,7 +345,7 @@ maxtimerelinking=2
 lengthelite=8
 removepathrelinking= 0.2
 
-reversed="all"
+reversed="no"
 # All the parameters :
 paramfixed = FixedParameters(oneboat, onboatvec, reversed, allboat, allboatvec, reversedallboat, reversedallboatvec, localsearch, localsearchone, localsearchall, 
 alpharandom, alphaboat, 
@@ -385,7 +385,7 @@ allparam = initializeParam(paramfixed)
 #list_paramconstrained = allparam.Alpha.RateConstrained
 makeExpText(temperature, paramfixed, time_local, max_time_heur, max_time, expname, location)
 newbenchmark = makeSolHeur(paramfixed, temperature, time_local, max_time_heur, max_time, expname, location, seedchosen, Nchosen, Noutchosen, qlichosen)
-CSV.write(location*"results_jobs/benchmarks_HEUR/finalGRASP/$expname"*"/NLarge_playground_test_$seedchosen"*"n_$Nchosen"*"nout_$Noutchosen"*"q_qlichosen"*".csv", newbenchmark)
+CSV.write(location*"results_jobs/benchmarks_HEUR/finalGRASP/$expname"*"/NLarge_playground_test_$seedchosen"*"n_$Nchosen"*".csv", newbenchmark)
 newbenchmark
 
 

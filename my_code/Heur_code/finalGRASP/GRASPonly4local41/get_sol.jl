@@ -222,7 +222,7 @@ function makeSolHeur(paramfixed, temperature, time_local, max_time_heur, max_tim
 	N=parse(Int64,split_instance[4])
 	Nout=parse(Int64,split_instance[5])
 	qli=parse(Int64,split(split_instance[6],".")[1])
-	if seed ==seed_chosen && N==Nchosen && Nout==Noutchosen && qli==qlichosen
+	if seed ==seed_chosen && N==Nchosen #&& Nout==Noutchosen && qli==qlichosen
 		inst = readInstFromFile(location*"MCBAP-multi-port-berth-allocation-problem/Large/CP2_Inst_$seed"*"_$N"*"_$Nout"*"_$qli"*".txt")
 		print("The instance : $seed"*"_$N"*"_$Nout"*"_$qli")
 		if isdir(location*"results_jobs/benchmarks_HEUR/finalGRASP/$expname"*"/iterations/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
@@ -295,7 +295,7 @@ alpharandom=0.1
 restartparams=40
 
 # Which sol to take from the heuristic for the local search :
-windowlocalsearch=0.2
+windowlocalsearch=-1
 
 # One boat tactic :
 oneboat="time"
@@ -306,7 +306,7 @@ allboat="all"
 allboatvec = [0.001, 0.1, 0.3, 0.5]
 
 # Reversed all boat tactic :
-reversedallboat="no"
+reversedallboat="all"
 reversedallboatvec = [0.001, 0.1, 0.3, 0.5, 0.7]
 
 
@@ -345,7 +345,7 @@ maxtimerelinking=2
 lengthelite=8
 removepathrelinking= 0.2
 
-reversed="all"
+reversed="no"
 # All the parameters :
 paramfixed = FixedParameters(oneboat, onboatvec, reversed, allboat, allboatvec, reversedallboat, reversedallboatvec, localsearch, localsearchone, localsearchall, 
 alpharandom, alphaboat, 
@@ -363,7 +363,7 @@ time_local=2
 max_time_heur=30
 
 # maximum time for the experiment :
-max_time=100
+max_time=2400
 #max_time = parse(Int64,ARGS[2])
 #max_time=100
 
