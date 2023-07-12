@@ -276,7 +276,7 @@ type3="random"
 expname="GRASPonly4local23"
 
 # The window size for the visits to look at :
-window=0.01
+window=0.2
 
 # The prop of ships to remove for the reconstruction :
 proptoremove=0.01
@@ -292,14 +292,14 @@ alphaboat=0.2
 alpharandom=0.3
 
 # When do we start from zero the parameters (every n iterations) :
-restartparams=40
+restartparams=50
 
 # Which sol to take from the heuristic for the local search :
-windowlocalsearch=-1
+windowlocalsearch=0.2
 
 # One boat tactic :
-oneboat="time"
-onboatvec = [0.01, 0.05, 0.1, 0.15]
+oneboat="cost"
+onboatvec = [0.001, 0.1, 0.2, 0.3]
 
 # All boat tactic :
 allboat="all"
@@ -312,8 +312,8 @@ reversedallboatvec = [0.001, 0.1, 0.3, 0.5, 0.7]
 
 # Local search tactics :
 localsearch="all"
-localsearchone="all"
-localsearchall="all"
+localsearchone="cost"
+localsearchall="cost"
 
 # Rate constrained :
 alpharateconstrained = [0.2,0.4,0.6,0.8]

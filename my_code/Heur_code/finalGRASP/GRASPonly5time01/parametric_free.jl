@@ -1507,22 +1507,22 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
             end
             new_sol.average_cost_elite=mean(list_costs_elite)
             new_sol.average_dist_elite=min_distance_elite
-            if length(elite_pool)>=paramfixed.LengthElite
-                if new_sol.average_cost_elite>old_elite_cost_mean
-                    print('\n')
-                    print("<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>")
-                    print('\n')
-                    print("Huston we have a problem with the elite pool")
-                end
-            end
-            print('\n')
-            print("Average cost elite")
-            print('\n')
-            print(new_sol.average_cost_elite)
-            print('\n')
-            print("Average distance elite")
-            print('\n')
-            print(new_sol.average_dist_elite)
+            #if length(elite_pool)>=paramfixed.LengthElite
+            #    if new_sol.average_cost_elite>old_elite_cost_mean
+            #        print('\n')
+            #        print("<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>")
+            #        print('\n')
+            #        print("Huston we have a problem with the elite pool")
+            #    end
+            #end
+            #print('\n')
+            #print("Average cost elite")
+            #print('\n')
+            #print(new_sol.average_cost_elite)
+            #print('\n')
+            #print("Average distance elite")
+            #print('\n')
+            #print(new_sol.average_dist_elite)
             d_after = prepareSolIterSoft(seed,N,Nout,qli,nb_iter,inst, new_sol, new_cost, allparam, paramchosen, expname)
             
             #print('\n')

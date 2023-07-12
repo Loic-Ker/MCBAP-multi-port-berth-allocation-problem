@@ -81,6 +81,7 @@ mutable struct Sol
     average_cost_elite::Float64
     average_dist_elite::Float64
     pushimprove::Int64
+    countlocal::Int64
 end
 
 

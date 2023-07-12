@@ -273,7 +273,7 @@ type3="random"
 # The parameters of the experiment :
 
 # The experience name :
-expname="GRASPonly4local43"
+expname="GRASPonly4local21"
 
 # The window size for the visits to look at :
 window=0.2
@@ -288,8 +288,8 @@ pushatconstraint=true
 lookforconstraint=false
 
 # The max proportion of boats to remove for the local search :
-alphaboat=0.4
-alpharandom=0.3
+alphaboat=0.2
+alpharandom=0.1
 
 # When do we start from zero the parameters (every n iterations) :
 restartparams=50

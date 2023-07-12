@@ -1165,7 +1165,9 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
     nb_iter_restart_params = 0
     first_relinking = true
     elite_pool = Vector{}()
+    distance_sols_min = 10000000000
     elite_pool_heur = Vector{}()
+    old_elite_cost_mean=1000000000
     distance_btw_sols_min=0
     for n in 1:N
         when_dict[n]=Dict()
@@ -1184,7 +1186,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
 
     not_first_time=false
     focus_on_remove=false
-    min_distance_elite=10000000
+    min_distance_elite=10000000000
 
     while elapsed<max_time
         nb_iter_restart_params = nb_iter_restart_params + 1
@@ -1451,26 +1453,25 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
             end
             if new_sol.reconstruct!=1
                 if length(elite_pool)<paramfixed.LengthElite
-                    distance_sols_min = 10000000
+                    distance_sols_min = 10000000000
                     for sol_elite in elite_pool
                         distance_sols = DistanceSols(inst, sol_elite[1], new_sol)
                         if distance_sols<distance_sols_min
-                            distance_sols_min=distance_sols
+                            distance_sols_min=deepcopy(distance_sols)
                         end
                     end
                     if distance_sols_min<min_distance_elite
-                        min_distance_elite=distance_sols_min
+                        min_distance_elite=deepcopy(distance_sols_min)
                     end
                     push!(elite_pool, (deepcopy(new_sol),new_cost,distance_sols_min))                   
                 else
                     elite_pool = sort(elite_pool, by=x->x[2])
+                    distance_sols_min = 10000000000
                     if new_cost<elite_pool[end][2]
-                        distance_sols_min = 10000000
-                        worst_distance = elite_pool[end][3]
                         for sol_elite in elite_pool
                             distance_sols = DistanceSols(inst, sol_elite[1], new_sol)
                             if distance_sols<distance_sols_min
-                                distance_sols_min=distance_sols
+                                distance_sols_min=deepcopy(distance_sols)
                             end
                         end
                         if distance_sols_min>min_distance_elite
@@ -1481,6 +1482,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
                             min_distance_elite=deepcopy(elite_pool[1][3])
                         end  
                     end
+                    
                 end
                 #if length(elite_pool)<paramfixed.LengthElite
                 #    push!(elite_pool, (deepcopy(new_sol),new_cost))
@@ -1498,8 +1500,29 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
                 push!(list_costs_elite, el[2])
                 push!(list_dist_elite, el[3])
             end
+            if length(elite_pool)>=paramfixed.LengthElite
+                if old_elite_cost_mean==10000000000
+                    old_elite_cost_mean=deepcopy(mean(list_costs_elite))
+                end
+            end
             new_sol.average_cost_elite=mean(list_costs_elite)
-            new_sol.average_dist_elite=mean(list_dist_elite)
+            new_sol.average_dist_elite=min_distance_elite
+            #if length(elite_pool)>=paramfixed.LengthElite
+            #    if new_sol.average_cost_elite>old_elite_cost_mean
+            #        print('\n')
+            #        print("<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>")
+            #        print('\n')
+            #        print("Huston we have a problem with the elite pool")
+            #    end
+            #end
+            #print('\n')
+            #print("Average cost elite")
+            #print('\n')
+            #print(new_sol.average_cost_elite)
+            #print('\n')
+            #print("Average distance elite")
+            #print('\n')
+            #print(new_sol.average_dist_elite)
             d_after = prepareSolIterSoft(seed,N,Nout,qli,nb_iter,inst, new_sol, new_cost, allparam, paramchosen, expname)
             
             #print('\n')

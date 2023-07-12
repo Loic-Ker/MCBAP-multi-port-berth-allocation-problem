@@ -701,6 +701,7 @@ function manualLocalSearch(inst::Instance, this_sol::Sol, cost, delay_cost, wait
     #print(old_cost)
 
     while elapsed<timelocal
+        count_total=0
         start_step = time_ns()
         new_sol, feasible = localSearchRemovalReplace(inst, sol, allparam, paramfixed, paramchosen, reconstruct_no_improve)
         feasible1=true
@@ -713,6 +714,7 @@ function manualLocalSearch(inst::Instance, this_sol::Sol, cost, delay_cost, wait
             end
         end
         if feasible && feasible1 && checkSolutionFeasability(inst, new_sol)
+            count_total=count_total+1
             new_cost1, delay_cost1, waiting_cost1, penalty_cost1, handling_cost1, fuel_cost1=checkSolutionCost(inst, new_sol)
             new_sol1, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = pushTime(inst, new_sol, paramfixed, time_local)
             #print('\n')
@@ -746,6 +748,7 @@ function manualLocalSearch(inst::Instance, this_sol::Sol, cost, delay_cost, wait
             #paramchosen = ChooseAfterLocal(allparam, paramchosen, paramfixed)
         end
         elapsed = round((time_ns()-start)/1e9,digits=3)
+        sol.countlocal=count_total
     end
     return sol, old_cost, old_delay_cost, old_waiting_cost, old_penalty_cost, old_handling_cost, old_fuel_cost
 end
