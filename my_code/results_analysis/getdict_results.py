@@ -651,7 +651,8 @@ def make_datasetiterSoft(algo_folder, exp, seed, Nin,Nout,qli):
             "usedLocalSearch",
             "average_cost_elite",
             "average_dist_elite",
-            "pushimprove"))
+            "pushimprove"
+            ))
 
     for i in results.keys():
         dataset_row = {'iter':i,
@@ -697,7 +698,8 @@ def make_datasetiterSoft(algo_folder, exp, seed, Nin,Nout,qli):
 "usedLocalSearch":results[i]['usedLocalSearch'],
 "average_cost_elite":results[i]['average_cost_elite'],
 "average_dist_elite":results[i]['average_dist_elite'],
-"pushimprove":results[i]['pushimprove']}
+"pushimprove":results[i]['pushimprove']
+}
         
         dataset = dataset.append(dataset_row, ignore_index=True)
     return dataset

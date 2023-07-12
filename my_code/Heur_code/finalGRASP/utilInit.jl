@@ -364,8 +364,8 @@ function ChooseAllParam(allparam::AllParameters, paramfixed::FixedParameters)
 
     indexconstraint = sample(1:length(allparam.Nbexp.RateConstrained), Weights(Proba.RateConstrained))
     indexprobtoremove = sample(1:length(allparam.Nbexp.PropToRemove), Weights(Proba.PropToRemove))
-    
-    
+    print('\n')
+    print(tacticoneship)
     return ChosenParameters(tacticoneship, reversedtactic, tacticallship, tacticreversedallship, tacticlocal, indexone, indexall, indexreversedall, indexconstraint, indexprobtoremove)
 end
 

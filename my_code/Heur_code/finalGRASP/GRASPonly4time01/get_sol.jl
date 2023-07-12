@@ -262,8 +262,8 @@ function makeSolHeur(paramfixed, temperature, time_local, max_time_heur, max_tim
     return newbenchmark
 end
 
-#location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
-location="/zhome/c3/6/164957/code_git/"
+location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
+#location="/zhome/c3/6/164957/code_git/"
 
 # The tactic types :
 type1="time" 
@@ -273,7 +273,7 @@ type3="random"
 # The parameters of the experiment :
 
 # The experience name :
-expname="GRASPonly4time01"
+expname="GRASPonly5time01"
 
 # The window size for the visits to look at :
 window=0.1
@@ -371,10 +371,10 @@ max_time=2400
 temperature=0.93
 
 # look for a specific seed
-seedchosen = parse(Int64,ARGS[3])
-#seedchosen = 2
-Nchosen=parse(Int64,ARGS[4])
-#Nchosen=30
+#seedchosen = parse(Int64,ARGS[3])
+seedchosen = 2
+#Nchosen=parse(Int64,ARGS[4])
+Nchosen=30
 #Noutchosen=parse(Int64,ARGS[5])
 Noutchosen=5
 #qlichosen=parse(Int64,ARGS[6])

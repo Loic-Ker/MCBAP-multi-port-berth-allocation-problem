@@ -273,10 +273,10 @@ type3="random"
 # The parameters of the experiment :
 
 # The experience name :
-expname="GRASPonly5"
+expname="GRASPonly5time01"
 
 # The window size for the visits to look at :
-window=0.01
+window=0.1
 
 # The prop of ships to remove for the reconstruction :
 proptoremove=0.01
@@ -287,7 +287,7 @@ pushatconstraint=true
 # Look for constrained at the beginning :
 lookforconstraint=false
 
-# The max proportion of boats to remove for the local search :
+# The proportion of boats to remove for the local search :
 alphaboat=0.2
 alpharandom=0.1
 
@@ -298,8 +298,8 @@ restartparams=40
 windowlocalsearch=-1
 
 # One boat tactic :
-oneboat="time"
-onboatvec = [0.01, 0.05, 0.1, 0.15]
+oneboat="all"
+onboatvec = [0.001, 0.1, 0.3, 0.5]
 
 # All boat tactic :
 allboat="all"
@@ -345,7 +345,7 @@ maxtimerelinking=2
 lengthelite=8
 removepathrelinking= 0.2
 
-reversed="no"
+reversed="all"
 # All the parameters :
 paramfixed = FixedParameters(oneboat, onboatvec, reversed, allboat, allboatvec, reversedallboat, reversedallboatvec, localsearch, localsearchone, localsearchall, 
 alpharandom, alphaboat, 
@@ -363,7 +363,7 @@ time_local=2
 max_time_heur=30
 
 # maximum time for the experiment :
-max_time=100
+max_time=2400
 #max_time = parse(Int64,ARGS[2])
 #max_time=100
 
@@ -385,7 +385,7 @@ allparam = initializeParam(paramfixed)
 #list_paramconstrained = allparam.Alpha.RateConstrained
 makeExpText(temperature, paramfixed, time_local, max_time_heur, max_time, expname, location)
 newbenchmark = makeSolHeur(paramfixed, temperature, time_local, max_time_heur, max_time, expname, location, seedchosen, Nchosen, Noutchosen, qlichosen)
-CSV.write(location*"results_jobs/benchmarks_HEUR/finalGRASP/$expname"*"/NLarge_playground_test_$seedchosen"*"n_$Nchosen"*".csv", newbenchmark)
+CSV.write(location*"results_jobs/benchmarks_HEUR/finalGRASP/$expname"*"/NLarge_playground_test_$seedchosen"*"n_$Nchosen"*"nout_$Noutchosen"*"q_qlichosen"*".csv", newbenchmark)
 newbenchmark
 
 

@@ -1470,7 +1470,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
                         for sol_elite in elite_pool
                             distance_sols = DistanceSols(inst, sol_elite[1], new_sol)
                             if distance_sols<distance_sols_min
-                                distance_sols_min=distance_sols
+                                distance_sols_min=deepcopy(distance_sols)
                             end
                         end
                         if distance_sols_min>min_distance_elite
@@ -1478,7 +1478,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
                             #print("new el in pool")
                             elite_pool[end]=(deepcopy(new_sol),new_cost, distance_sols_min)
                             elite_pool = sort(elite_pool, by=x->x[3])
-                            #min_distance_elite=deepcopy(elite_pool[1][3])
+                            min_distance_elite=deepcopy(elite_pool[1][3])
                         end  
                     end
                 end
@@ -1499,15 +1499,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
                 push!(list_dist_elite, el[3])
             end
             new_sol.average_cost_elite=mean(list_costs_elite)
-            new_sol.average_dist_elite=mean(list_dist_elite)
-            print('\n')
-            print("Average cost elite")
-            print('\n')
-            print(new_sol.average_cost_elite)
-            print('\n')
-            print("Average distance elite")
-            print('\n')
-            print(new_sol.average_dist_elite)
+            new_sol.average_dist_elite=min_distance_elite
             d_after = prepareSolIterSoft(seed,N,Nout,qli,nb_iter,inst, new_sol, new_cost, allparam, paramchosen, expname)
             
             #print('\n')
