@@ -1,0 +1,5 @@
+ERROR: LoadError: UndefVarError: Noutchosen_ not defined
+Stacktrace:
+ [1] top-level scope
+   @ ~/code_git/MCBAP-multi-port-berth-allocation-problem/my_code/Heur_code/finalGRASP/GRASPonly4local21_01_3/get_sol.jl:388
+in expression starting at /zhome/c3/6/164957/code_git/MCBAP-multi-port-berth-allocation-problem/my_code/Heur_code/finalGRASP/GRASPonly4local21_01_3/get_sol.jl:388

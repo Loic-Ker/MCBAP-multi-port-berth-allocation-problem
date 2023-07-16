@@ -299,7 +299,7 @@ windowlocalsearch=-1
 
 # One boat tactic :
 oneboat="cost"
-onboatvec = [0.001, 0.1, 0.15, 0.2]
+onboatvec = [0.001, 0.1, 0.3, 0.2]
 
 # All boat tactic :
 allboat="all"
