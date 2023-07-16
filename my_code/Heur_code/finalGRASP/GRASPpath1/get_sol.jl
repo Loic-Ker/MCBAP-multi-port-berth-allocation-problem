@@ -130,6 +130,7 @@ function makeExpText(temperature, paramfixed, time_local, max_time_heur, max_tim
     txtalphatype2 = "The alpha parameters possible are $thisalphaboat"
     thisreverse=paramfixed.Reversed
     txttype3bis = "Do we reverse the order of the visits : $thisreverse (all is both)"
+    txttype3 = "The tactic for all boats in reversed is $type3"
     thisallboats=paramfixed.Alphareversedallboat
     txtalphatype3 = "The alpha parameters possible are $thisallboats"
     txttype4 = "The tactic for the local search one boat : $type4"
@@ -149,29 +150,15 @@ function makeExpText(temperature, paramfixed, time_local, max_time_heur, max_tim
     txtlookforconstraint = "Should we look for constrained at the beginning : $lookforconstraint"
     type5 = paramfixed.Alpharateconstrained
     txttype5 = "The alpha parameters for the proportion of constrained are $type5"
-    type6 = paramfixed.Alphapropremove
-    txttype6 = "The alpha parameters for the proportion of ships to remove during reconstruction are $type6"
-
-    txttemperature = "The temperature for the simulated annealing is $temperature"
 
     # When do we start from zero for the reconstruction :
-    maxnoimprove=paramfixed.maxNoImprove
-    txtmaxnoimprove = "The maximum number of iteration without improvement : $maxnoimprove"
-
-    greedymaxnoimprove=paramfixed.GreedymaxNoImprove
-    txtgreedymaxnoimprove = "The maximum number of iteration without improvement for the greedy heuristic : $greedymaxnoimprove"
-
-    until=paramfixed.Until
-    txtuntil = "The maximum number of iteration to do only with the heuristic before the reconstruction : $until"
-
-    focusremoveuntil=paramfixed.FocusRemoveUntil
-    txtfocusremoveuntil = "The maximum number of iteration without improvement with the reconstruction before focusing on the removal part : $focusremoveuntil"
-
-    nbfocusremove=paramfixed.NbFocusRemove
-    txtnbfocusremove = "The number of iteration to do while focusing on the removal part : $nbfocusremove"
+    restartparams=paramfixed.restartParams
+    txtrestartparams = "After n iterations we restart the probabilities : $restartparams"
 
     txttimelocal = "The maximum time for the local search : $time_local "
     txttimeheur = "The maximum time for the heuristic : $max_time_heur "
+    timerelinking = paramfixed.MaxTimeRelinking
+    txttimerelinking = "The maximum time for the relinking : $timerelinking "
     txttimemax = "The time of the exp : $max_time"
 
 
@@ -189,6 +176,8 @@ function makeExpText(temperature, paramfixed, time_local, max_time_heur, max_tim
         write(file,txtalphatype2)
         write(file,'\n')
         write(file,txttype3bis)
+        write(file,'\n')
+        write(file,txttype3)
         write(file,'\n')
         write(file,txtalphatype3)
         write(file,'\n')
@@ -208,23 +197,13 @@ function makeExpText(temperature, paramfixed, time_local, max_time_heur, max_tim
         write(file,'\n')
         write(file,txttype5)
         write(file,'\n')
-        write(file,txttype6)
-        write(file,'\n')
-        write(file,txttemperature)
-        write(file,'\n')
-        write(file,txtmaxnoimprove)
-        write(file,'\n')
-        write(file,txtgreedymaxnoimprove)
-        write(file,'\n')
-        write(file,txtuntil)
-        write(file,'\n')
-        write(file,txtfocusremoveuntil)
-        write(file,'\n')
-        write(file,txtnbfocusremove)
+        write(file,txtrestartparams)
         write(file,'\n')
         write(file,txttimelocal)
         write(file,'\n')
         write(file,txttimeheur)
+        write(file,'\n')
+        write(file,txttimerelinking)
         write(file,'\n')
         write(file,txttimemax)
         write(file,'\n')
@@ -252,6 +231,7 @@ function makeSolHeur(paramfixed, temperature, time_local, max_time_heur, max_tim
 		if isdir(location*"results_jobs/benchmarks_HEUR/finalGRASP/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")==false
 		    mkdir(location*"results_jobs/benchmarks_HEUR/finalGRASP/$expname"*"/iterations_before_local/sol_$seed"*"_$N"*"_$Nout"*"_$qli")
 		end
+
 		sol, cost, allparam = GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temperature, time_local, max_time_heur, max_time, expname, location)
 		#print('\n')
 		#print("The solution :")
@@ -285,19 +265,18 @@ end
 #location = "D:/DTU-Courses/DTU-Thesis/berth_allocation/"
 location="/zhome/c3/6/164957/code_git/"
 
+# The tactic types :
+type1="time" 
+type2="cost" 
+type3="random"
 
 # The parameters of the experiment :
 
 # The experience name :
 expname="GRASPpath1"
 
-# The tactic types :
-type1="time" 
-type2="cost" 
-type3="random"
-
 # The window size for the visits to look at :
-window=0.01
+window=0.2
 
 # The prop of ships to remove for the reconstruction :
 proptoremove=0.01
@@ -308,35 +287,36 @@ pushatconstraint=true
 # Look for constrained at the beginning :
 lookforconstraint=false
 
-# The proportion of boats to remove for the local search :
+# The max proportion of boats to remove for the local search :
 alphaboat=0.2
 alpharandom=0.1
 
-# When do we start from zero for the reconstruction or the pathrelinking methods :
-maxnoimprove=10
+# When do we start from zero the parameters (every n iterations) :
+restartparams=50
 
 # Which sol to take from the heuristic for the local search :
-windowlocalsearch=0.3
+windowlocalsearch=0.1
 
 # One boat tactic :
-oneboat="all"
-onboatvec = [0.1, 0.3, 0.5]
+oneboat="cost"
+onboatvec = [0.001, 0.1, 0.2, 0.3]
 
 # All boat tactic :
 allboat="all"
-allboatvec = [0.1, 0.3, 0.5]
+allboatvec = [0.001, 0.1, 0.3, 0.5]
 
 # Reversed all boat tactic :
 reversedallboat="all"
-reversedallboatvec = [0.1, 0.3, 0.5]
+reversedallboatvec = [0.001, 0.1, 0.3, 0.5, 0.7]
+
 
 # Local search tactics :
 localsearch="all"
-localsearchone="dist"
-localsearchall="time"
+localsearchone="cost"
+localsearchall="cost"
 
 # Rate constrained :
-alpharateconstrained = [0.2,0.4,0.6]
+alpharateconstrained = [0.2,0.4,0.6,0.8]
 
 # Prop to remove :
 alphapropremove = [0.001,0.05,0.15]
@@ -345,13 +325,13 @@ alphapropremove = [0.001,0.05,0.15]
 greedymaxnoimprove=120000
 
 # Make the heuristic without reconstruct until :
-until=100000
+until=1000000
 
 # Dont focus on removal without recontrusct improvement until :
-focusremoveuntil=7
+focusremoveuntil=1000000
 
 # Number of remove in a row :
-nbfocusremove = 6
+nbfocusremove = 1000000
 
 # Needed rate improvement to accept the reconstruction or the pathrelinking (after local) :
 rateimprovereconstruct = 0.0015
@@ -362,21 +342,21 @@ pathrelinking="yes"
 # Max time for the relinking
 maxtimerelinking=2
 # The length of the elite set :
-lengthelite=6
-removepathrelinking= 0.2
+lengthelite=8
+removepathrelinking= 0.3
 
-reversed="all"
+reversed="no"
 # All the parameters :
 paramfixed = FixedParameters(oneboat, onboatvec, reversed, allboat, allboatvec, reversedallboat, reversedallboatvec, localsearch, localsearchone, localsearchall, 
 alpharandom, alphaboat, 
 alpharateconstrained, alphapropremove, 
 window, pushatconstraint, lookforconstraint,
-maxnoimprove, greedymaxnoimprove, until, focusremoveuntil, nbfocusremove, 
+restartparams, greedymaxnoimprove, until, focusremoveuntil, nbfocusremove, 
 rateimprovereconstruct, windowlocalsearch, 
 pathrelinking, maxtimerelinking, lengthelite, removepathrelinking)
 
 # Maximum time for the local search :
-time_local=3
+time_local=2
 #time_local= parse(Int64,ARGS[1])
 
 # Maximum time for the heuristic :
@@ -385,18 +365,19 @@ max_time_heur=30
 # maximum time for the experiment :
 max_time=2400
 #max_time = parse(Int64,ARGS[2])
-#max_time=700
+#max_time=100
 
 # the temperature parameter :
 temperature=0.93
 
 # look for a specific seed
 seedchosen = parse(Int64,ARGS[3])
+#seedchosen = 2
 Nchosen=parse(Int64,ARGS[4])
+#Nchosen=30
 #Noutchosen=parse(Int64,ARGS[5])
-#seedchosen=5
-#Nchosen=50
-Noutchosen=10
+Noutchosen=5
+#qlichosen=parse(Int64,ARGS[6])
 qlichosen=10
 
 allparam = initializeParam(paramfixed)

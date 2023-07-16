@@ -79,6 +79,8 @@ function prepareSolIterSoft(seed,N,Nout,qli, nb_iter, inst, sol, cost, allparam,
 
     d["pushimprove"]=sol.pushimprove
 
+    d["countlocal"] = sol.countlocal
+
     ## Get the instances 
     d["inst"]= inst.Pi
 
