@@ -1326,29 +1326,34 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
                         end
                     end
                     if feasible
-                        new_cost_path_loop, delay_cost_path_loop, waiting_cost_path_loop, penalty_cost_path_loop, handling_cost_path_loop, fuel_cost_path_loop = checkSolutionCost(inst, new_sol_path_loop)
-                        distance_btw_sols = DistanceSols(inst, new_sol_path_loop, sol_elite)
-                        #print("||||||||||||||||||||||||||||")
-                        #print('\n')
-                        #print("Distance btw sol path and sol elite")
-                        #print('\n')
-                        #print(distance_btw_sols)
-                        #print('\n')
-                        #print("New cost path loop")
-                        #print('\n')
-                        #print(new_cost_path_loop)
-                        if distance_btw_sols<delta_distance
-                            delta_distance=deepcopy(distance_btw_sols)
-                            new_sol_path=deepcopy(new_sol_path_loop)
-                        end
-                        if new_cost_path_loop<new_cost
-                            new_sol=deepcopy(new_sol_path)
-                            new_cost=deepcopy(new_cost_path_loop)
-                            delay_cost=deepcopy(delay_cost_path_loop)
-                            waiting_cost=deepcopy(waiting_cost_path_loop)
-                            penalty_cost=deepcopy(penalty_cost_path_loop)
-                            handling_cost=deepcopy(handling_cost_path_loop)
-                            fuel_cost=deepcopy(fuel_cost_path_loop)
+                        try                            
+                            new_cost_path_loop, delay_cost_path_loop, waiting_cost_path_loop, penalty_cost_path_loop, handling_cost_path_loop, fuel_cost_path_loop = checkSolutionCost(inst, new_sol_path_loop)
+                            distance_btw_sols = DistanceSols(inst, new_sol_path_loop, sol_elite)
+                            print("||||||||||||||||||||||||||||")
+                            print('\n')
+                            #print("Distance btw sol path and sol elite")
+                            #print('\n')
+                            #print(distance_btw_sols)
+                            #print('\n')
+                            #print("New cost path loop")
+                            #print('\n')
+                            #print(new_cost_path_loop)
+                            if distance_btw_sols<delta_distance
+                                delta_distance=deepcopy(distance_btw_sols)
+                                new_sol_path=deepcopy(new_sol_path_loop)
+                            end
+                            if new_cost_path_loop<new_cost
+                                new_sol=deepcopy(new_sol_path)
+                                new_cost=deepcopy(new_cost_path_loop)
+                                delay_cost=deepcopy(delay_cost_path_loop)
+                                waiting_cost=deepcopy(waiting_cost_path_loop)
+                                penalty_cost=deepcopy(penalty_cost_path_loop)
+                                handling_cost=deepcopy(handling_cost_path_loop)
+                                fuel_cost=deepcopy(fuel_cost_path_loop)
+                                new_sol.pathcost = deepcopy(new_cost)
+                            end
+                        catch
+                            print("little error pathrelinking")
                         end
                     end
                     elapsed_relinking = round((time_ns()-start_time_relinking)/1e9,digits=3)
@@ -1384,7 +1389,6 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
             #print('\n')
             #print(new_cost_heur)
             new_sol.store.costHeur=SplitCosts(ceil(Int,new_cost_heur), ceil(Int,delay_cost_heur), ceil(Int,waiting_cost_heur), ceil(Int,penalty_cost_heur), ceil(Int,handling_cost_heur), ceil(Int,fuel_cost_heur))
-            new_sol.store.costLocal=SplitCosts(ceil(Int,new_cost), ceil(Int,delay_cost), ceil(Int,waiting_cost), ceil(Int,penalty_cost), ceil(Int, handling_cost), ceil(Int,fuel_cost))
             new_sol.store.timeHeur=elapsed_heur
             new_sol.store.timeLocalSearch=elapsed_local
             new_sol.store.parameters=allparam.Proba

@@ -81,6 +81,8 @@ function prepareSolIterSoft(seed,N,Nout,qli, nb_iter, inst, sol, cost, allparam,
 
     d["countlocal"] = sol.countlocal
 
+    d["pathcost"] = sol.pathcost
+
     ## Get the instances 
     d["inst"]= inst.Pi
 

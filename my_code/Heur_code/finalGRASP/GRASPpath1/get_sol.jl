@@ -356,7 +356,7 @@ rateimprovereconstruct, windowlocalsearch,
 pathrelinking, maxtimerelinking, lengthelite, removepathrelinking)
 
 # Maximum time for the local search :
-time_local=2
+time_local=2.5
 #time_local= parse(Int64,ARGS[1])
 
 # Maximum time for the heuristic :

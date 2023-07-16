@@ -700,13 +700,7 @@ function manualLocalSearch(inst::Instance, this_sol::Sol, cost, delay_cost, wait
     #print('\n')
     #print(old_cost)
     count_total=0
-<<<<<<< HEAD
     while elapsed<timelocal
-=======
-
-    while elapsed<timelocal
-        
->>>>>>> 14f2bf4d6d5e7d5d0910d196fae52a875eea4dce
         start_step = time_ns()
         new_sol, feasible = localSearchRemovalReplace(inst, sol, allparam, paramfixed, paramchosen, reconstruct_no_improve)
         feasible1=true
