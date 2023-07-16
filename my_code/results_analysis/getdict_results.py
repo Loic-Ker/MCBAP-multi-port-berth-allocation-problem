@@ -512,6 +512,11 @@ def getiterfromfileHEURSoft(Nin,Nout,seed,qli,algo_folder,exp):
             dictresults["pushimprove"] = ast.literal_eval(list(results_sol[results_sol['first']=="pushimprove"]['second'])[0])
         except:
             dictresults["pushimprove"] = "None"
+            
+        try:
+            dictresults["countlocal"] = ast.literal_eval(list(results_sol[results_sol['first']=="countlocal"]['second'])[0])
+        except:
+            dictresults["countlocal"] = "None"
 
         dict_all_iters[nb_iter]=dictresults
 
@@ -651,7 +656,8 @@ def make_datasetiterSoft(algo_folder, exp, seed, Nin,Nout,qli):
             "usedLocalSearch",
             "average_cost_elite",
             "average_dist_elite",
-            "pushimprove"
+            "pushimprove",
+            "countlocal"
             ))
 
     for i in results.keys():
@@ -698,7 +704,8 @@ def make_datasetiterSoft(algo_folder, exp, seed, Nin,Nout,qli):
 "usedLocalSearch":results[i]['usedLocalSearch'],
 "average_cost_elite":results[i]['average_cost_elite'],
 "average_dist_elite":results[i]['average_dist_elite'],
-"pushimprove":results[i]['pushimprove']
+"pushimprove":results[i]['pushimprove'],
+"countlocal":results[i]['countlocal'],
 }
         
         dataset = dataset.append(dataset_row, ignore_index=True)
