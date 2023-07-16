@@ -1320,40 +1320,36 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
                     for n in 1:N
                         # The times :
                         for (c,p) in enumerate(inst.Pi[n])
-                            if new_sol.visits[n][c].planned == false
+                            if new_sol.visits[n][c].planned == false || new_sol.visits[n][c].planned == false || sol.visits[n][c].b <= 0 || sol.visits[n][c].t <= 0
                                 feasible = false              
                             end
                         end
                     end
-                    if feasible
-                        try                            
-                            new_cost_path_loop, delay_cost_path_loop, waiting_cost_path_loop, penalty_cost_path_loop, handling_cost_path_loop, fuel_cost_path_loop = checkSolutionCost(inst, new_sol_path_loop)
-                            distance_btw_sols = DistanceSols(inst, new_sol_path_loop, sol_elite)
-                            print("||||||||||||||||||||||||||||")
-                            print('\n')
-                            #print("Distance btw sol path and sol elite")
-                            #print('\n')
-                            #print(distance_btw_sols)
-                            #print('\n')
-                            #print("New cost path loop")
-                            #print('\n')
-                            #print(new_cost_path_loop)
-                            if distance_btw_sols<delta_distance
-                                delta_distance=deepcopy(distance_btw_sols)
-                                new_sol_path=deepcopy(new_sol_path_loop)
-                            end
-                            if new_cost_path_loop<new_cost
-                                new_sol=deepcopy(new_sol_path)
-                                new_cost=deepcopy(new_cost_path_loop)
-                                delay_cost=deepcopy(delay_cost_path_loop)
-                                waiting_cost=deepcopy(waiting_cost_path_loop)
-                                penalty_cost=deepcopy(penalty_cost_path_loop)
-                                handling_cost=deepcopy(handling_cost_path_loop)
-                                fuel_cost=deepcopy(fuel_cost_path_loop)
-                                new_sol.pathcost = deepcopy(new_cost)
-                            end
-                        catch
-                            print("little error pathrelinking")
+                    if feasible                           
+                        new_cost_path_loop, delay_cost_path_loop, waiting_cost_path_loop, penalty_cost_path_loop, handling_cost_path_loop, fuel_cost_path_loop = checkSolutionCost(inst, new_sol_path_loop)
+                        distance_btw_sols = DistanceSols(inst, new_sol_path_loop, sol_elite)
+                        print("||||||||||||||||||||||||||||")
+                        print('\n')
+                        #print("Distance btw sol path and sol elite")
+                        #print('\n')
+                        #print(distance_btw_sols)
+                        #print('\n')
+                        #print("New cost path loop")
+                        #print('\n')
+                        #print(new_cost_path_loop)
+                        if distance_btw_sols<delta_distance
+                            delta_distance=deepcopy(distance_btw_sols)
+                            new_sol_path=deepcopy(new_sol_path_loop)
+                        end
+                        if new_cost_path_loop<new_cost
+                            new_sol=deepcopy(new_sol_path)
+                            new_cost=deepcopy(new_cost_path_loop)
+                            delay_cost=deepcopy(delay_cost_path_loop)
+                            waiting_cost=deepcopy(waiting_cost_path_loop)
+                            penalty_cost=deepcopy(penalty_cost_path_loop)
+                            handling_cost=deepcopy(handling_cost_path_loop)
+                            fuel_cost=deepcopy(fuel_cost_path_loop)
+                            new_sol.pathcost = deepcopy(new_cost)
                         end
                     end
                     elapsed_relinking = round((time_ns()-start_time_relinking)/1e9,digits=3)

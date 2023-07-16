@@ -82,7 +82,7 @@ mutable struct Sol
     average_dist_elite::Float64
     pushimprove::Int64
     countlocal::Int64
-    pathcost::Int64
+    pathcost
 end
 
 
