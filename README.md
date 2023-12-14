@@ -84,3 +84,9 @@ Pour la première étape on calcul ces différentes métriques et choisit plusie
 ![Screenshot](screenshots/pathrelinking.png)
 
 Enfin pour le pathrelinking il y a de même une étape de destruction mais cette fois seulement les visites sont retirées aléatoirement (sans clusters). Ensuite la même greedy randomized construction est utilisée pour reconstruire la solution.
+
+## CPLEX
+
+- **CPLEX/MIP_big.jl** : code pour l'application du CPLEX de IBM au problème.
+
+Dans ce code vous pouvez retrouver les contraintes et variables du problème décrites pour l'application du CPLEX. Il y a aussi quelques fonctions pour formater et sauvegarder les solutions.
