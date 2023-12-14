@@ -5,7 +5,7 @@ J'ai ici l'entièreté du code que j'ai utilisé pour ma master thesis. Il y a b
 
 ## Définition succinte du problème
 
-Le problème est le suivant : nous devons, à partir d'un emploi du temps approximatif préalablement établi, définir les temps d'arriver, positions et vitesses des bateaux. Un bateau peut donc avoir plusieurs visites qu'il va devoir effectuer dans un ordre donné. Le but est de minimiser le coût total pour cette flotte. La congestion des ports va pouvoir créer des délais ou encore obliger les bateaux à amarrer à des positions non-optimums.
+Le problème est le suivant : nous devons, à partir d'un emploi du temps approximatif préalablement établi, définir les temps d'arriver, positions et vitesses des bateaux. Cet emploi du temps initial définit des temps d'arrivée pour chaque bateaux et une position optimum pour chaque bateau à chaque port. Un bateau peut donc avoir plusieurs visites qu'il va devoir effectuer dans un ordre donné. Le but est de minimiser le coût total pour cette flotte. La congestion des ports va pouvoir créer des délais ou encore obliger les bateaux à amarrer à des positions non-optimums.
 
 ![Screenshot](screenshots/description.png)
 
@@ -17,6 +17,10 @@ Ici :
 - **D** : le délai créé
 - **U** : la pénalité dû à un délai trop important
 - **F** : le coût de carburant
+
+## Solution dans un 2D pour chaque port 
+
+![Screenshot](screenshots/solution.png)
 
 ## Structure principale :
 
