@@ -8,15 +8,31 @@ J'ai ici l'entièreté du code que j'ai utilisé pour ma master thesis. Il y a b
 
 ## Structure principale :
 
+### Sur le papier :
+
 ![Screenshot](screenshots/main_structure.png)
 
 Il y a trois étapes principales :
 
-- GRASP algorithm : il y a deux étapes principales. Pour chaque visite (c'est à dire la visite d'un bateau à un port donné dans une fenêtre de temps fixe) on choisit un temps et une position d'arrivée (en vérifiant la faisabilité). Parmis toutes ces visites on en choisit une et la fixe.
+- greedy randomized algorithm : il y a deux étapes principales. Pour chaque visite (c'est à dire la visite d'un bateau à un port donné dans une fenêtre de temps fixe) on choisit un temps et une position d'arrivée (en vérifiant la faisabilité). Parmis toutes ces visites on en choisit une et la fixe.
 
 - Local search : j'ai implémenté une pseudo LNS méthode en détruisant puis reconstruisant une partie de la solution. Il est important de noter que les visites déplacées se trouvent 'à coté', autour d'une même visite. La reconstruction se fait d' manière particulière en choisissant les meilleurs positions/temps par coût et en essayant de rapprocher au maximum les visites.
 
 - Path Relinking : pour le path relinking la méthode employée est similaire à la local search. Néanmoins ici la reconstruction se fait en utilisant le GRASP algorithm (ainsi que ses paramètres).
+
+### La structure du code :
+
+Ici une petite explication des différents scripts :
+
+- **MBAP_INST.jl** : définition et structure des instances
+
+- **Heur/check_solution.jl** :  fonctions pour vérifier le coût et la faisabilité des solutions
+- **Heur/get_iterations.jl** :  fonctions pour extraire les informations des solutions pour analyse
+- **Heur/MBAP_SOL.jl** :  définitions et structures des instances solutions et visites
+- **Heur/toolsMatrixTimes.jl** :  tool box pour update les matrixes 2D représentant les ports
+- **Heur/utilInit** :  structures et fonctions qui permettent de définir l'ensemble des paramètres et les modifier
+
+- **Heur/GRASPlocalpathfinal/GRASP.jl** : fonctions qui imp
 
 ## GRASP algorithm
 

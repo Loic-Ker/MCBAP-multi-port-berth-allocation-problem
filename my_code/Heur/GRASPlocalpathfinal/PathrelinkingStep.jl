@@ -12,8 +12,7 @@ include("../toolsMatrixTimes.jl")
 include("../check_solution.jl")
 include("../utilInit.jl")
 include("localsearch.jl")
-include("constrainedPos.jl")
-include("GRASP.jl")
+include("greedyrandomized.jl")
 
 
 

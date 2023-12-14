@@ -14,8 +14,7 @@ include("../toolsMatrixTimes.jl")
 include("../check_solution.jl")
 include("../utilInit.jl")
 include("localsearch.jl")
-include("constrainedPos.jl")
-include("GRASP.jl")
+include("greedyrandomized.jl")
 include("PathrelinkingStep.jl")
 
 #################### The complete algorithm
@@ -278,7 +277,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, time_l
     end
 
 
-    
+
     ## Here the last steps for the final solution : check its cost and feasability and then save the solution
 
     feasible=true

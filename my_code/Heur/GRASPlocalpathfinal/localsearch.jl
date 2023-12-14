@@ -11,7 +11,6 @@ include("../../MBAP_INST.jl")
 include("../toolsMatrixTimes.jl")
 include("../check_solution.jl")
 include("../utilInit.jl")
-include("constrainedPos.jl")
 
 
 
