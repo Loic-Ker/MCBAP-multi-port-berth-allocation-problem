@@ -1,7 +1,7 @@
 # Multi-port berth allocation problem on Julia : meta-heuristic approach
 
 
-J'ai ici l'entièreté du code que j'ai utilisé pour ma master thesis. Il y a beaucoup de fonctions différentes et d'étapes je mets donc ici quelques explications qui sont des screenshots de ma présentation pour cette thèse.
+J'ai ici l'entièreté du code que j'ai utilisé pour ma master thesis. Il y a beaucoup de fonctions différentes et de code. Je résume ici les étapes avec quelques explications qui sont des screenshots de ma présentation pour cette thèse.
 
 ## Définition succinte du problème
 
@@ -32,7 +32,10 @@ Ici une petite explication des différents scripts :
 - **Heur/toolsMatrixTimes.jl** :  tool box pour update les matrixes 2D représentant les ports
 - **Heur/utilInit** :  structures et fonctions qui permettent de définir l'ensemble des paramètres et les modifier
 
-- **Heur/GRASPlocalpathfinal/GRASP.jl** : fonctions qui imp
+- **Heur/GRASPlocalpathfinal/greedyrandomized.jl** : fonctions qui implémentent la greedy randomized construction (avec les deux étapes principales)
+- **Heur/GRASPlocalpathfinal/localsearch.jl** : fonctions qui implémentent la local search ainsi que la pushing method
+- **Heur/GRASPlocalpathfinal/Pathrelinkingstep.jl** : spécifique greedy randomized construction pour le path relinking
+- **Heur/GRASPlocalpathfinal/allsteps.jl** : implémentation de toutes les étapes ensembles
 
 ## GRASP algorithm
 
@@ -53,7 +56,13 @@ Pour la première étape on calcul ces différentes métriques et choisit plusie
 
 ![Screenshot](screenshots/localsearch.png)
 
+- Ici la première étape et de retirer un cluster de visites qui sont proches les unes des autres dans le 2D space. Une visite est choisie aléatoirement et un cluster de visites l'entourant est ensuite retiré. Ensuite ces visites sont placés de sorte à minimiser le coût.
+
+- Ensuite on regarde à l'ensemble de la solution et en fonction de l'ordre actuel des visites dans l'espace 2D de chaque port on les replace en essayant de minimiser l'ensemble des délais en 'poussant' les visites.
+
 
 ## Path Relinking
 
 ![Screenshot](screenshots/pathrelinking.png)
+
+Enfin pour le pathrelinking il y a de même une étape de destruction mais cette fois seulement les visites sont retirées aléatoirement (sans clusters). Ensuite la même greedy randomized construction est utilisée pour reconstruire la solution.
