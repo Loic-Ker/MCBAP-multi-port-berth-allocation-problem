@@ -1,10 +1,21 @@
-include("../../MBAP_INST.jl")
+include("../MBAP_INST.jl")
+
+
+mutable struct NewVisit
+    n::Int64    # ship number
+    c::Int64    # visit number
+    b::Int64  #postion
+    t::Int64    # port
+    cost::Float64    
+    distance::Float64
+    time::Float64   
+    constrained::Bool
+    store::ToStoreVisit 
+end
 
 mutable struct Probabilities
     TacticOneBoat::Vector{Float64}
-    Reversed::Vector{Float64}
     TacticAllBoats::Vector{Float64}
-    ReversedTacticAllBoats::Vector{Float64}
     TacticLocalSearch::Vector{Float64}
 
     TimeOneShip::Vector{Float64}
@@ -14,10 +25,6 @@ mutable struct Probabilities
     TimeAllShip::Vector{Float64}
     DistAllShip::Vector{Float64}
     CostAllShip::Vector{Float64}
-
-    ReversedTimeAllShip::Vector{Float64}
-    ReversedDistAllShip::Vector{Float64}
-    ReversedCostAllShip::Vector{Float64}
 
     RateConstrained::Vector{Float64}
 
@@ -87,9 +94,4 @@ end
 
 
 Sol(inst::Instance) = Sol(0., [[ones(Bool, inst.Bp[inst.Pi[n][c]]-ceil(Int, inst.shipsIn[n].l/inst.qli)+1, ceil(Int, inst.maxT+1)) for c in 1:length(inst.Pi[n])] for n in 1:inst.N], [[Visit() for c in 1:length(inst.Pi[n])] for n in 1:inst.N], ToStoreSol(SplitCosts(0,0,0,0,0,0),SplitCosts(0,0,0,0,0,0),0.0,0.0,Probabilities([1.0],[1.0],[1.0],[1.0],[1.0],[1.0],[1.0],[1.0],[1.0],[1.0],[1.0],[1.0],[1.0], [1.0], [1.0], [1.0])),0,0,0,0,0,0,0,0,0,0,0)
-
-## A solution is a matrix of one of length of : number of discretized berthing positions minus size of ship * maximum time limit for all boat and ports,
-## Then we have this for each visit of each boat (a bit overkilled no ?).
-## We also keep a list of the visit per port.
-#instance = readInstFromFile("D:/DTU-Courses/DTU-Thesis/berth_allocation/data_small/CP2_Inst_1_4_3_10.txt")
 

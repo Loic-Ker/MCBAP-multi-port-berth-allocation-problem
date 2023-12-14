@@ -10,13 +10,10 @@ function prepareSolIterSoft(seed,N,Nout,qli, nb_iter, inst, sol, cost, allparam,
         # Which tactic for each boat
         
     d["chosen_tacticoneboat"] = paramchosen.TacticOneBoat
-    d["chosen_reversed"] = paramchosen.Reversed
     d["chosen_tacticallboats"] = paramchosen.TacticAllBoats
-    d["chosen_reversedtacticallboats"] = paramchosen.ReversedTacticAllBoats
     d["chosen_tacticlocalsearch"] = paramchosen.TacticLocalSearch
     d["chosen_indexoneship"] = paramchosen.IndexOneShip
     d["chosen_indexallship"] = paramchosen.IndexAllShip
-    d["chosen_indexreversedallship"] = paramchosen.IndexReversedAllShip
     d["chosen_indexrateconstrained"] = paramchosen.IndexRateConstrained
     d["chosen_indexproptoremove"] = paramchosen.IndexPropToRemove
     d["cost_solheur"] = sol.store.costHeur.all
@@ -60,10 +57,6 @@ function prepareSolIterSoft(seed,N,Nout,qli, nb_iter, inst, sol, cost, allparam,
     d["allboatscost"]=allparam.Proba.CostAllShip
     d["allboatsdist"]=allparam.Proba.DistAllShip
     d["allboatstime"]=allparam.Proba.TimeAllShip
-    d["reversed"] = allparam.Proba.Reversed
-    d["reversedallboatstime"] = allparam.Proba.ReversedTimeAllShip
-    d["reversedallboatsdist"] = allparam.Proba.ReversedDistAllShip
-    d["reversedallboatscost"] = allparam.Proba.ReversedCostAllShip
 
     d["rateconstrained"]=allparam.Proba.RateConstrained
     d["proptoremove"]=allparam.Proba.PropToRemove
@@ -174,10 +167,6 @@ function prepareSolIter(seed,N,Nout,qli, nb_iter, inst, sol, cost, allparam, par
     d["allboatscost"]=allparam.Proba.CostAllShip
     d["allboatsdist"]=allparam.Proba.DistAllShip
     d["allboatstime"]=allparam.Proba.TimeAllShip
-    d["reversed"] = allparam.Proba.Reversed
-    d["reversedallboatstime"] = allparam.Proba.ReversedTimeAllShip
-    d["reversedallboatsdist"] = allparam.Proba.ReversedDistAllShip
-    d["reversedallboatscost"] = allparam.Proba.ReversedCostAllShip
 
     d["rateconstrained"]=allparam.Proba.RateConstrained
     d["proptoremove"]=allparam.Proba.PropToRemove

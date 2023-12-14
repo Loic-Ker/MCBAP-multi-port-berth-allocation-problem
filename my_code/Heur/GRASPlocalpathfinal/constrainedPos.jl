@@ -8,9 +8,9 @@ using StatsBase
 using Distributions
 using JuMP, CPLEX
 include("../../MBAP_INST.jl")
-include("toolsMatrixTimes.jl")
-include("check_solution.jl")
-include("utilInit.jl")
+include("../toolsMatrixTimes.jl")
+include("../check_solution.jl")
+include("../utilInit.jl")
 
 
 function findConstrainedPos(inst::Instance, sol::Sol, port::Int, t1::Int, t2::Int, n::Int, c::Int, l::Int)

@@ -8,9 +8,9 @@ using StatsBase
 using Distributions
 using JuMP, CPLEX
 include("../../MBAP_INST.jl")
-include("toolsMatrixTimes.jl")
-include("check_solution.jl")
-include("utilInit.jl")
+include("../toolsMatrixTimes.jl")
+include("../check_solution.jl")
+include("../utilInit.jl")
 include("constrainedPos.jl")
 
 
@@ -230,14 +230,13 @@ end
 
 
 
-#################### Here with define a function to remove some visits and then replace them using the functions above
+#################### Here wee define a function to remove some visits and then replace them using the functions above
 function localSearchRemovalReplace(inst::Instance, this_sol::Sol, allparam, paramfixed, paramchosen)
     @unpack N, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp, maxT = inst
     sol=deepcopy(this_sol)
-    nb_to_remove = ceil(Int, paramfixed.LocalSearchBoat*N)#rand(Uniform(paramfixed.LocalSearchBoatMin,paramfixed.LocalSearchBoatMax))*N)
+    nb_to_remove = ceil(Int, paramfixed.LocalSearchBoat*N)
     start = time_ns()
     boats_to_remove = Vector{Tuple}()
-    #listindexcost=sample([1,2,3,4,5,5], 3; replace=false)
     for n in 1:N
         all_penalty_this_boat = Vector{}()
         for (c,p) in enumerate(Pi[n])
@@ -304,7 +303,7 @@ end
 
 
 #################### Finally we do this step in a loop as long as we don't reach the maximum local search time
-function manualLocalSearch(inst::Instance, this_sol::Sol, cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost, allparam, paramfixed, paramchosen, timelocal, reconstruct_no_improve, bestcost)
+function manualLocalSearch(inst::Instance, this_sol::Sol, cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost, allparam, paramfixed, paramchosen, timelocal, bestcost)
     @unpack N, P, Pi, visits, shipsIn, shipsOut, h, dist, delta, qli, T, Bp = inst
     start = time_ns()
     elapsed = round((time_ns()-start)/1e9,digits=3)
