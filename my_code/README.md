@@ -18,7 +18,9 @@ Ici :
 - **U** : la pénalité dû à un délai trop important
 - **F** : le coût de carburant
 
-## Solution dans un 2D pour chaque port 
+## Solution dans un espace 2D pour chaque port 
+
+Ici une solution construite à partir du CPLEX et de mon heuristique. Chaque couleur correspond à un bateau et chaque graph par colonne un port donné (du plus au moins congestionné) dans l'espace position/temps.  Un carré correspond donc en ordonnée à la place prise sur le quai et en abscisse le temps passé à cette position. Cette visualisation est importante pour comprendre les contraintes de ce problème ainsi que la façon de définir une solution à partir des coordonnées de chaque visite dans ces espaces.
 
 ![Screenshot](screenshots/solution.png)
 
