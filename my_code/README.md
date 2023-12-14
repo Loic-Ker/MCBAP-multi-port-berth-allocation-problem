@@ -30,7 +30,7 @@ Ici sont représentés shématiquement les deux étapes de l'algorithme avec pou
 - time : le temps d'arrivée du bateau au port
 - cost : le coût totale d'ajout de cette visite à la solution
 
-Pour la première étape on calcul ces différentes métriques et choisit plusieurs position/temps pour chaque visite en utilisant des restricted :ists et alpha parameters. On fixe ensuite la position/temps pour chaque visite en utilisant ces listes. Pour la deuxième étapes on réutilise ces positions/temps que l'on restreint de la même manière avec des restricted lists mais cette fois en comparant toutes les visites.
+Pour la première étape on calcul ces différentes métriques et choisit plusieurs position/temps pour chaque visite en utilisant des restricted lists et alpha parameters. On fixe ensuite la position/temps pour chaque visite en utilisant ces listes. Pour la deuxième étapes on réutilise ces positions/temps en comparant les visites entre elles. On créé de même des restricted listes et choisie la visite à placer.
 
 
 ## Local Search
@@ -40,4 +40,4 @@ Pour la première étape on calcul ces différentes métriques et choisit plusie
 
 ## Path Relinking
 
-![Screenshot](screenshots/main_structure.png)
+![Screenshot](screenshots/pathrelinking.png)

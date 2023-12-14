@@ -11,7 +11,8 @@ include("../MBAP_SOL.jl")
 include("../toolsMatrixTimes.jl")
 include("../check_solution.jl")
 include("../utilInit.jl")
-include("../localsearch.jl")
+include("localsearch.jl")
+include("constrainedPos.jl")
 
 mutable struct NewVisit
     n::Int64    # ship number
@@ -323,6 +324,8 @@ function SelectNewVisitPerShip(inst::Instance, sol::Sol, paramchosen::ChosenPara
         return pos_chosen, pos_chosen_constrained, false
     end
 end
+
+
 
 function SelectNewVisitAllShips(inst::Instance, sol::Sol, paramchosen::ChosenParameters,allparam::AllParameters, paramfixed::FixedParameters) #, placed::Vector{Tuple{Int64,Int64}})
     #TODO: t1 cannot be greater than t2!
@@ -894,16 +897,10 @@ function greedyrandomizedconstruction(inst::Instance, paramchosen::ChosenParamet
                 sol.failed=1
                 nb_to_remove_visits=0
                 nb_to_remove_ships=0
-                #print('\n')
-                #print("###################")
-                #print('\n')
-                #print("We did not find a at first try solution")
                 return initializeSol(inst, allparam)
             end
         else
             elapsed = round((time_ns()-start)/1e9,digits=3)
-            #print('\n')
-            #print("The time it took : $elapsed")
         end
     end
     return sol
@@ -1009,22 +1006,11 @@ function greedyorderedconstruction(inst::Instance, paramchosen::ChosenParameters
                 sol.failed=1
                 nb_to_remove_visits=0
                 nb_to_remove_ships=0
-                #print('\n')
-                #print("###################")
-                #print('\n')
-                #print("We did not find a at first try solution")
                 return initializeSol(inst, allparam), false
             end
         else
-            #print('\n')
-            #print("The time it took : $elapsed")
         end
     end
-    #print('\n')
-    #print("Time heur")
-    #print('\n')
-    #elapsed = round((time_ns()-start_heur)/1e9,digits=3)
-    #print(elapsed_heur)
     return sol, true
 end
 
@@ -1119,16 +1105,10 @@ function greedyremoverandomconstruction(inst::Instance, this_sol::Sol,  paramcho
                 sol.failed=1
                 nb_to_remove_visits=0
                 nb_to_remove_ships=0
-                #print('\n')
-                #print("###################")
-                #print('\n')
-                #print("We did not find a at first try solution")
                 return initializeSol(inst, allparam)
             end
         else
             elapsed = round((time_ns()-start)/1e9,digits=3)
-            #print('\n')
-            #print("The time it took : $elapsed")
         end
     end
     return sol
@@ -1156,7 +1136,6 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
     when_dict=Dict()
     min_cost_heur=1000000000
     nb_iter_reconstruct=0
-    reconstruct_no_improve=0
     greedy_no_improve=0
     usedcplex=0
     from_reconstruct=false
@@ -1195,16 +1174,8 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
         random_value = rand()
         no_reconstruct=true
 
-        if no_reconstruct#((random_value <= proba_temperature || nb_iter_reconstruct < paramfixed.Until) && (greedy_no_improve<paramfixed.GreedymaxNoImprove)) #|| first_good_solution == false
+        if no_reconstruct
             proba_temperature = proba_temperature*temperature
-            #print('\n')
-            #print("First step")
-            #print('\n')
-            #print("GREEDY")
-            #print('\n')
-            #print("The temperature is : $proba_temperature")
-            #print('\n')
-            #print("=======================================")
             new_sol = greedyrandomizedconstruction(inst, paramchosen, allparam, paramfixed, max_time_heur)
             feasible=true
             for n in 1:N
@@ -1222,11 +1193,6 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
         proba_temperature = proba_temperature*temperature
         elapsed_heur = round((time_ns()-start_heur)/1e9,digits=3)
         feasible = true
-        #print('\n')
-        #print("Time heur")
-        #print('\n')
-        #print(elapsed_heur)
-        ## No conflicts with within one boat schedule :
         for n in 1:N
             # The times :
             for (c,p) in enumerate(inst.Pi[n])
@@ -1235,43 +1201,13 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
                 end
             end
         end
-        #print('\n')
-        #print("Second step")
-        #print('\n')
-        #print("###########################")
         if feasible && checkSolutionFeasability(inst, new_sol)
             new_cost_heur, delay_cost_heur, waiting_cost_heur, penalty_cost_heur, handling_cost_heur, fuel_cost_heur = checkSolutionCost(inst, new_sol)
             
-            #print('\n')
-            #print("Before local search")
-            #print('\n')
-            #print(new_sol.visits)
-            #d_before=prepareSolIter(seed,N,Nout,qli,nb_iter,inst, new_sol, new_cost_heur, allparam, paramfixed, expname)
-            #d_alliter_before[nb_iter]=d_before
             start_local=time_ns()
 
-            #print('\n')
-            #print("New cost heur")
-            #print('\n')
-            #print(new_cost_heur)
-            #print('\n')
-            #print("Min cost heur")
-            #print('\n')
-            #print(min_cost_heur)
-            ##print('\n')
-            ##print("Does it come from a reconstruct?")
-            ##print('\n')
-            ##print(from_reconstruct)
-            #print('\n')
-            #print("Does it come from pathrelinking?")
-            #print('\n')
-            #print(new_sol.relinking)
             
             if from_reconstruct==false
-                #print('\n')
-                #print("The new cost without reconstruct ;")
-                #print('\n')
-                #print(new_cost_heur)
                 if new_cost_heur<min_cost_heur
                     min_cost_heur=deepcopy(new_cost_heur)
                     best_sol_heur=deepcopy(new_sol)
@@ -1284,22 +1220,14 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
             end
 
             if new_cost_heur<min_cost_heur+paramfixed.windowLocalSearch*min_cost_heur
-                #new_sol, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = pushTime(inst, new_sol, paramfixed, time_local)
-                new_sol, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = manualLocalSearch(inst, new_sol, new_cost_heur, delay_cost_heur, waiting_cost_heur, penalty_cost_heur, handling_cost_heur, fuel_cost_heur, allparam, paramfixed, paramchosen, time_local, reconstruct_no_improve, cost)
+                new_sol, new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = manualLocalSearch(inst, new_sol, new_cost_heur, delay_cost_heur, waiting_cost_heur, penalty_cost_heur, handling_cost_heur, fuel_cost_heur, allparam, paramfixed, paramchosen, time_local, cost)
                 new_sol.usedLocalSearch=1
 		new_sol.store.costLocal=SplitCosts(ceil(Int,new_cost), ceil(Int,delay_cost), ceil(Int,waiting_cost), ceil(Int,penalty_cost), ceil(Int, handling_cost), ceil(Int,fuel_cost))
-                #new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = new_cost_heur, delay_cost_heur, waiting_cost_heur, penalty_cost_heur, handling_cost_heur, fuel_cost_heur
             else
                 new_cost, delay_cost, waiting_cost, penalty_cost, handling_cost, fuel_cost = new_cost_heur, delay_cost_heur, waiting_cost_heur, penalty_cost_heur, handling_cost_heur, fuel_cost_heur
             end
             
             if paramfixed.pathRelinking=="yes" && new_sol.usedLocalSearch==1 && length(elite_pool)==paramfixed.LengthElite
-                #print('\n')
-                #print("PATH RELINKING")
-                #print('\n')
-                #print("The temperature is : $proba_temperature")
-                #print('\n')
-                #print("#############################")
                 new_sol.relinking==1
                 if length(elite_pool)>0
                     sol_elite = deepcopy(rand(elite_pool)[1])
@@ -1332,13 +1260,6 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
                     if feasible                           
                         new_cost_path_loop, delay_cost_path_loop, waiting_cost_path_loop, penalty_cost_path_loop, handling_cost_path_loop, fuel_cost_path_loop = checkSolutionCost(inst, new_sol_path_loop)
                         distance_btw_sols = DistanceSols(inst, new_sol_path_loop, sol_elite)
-                        #print("Distance btw sol path and sol elite")
-                        #print('\n')
-                        #print(distance_btw_sols)
-                        #print('\n')
-                        #print("New cost path loop")
-                        #print('\n')
-                        #print(new_cost_path_loop)
                         if distance_btw_sols<delta_distance
                             delta_distance=deepcopy(distance_btw_sols)
                             new_sol_path=deepcopy(new_sol_path_loop)
@@ -1362,31 +1283,10 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
                 new_sol.countpath = countpath           
             end
             
-
-            #if new_sol.relinking==1
-            #    if new_cost<best_relinking_cost-paramfixed.RateImproveReconstructOrPath*best_relinking_cost
-            #        best_relinking_cost=deepcopy(new_cost)
-            #        relinking_no_improve=0
-            #    else
-            #        relinking_no_improve+=1
-            #    end
-            #end
-            
             from_reconstruct=false
             
             elapsed_local = round((time_ns()-start_local)/1e9,digits=3)
-            #print('\n')
-            #print("Time local search")
-            #print('\n')
-            #print(elapsed_local)
-            #print('\n')
-            #print("Cost at the end of local search")
-            #print('\n')
-            #print(new_cost)
-            #print('\n')
-            #print("Old cost")
-            #print('\n')
-            #print(new_cost_heur)
+            
             new_sol.store.costHeur=SplitCosts(ceil(Int,new_cost_heur), ceil(Int,delay_cost_heur), ceil(Int,waiting_cost_heur), ceil(Int,penalty_cost_heur), ceil(Int,handling_cost_heur), ceil(Int,fuel_cost_heur))
             new_sol.store.timeHeur=elapsed_heur
             new_sol.store.timeLocalSearch=elapsed_local
@@ -1400,34 +1300,6 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
                     new_sol.visits[n][c].store.cost =  SplitCosts(ceil(Int, this_cost), ceil(Int,delay_cost), ceil(Int,waiting_cost), ceil(Int,penalty), ceil(Int,handling_cost), ceil(Int,fuel_cost))
                 end
             end
-            #print('\n')
-            #print("The tactics")
-            #print('\n')
-            #print(usedcplex)
-            #print('\n')
-            #print(from_reconstruct_iter)
-            
-            #if from_reconstruct_iter==1
-            #    new_sol.reconstruct=1
-            #end
-            #print('\n')
-            #print("(((((((((((((((((())))))))))))))))))")
-            #print('\n')
-            #print("Proba tactic one boat")
-            #print(allparam.Proba.TacticOneBoat)
-            #print('\n')
-            #print("Proba tactic all boats")
-            #print('\n')
-            #print(allparam.Proba.TacticAllBoats)
-            #print("Proba tactic reversed")
-            #print('\n')
-            #print(allparam.Proba.Reversed)
-            #print("(((((((((((((((((())))))))))))))))))")
-            #if new_sol.reconstruct==1
-            #    allparam = UpdateAfterReconstructParameters(paramchosen, allparam, cost, new_cost, paramfixed.lookforconstrained)   
-            #else
-            #    allparam = UpdateAfterHeurParameters(paramchosen, allparam, cost, new_cost, paramfixed.lookforconstrained)   
-            #end
             allparam = UpdateAfterHeurParameters(paramchosen, allparam, cost, new_cost, paramfixed.lookforconstrained)
             if new_sol.usedLocalSearch==1
                 allparam = UpdateAfterLocalParameters(paramchosen, allparam, cost, new_cost)
@@ -1435,21 +1307,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
             
             new_sol.better=0
             if new_cost<bestcost
-                #print('\n')
-                #print("#########################")
-                #print('\n')
-                #print("New solution cost")
-                #print('\n')
-                #print(new_sol.store.costLocal.all)
-                #print('\n')
-                #print("Old best cost")
-                #print('\n')
-                #print(bestcost)
                 bestcost=deepcopy(new_cost)
-                #print('\n')
-                #print("New best cost")
-                #print('\n')
-                #print(bestcost)
                 cost=deepcopy(new_cost)
                 sol=deepcopy(new_sol)
                 new_sol.better=1
@@ -1478,8 +1336,6 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
                             end
                         end
                         if distance_sols_min>min_distance_elite
-                            #print("__________________")
-                            #print("new el in pool")
                             elite_pool[end]=(deepcopy(new_sol),new_cost, distance_sols_min)
                             elite_pool = sort(elite_pool, by=x->x[3])
                             min_distance_elite=deepcopy(elite_pool[1][3])
@@ -1487,15 +1343,6 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
                     end
                     
                 end
-                #if length(elite_pool)<paramfixed.LengthElite
-                #    push!(elite_pool, (deepcopy(new_sol),new_cost))
-                #else
-                #    elite_pool = sort(elite_pool, by=x->x[2])
-                #    if new_cost<elite_pool[end][2]
-                #        elite_pool[end]=(deepcopy(new_sol),new_cost)
-                #        elite_pool = sort(elite_pool, by=x->x[2])
-                #    end
-                #end
             end
             list_costs_elite= Vector{}()
             list_dist_elite= Vector{}()
@@ -1510,33 +1357,7 @@ function GRASP_reactive(seed,N,Nout,qli, type1, type2, type3, paramfixed, temper
             end
             new_sol.average_cost_elite=mean(list_costs_elite)
             new_sol.average_dist_elite=min_distance_elite
-            #if length(elite_pool)>=paramfixed.LengthElite
-            #    if new_sol.average_cost_elite>old_elite_cost_mean
-            #        print('\n')
-            #        print("<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>")
-            #        print('\n')
-            #        print("Huston we have a problem with the elite pool")
-            #    end
-            #end
-            #print('\n')
-            #print("Average cost elite")
-            #print('\n')
-            #print(new_sol.average_cost_elite)
-            #print('\n')
-            #print("Average distance elite")
-            #print('\n')
-            #print(new_sol.average_dist_elite)
             d_after = prepareSolIterSoft(seed,N,Nout,qli,nb_iter,inst, new_sol, new_cost, allparam, paramchosen, expname)
-            
-            #print('\n')
-            #print("###################################")
-            #print(greedy_no_improve)
-            #print('\n')
-            #print("#######################")
-            #print(reconstruct_no_improve)
-            #print('\n')
-            #print("#######################")
-            #print(relinking_no_improve)
             from_reconstruct_iter=0
             usedcplex=0
             d_alliter_after[nb_iter]=d_after
