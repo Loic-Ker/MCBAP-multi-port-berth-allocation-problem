@@ -55,7 +55,7 @@ Ici une petite explication des différents scripts :
 - **Heur/GRASPlocalpathfinal/Pathrelinkingstep.jl** : spécifique greedy randomized construction pour le path relinking
 - **Heur/GRASPlocalpathfinal/allsteps.jl** : implémentation de toutes les étapes ensembles
 
-## GRASP algorithm
+## Greedy randomized approche
 
 ![Screenshot](screenshots/GRASPstep1.png)
 
